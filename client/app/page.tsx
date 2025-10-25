@@ -1,26 +1,15 @@
-"use client"
+import { Header } from "@/components/header"
+import { HeroSection } from "@/components/hero-section"
+import { CourseGrid } from "@/components/course-grid"
+import { Footer } from "@/components/footer"
 
-import React, { useState } from 'react'
-import Heading from './utils/Heading'
-import Header from './components/Header'
-
-type Props = {}
-
-export default function Page({ }: Props) {
-  const [open, setOpen] = useState(false);
-  const [activeItem, setActiveItem] = useState(0);
-
+export default function Home() {
   return (
-    <div>
-      <Heading
-        title="Elearning"
-        description="ELearning is a platform for students to learn and get help from teachers"
-        keywords="programming, MERN, Redux, Machine learning"
-      />
-      <Header
-        open={open}
-        setOpen={setOpen}
-        activeItem={activeItem} />
-    </div>
+    <main className="min-h-screen bg-background">
+      <Header />
+      <HeroSection />
+      <CourseGrid />
+      <Footer />
+    </main>
   )
 }
