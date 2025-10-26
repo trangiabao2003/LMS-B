@@ -4,14 +4,49 @@ import { useState } from "react"
 import { Moon, Sun, Menu, X } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
+import { LoginModal } from "@/components/auth/login-modal"
+import { VerificationModal } from "./auth/verification-modal"
+import { SignupModal } from "./auth/signup-modal"
 
-export function Header() {
+// import { CustomModal } from "@/app/utils/CustomModal"
+
+// type Props = {
+//   open: boolean;
+//   setOpen: (open: boolean) => void;
+//   activeItem: number;
+//   route: string;
+//   setRoute: (route: string) => void;
+// }
+
+export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const { theme, setTheme } = useTheme()
+  const [loginModalOpen, setLoginModalOpen] = useState(false)
+  const [signupModalOpen, setSignupModalOpen] = useState(false)
+  const [verificationModalOpen, setVerificationModalOpen] = useState(false)
+  const [userEmail, setUserEmail] = useState("")
+
+  const handleOpenLogin = () => {
+    setSignupModalOpen(false)
+    setVerificationModalOpen(false)
+    setLoginModalOpen(true)
+  }
+
+  const handleOpenSignup = () => {
+    setLoginModalOpen(false)
+    setVerificationModalOpen(false)
+    setSignupModalOpen(true)
+  }
+
+  const handleSignupSuccess = (email?: string) => {
+    setSignupModalOpen(false)
+    setUserEmail(email || "your@email.com")
+    setVerificationModalOpen(true)
+  }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 py-4">
+    <>
+      <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">      <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
@@ -52,8 +87,10 @@ export function Header() {
 
             {/* Auth Buttons - Desktop */}
             <div className="hidden md:flex items-center gap-2">
-              <Button variant="ghost">Sign In</Button>
-              <Button>Sign Up</Button>
+              <Button variant="ghost" onClick={handleOpenLogin}>
+                Sign In
+              </Button>
+              <Button onClick={handleOpenSignup}>Sign Up</Button>
             </div>
 
             {/* Mobile Menu Button */}
@@ -80,14 +117,52 @@ export function Header() {
               Contact
             </a>
             <div className="flex flex-col gap-2 border-t border-border pt-4">
-              <Button variant="ghost" className="w-full">
+              <Button variant="ghost" className="w-full" onClick={handleOpenLogin}>
                 Sign In
               </Button>
-              <Button className="w-full">Sign Up</Button>
+              <Button className="w-full" onClick={handleOpenSignup}>
+                Sign Up
+              </Button>
             </div>
           </nav>
         )}
       </div>
-    </header>
+        {/* {
+        route === "Login" && 
+        (
+          <>
+            {
+              open && (
+                <CustomModal
+                  open={open} 
+                  setOpen={setOpen} 
+                  activeItem={activeItem} 
+                  component={<LoginModal setRoute={setRoute} />} 
+                  setRoute={setRoute} 
+                />
+              )
+            }
+          </>
+        )
+      } */}
+      </header>
+
+      <LoginModal
+        isOpen={loginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
+        onSwitchToSignup={handleOpenSignup}
+      />
+      <SignupModal
+        isOpen={signupModalOpen}
+        onClose={() => setSignupModalOpen(false)}
+        onSwitchToLogin={handleOpenLogin}
+        onSignupSuccess={() => handleSignupSuccess()}
+      />
+      <VerificationModal
+        isOpen={verificationModalOpen}
+        onClose={() => setVerificationModalOpen(false)}
+        email={userEmail}
+      />
+    </>
   )
 }
