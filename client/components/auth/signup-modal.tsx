@@ -1,11 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { X, Eye, EyeOff, Mail, Lock, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { signupSchema, type SignupFormData } from "@/lib/validation-schemas"
+import { useRegisterMutation } from "@/redux/features/auth/authApi"
+import { toast } from "sonner"
 
 interface SignupModalProps {
   isOpen: boolean
@@ -18,14 +20,40 @@ export function SignupModal({ isOpen, onClose, onSwitchToLogin, onSignupSuccess 
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [register, { data, error, isSuccess}] = useRegisterMutation()
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<SignupFormData>({
-    resolver: yupResolver(signupSchema),
+  useEffect(() => {
+    if (isSuccess) {
+      const message = data?.message || "Registration successful"
+      toast.success(message)
+      setRoute("Verification")
+    }
+    if (error) {
+      const errData = error as any
+      toast.error(errData.data.message)
+    }
+  }, [isSuccess, error])
+
+  // const {
+  //   register,
+  //   handleSubmit,
+  //   formState: { errors },
+  //   reset,
+  // } = useForm<SignupFormData>({
+  //   resolver: yupResolver(signupSchema),
+  // })
+
+  const formik = useFormik({
+    initialValues: {
+      fullName: "",
+      email: "",
+      password: "",
+    },
+    validationSchema: signupSchema,
+    onSubmit: async (email, password) => {
+      const data = { name, email, password }
+    },
+    await register(data)
   })
 
   const onSubmit = async (data: SignupFormData) => {
@@ -40,6 +68,8 @@ export function SignupModal({ isOpen, onClose, onSwitchToLogin, onSignupSuccess 
 
   if (!isOpen) return null
 
+  const { errors, tourched, values, handleChange, handleSubmit } = formik
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="relative w-full max-w-md rounded-lg bg-background p-6 shadow-lg md:p-8 max-h-[90vh] overflow-y-auto">
@@ -53,8 +83,8 @@ export function SignupModal({ isOpen, onClose, onSwitchToLogin, onSignupSuccess 
 
         {/* Header */}
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-foreground">Tạo Tài Khoản</h2>
-          <p className="mt-2 text-sm text-muted-foreground">Bắt đầu hành trình học tập của bạn ngay hôm nay.</p>
+          <h2 className="text-2xl font-bold text-foreground">Create Account</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Start your learning journey today.</p>
         </div>
 
         {/* Form */}

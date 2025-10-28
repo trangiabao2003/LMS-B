@@ -51,9 +51,9 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginModalProp
 
         {/* Header */}
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-foreground">Đăng Nhập</h2>
+          <h2 className="text-2xl font-bold text-foreground">Login</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Chào mừng trở lại! Vui lòng đăng nhập vào tài khoản của bạn.
+            Welcome back! Please log in to your account.
           </p>
         </div>
 
