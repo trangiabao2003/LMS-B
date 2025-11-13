@@ -34,14 +34,14 @@ export function SignupModal({ isOpen, onClose, onSwitchToLogin, onSignupSuccess 
     }
   }, [isSuccess, error])
 
-  // const {
-  //   register,
-  //   handleSubmit,
-  //   formState: { errors },
-  //   reset,
-  // } = useForm<SignupFormData>({
-  //   resolver: yupResolver(signupSchema),
-  // })
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<SignupFormData>({
+    resolver: yupResolver(signupSchema),
+  })
 
   const formik = useFormik({
     initialValues: {
@@ -68,7 +68,7 @@ export function SignupModal({ isOpen, onClose, onSwitchToLogin, onSignupSuccess 
 
   if (!isOpen) return null
 
-  const { errors, tourched, values, handleChange, handleSubmit } = formik
+  const { error, tourched, values, handleChange, handleSubmit } = formik
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
