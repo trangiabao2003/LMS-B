@@ -1,5 +1,7 @@
+require("dotenv").config();
 import mongoose, { Document, Model, Schema } from "mongoose";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 const emailRegexPattern: RegExp =
 	/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -16,6 +18,8 @@ export interface IUser extends Document {
 	isVerified: boolean;
 	courses: Array<{ courseId: string }>;
 	comparePassword: (password: string) => Promise<boolean>;
+	SignAccessToken: () => string;
+	SignRefreshToken: () => string;
 }
 
 const userSchema: Schema<IUser> = new mongoose.Schema(
@@ -37,7 +41,6 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
 		},
 		password: {
 			type: String,
-			required: [true, "Vui lòng nhập mật khẩu của bạn"],
 			minlength: [6, "Mật khẩu phải có ít nhất 6 ký tự"],
 			select: false,
 		},
@@ -70,6 +73,20 @@ userSchema.pre<IUser>("save", async function (next) {
 	this.password = await bcrypt.hash(this.password, 10);
 	next();
 });
+
+//sign access token
+userSchema.methods.SignAccessToken = function () {
+	return jwt.sign({ id: this._id }, process.env.ACCESS_TOKEN || "", {
+		expiresIn: "5m",
+	});
+};
+
+//sign refresh token
+userSchema.methods.SignRefreshToken = function () {
+	return jwt.sign({ id: this._id }, process.env.REFRESH_TOKEN || "", {
+		expiresIn: "3d",
+	});
+};
 
 //compare password
 userSchema.methods.comparePassword = async function (
