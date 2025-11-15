@@ -1,20 +1,55 @@
 "use client"
 
-import { useState } from "react"
+import { use, useEffect, useState } from "react"
 import { X, Mail, CheckCircle2, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useSelector } from "react-redux"
+import { useActivationMutation } from "@/redux/features/auth/authApi"
+import { toast } from "sonner"
+import { set } from "date-fns"
 
+type Props = {
+  setRoute: (route: string) => void
+}
 interface VerificationModalProps {
   isOpen: boolean
   onClose: () => void
   email?: string
 }
 
-export function VerificationModal({ isOpen, onClose, email = "your@email.com" }: VerificationModalProps) {
-  const [verificationCode, setVerificationCode] = useState(["", "", "", "", "", ""])
+export function VerificationModal({ setRoute, isOpen, onClose, email = "your@email.com" }: VerificationModalProps & Props) {
+  const { token } = useSelector((state: any) => state.auth)
+  const [activation, {isSuccess, error}] = useActivationMutation();
+  const [verificationCode, setVerificationCode] = useState(["", "", "", ""])
   const [isVerifying, setIsVerifying] = useState(false)
   const [isVerified, setIsVerified] = useState(false)
 
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Account verified successfully")
+      setRoute("Login")
+    }
+
+    if(error) {
+      if('data' in error) {
+      const err = error as any
+      toast.error(err?.data?.message || "Verification failed")
+      setIsVerifying(false);
+      } else {
+        console.log("An error occurred: ", error);
+      }
+    }
+  }, [isSuccess, error]);
+
+  const verificationHandler = async () => {
+    const verificationNumber = verificationCode.join("");
+    if(verificationNumber.length !== 4) {
+      setIsVerifying(false);
+      return;
+    }
+
+    await activation({ activation_token: token, activation_code: verificationNumber });
+  }
   const handleCodeChange = (index: number, value: string) => {
     if (value.length > 1) return
     const newCode = [...verificationCode]
@@ -26,14 +61,6 @@ export function VerificationModal({ isOpen, onClose, email = "your@email.com" }:
       const nextInput = document.getElementById(`code-${index + 1}`)
       nextInput?.focus()
     }
-  }
-
-  const handleVerify = async () => {
-    setIsVerifying(true)
-    // Simulate verification
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    setIsVerifying(false)
-    setIsVerified(true)
   }
 
   const handleContinue = () => {
@@ -89,7 +116,7 @@ export function VerificationModal({ isOpen, onClose, email = "your@email.com" }:
 
             {/* Verify Button */}
             <Button
-              onClick={handleVerify}
+              onClick={verificationHandler}
               disabled={isVerifying || verificationCode.some((code) => !code)}
               className="w-full mb-4"
             >
