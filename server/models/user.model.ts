@@ -41,7 +41,6 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
 		},
 		password: {
 			type: String,
-			required: [true, "Vui lòng nhập mật khẩu của bạn"],
 			minlength: [6, "Mật khẩu phải có ít nhất 6 ký tự"],
 			select: false,
 		},
@@ -77,12 +76,16 @@ userSchema.pre<IUser>("save", async function (next) {
 
 //sign access token
 userSchema.methods.SignAccessToken = function () {
-	return jwt.sign({ id: this._id }, process.env.ACCESS_TOKEN || "");
+	return jwt.sign({ id: this._id }, process.env.ACCESS_TOKEN || "", {
+		expiresIn: "5m",
+	});
 };
 
 //sign refresh token
 userSchema.methods.SignRefreshToken = function () {
-	return jwt.sign({ id: this._id }, process.env.REFRESH_TOKEN || "");
+	return jwt.sign({ id: this._id }, process.env.REFRESH_TOKEN || "", {
+		expiresIn: "3d",
+	});
 };
 
 //compare password
