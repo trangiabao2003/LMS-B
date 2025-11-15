@@ -6,7 +6,7 @@ export const loginSchema = yup.object().shape({
 })
 
 export const signupSchema = yup.object().shape({
-  fullName: yup.string().min(2, "Full name must be at least 2 characters").required("Full name is require"),
+  name: yup.string().min(2, "Full name must be at least 2 characters").required("Full name is require"),
   email: yup.string().email("Email invalid").required("Email lis require"),
   password: yup
     .string()

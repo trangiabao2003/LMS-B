@@ -31,11 +31,11 @@ export const authApi = apiSlice.injectEndpoints({
       query: ({ activation_token, activation_code }) => ({
         url: "activate-user",
         method: "POST",
-
         body: {
           activation_token,
           activation_code,
         },
+        credentials: "include" as const,
       }),
     }),
   }),

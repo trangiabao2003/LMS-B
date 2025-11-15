@@ -97,12 +97,12 @@ export function SignupModal({
             <div className="relative">
               <User className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
               <input
-                {...register("fullName")}
+                {...register("name")}
                 placeholder="John Smith"
                 className="w-full rounded-lg border border-input bg-background pl-10 pr-4 py-2"
               />
             </div>
-            {errors.fullName && <p className="text-sm text-destructive">{errors.fullName.message}</p>}
+            {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
           </div>
 
           {/* Email */}
