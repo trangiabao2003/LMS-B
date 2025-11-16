@@ -1,19 +1,26 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { X, Eye, EyeOff, Mail, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { loginSchema, type LoginFormData } from "@/lib/validation-schemas"
+import { authApi } from "@/redux/features/auth/authApi"
+import toast from "react-hot-toast"
 
+type Props = {
+  setRoute: (route: string) => void
+  setOpen: (open: boolean) => void
+}
 interface LoginModalProps {
   isOpen: boolean
   onClose: () => void
   onSwitchToSignup: () => void
 }
 
-export function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginModalProps) {
+export function LoginModal({ isOpen, onClose, onSwitchToSignup, setRoute, setOpen }: LoginModalProps & Props) {
+  const [login, { isSuccess, error }] = authApi.useLoginMutation();
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -28,13 +35,23 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginModalProp
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    console.log("Login data:", data)
+    await login(data);
+    // console.log("Login data:", data)
     setIsLoading(false)
     reset()
     onClose()
   }
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Login successfully")
+      // setOpen(false)
+    } 
+    if (error) {
+      const errorData = error as any
+      toast.error(errorData?.data.message)
+    }
+  }, [isSuccess, error])
 
   if (!isOpen) return null
 

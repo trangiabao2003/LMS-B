@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { useSelector } from "react-redux"
 import { useActivationMutation } from "@/redux/features/auth/authApi"
 import { toast } from "sonner"
-import { set } from "date-fns"
 
 type Props = {
   setRoute: (route: string) => void
