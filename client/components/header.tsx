@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Moon, Sun, Menu, X } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
@@ -9,6 +9,13 @@ import { VerificationModal } from "./auth/verification-modal"
 import { SignupModal } from "./auth/signup-modal"
 
 import { CustomModal } from "@/app/utils/CustomModal"
+import { useSelector } from "react-redux"
+import Image from "next/image"
+import avatar from "./../public/avatar.jpg"
+import Link from "next/link"
+import { useSocialAuthMutation } from "@/redux/features/auth/authApi"
+import { useSession } from "next-auth/react"
+import toast from "react-hot-toast"
 
 type Props = {
   open: boolean;
@@ -25,6 +32,24 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
   const [signupModalOpen, setSignupModalOpen] = useState(false)
   const [verificationModalOpen, setVerificationModalOpen] = useState(false)
   const [userEmail, setUserEmail] = useState("")
+  const { user } = useSelector((state: any) => state.auth);
+  const { data } = useSession();
+  const [socialAuth, { isSuccess, error }] = useSocialAuthMutation()
+
+  useEffect(() => {
+    if (!user) {
+      if (data) {
+        socialAuth({
+          email: data?.user?.email, 
+          name: data?.user?.name, 
+          avatar: data.user?.image
+        })
+      }
+    }
+    if (isSuccess) {
+      toast.success("Login successful")
+    }
+  }, [data, user]);
 
   const handleOpenLogin = () => {
     setSignupModalOpen(false)
@@ -85,19 +110,24 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
               <span className="sr-only">Toggle theme</span>
             </Button>
 
-            {/* Auth Buttons - Desktop */}
-            <div className="hidden md:flex items-center gap-2">
-              <Button variant="ghost" onClick={handleOpenLogin}>
-                Sign In
-              </Button>
-              <Button onClick={handleOpenSignup}>Sign Up</Button>
-            </div>
+            {
+              user ? (
+                <Link href={"/profile"} >
+                  <Image
+                    src={user.avatar ? user.avatar : avatar}
+                    alt="Avatar"
+                    className="w-[30px] h-[30px] rounded-full"
+                  />
+                </Link>
+              ) : (
+                <>
+                  <Button variant="ghost" onClick={handleOpenLogin}>
+                    Sign In
+                  </Button>
+                  <Button onClick={handleOpenSignup}>Sign Up</Button>
+                </>
+              )}
 
-            {/* Mobile Menu Button */}
-            <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)} className="md:hidden">
-              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              <span className="sr-only">Toggle menu</span>
-            </Button>
           </div>
         </div>
 
@@ -191,6 +221,8 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
         isOpen={loginModalOpen}
         onClose={() => setLoginModalOpen(false)}
         onSwitchToSignup={handleOpenSignup}
+        setOpen={setOpen}
+        setRoute={setRoute}
       />
       <SignupModal
         isOpen={signupModalOpen}

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { loginSchema, type LoginFormData } from "@/lib/validation-schemas"
 import { authApi } from "@/redux/features/auth/authApi"
 import toast from "react-hot-toast"
+import { signIn } from "next-auth/react"
 
 type Props = {
   setRoute: (route: string) => void
@@ -46,7 +47,7 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup, setRoute, setOpe
     if (isSuccess) {
       toast.success("Login successfully")
       // setOpen(false)
-    } 
+    }
     if (error) {
       const errorData = error as any
       toast.error(errorData?.data.message)
@@ -143,10 +144,10 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup, setRoute, setOpe
 
         {/* Social Login */}
         <div className="space-y-2">
-          <Button variant="outline" className="w-full bg-transparent">
+          <Button onClick={() => signIn("google")} variant="outline" className="w-full bg-transparent">
             Login with Google
           </Button>
-          <Button variant="outline" className="w-full bg-transparent">
+          <Button onClick={() => signIn("github")} variant="outline" className="w-full bg-transparent">
             Login with GitHub
           </Button>
         </div>
