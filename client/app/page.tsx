@@ -10,6 +10,7 @@ export default function Home() {
 const [open, setOpen] = useState(false);
 const [activeItem, setActiveItem] = useState(0);
 const [route, setRoute] = useState("Login");
+
   return (
     <main className="min-h-screen bg-background">
       <Header 
