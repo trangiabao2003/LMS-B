@@ -20,8 +20,10 @@ const SidebarProfile = ({ user, active, avatar, setActive, logOutHandler }: Prop
                 onClick={() => setActive(1)}
             >
                 <Image
-                    src={user.avatar || avatar ? user.avatar || avatar : avatarDefault}
+                    src={user.avatar || avatar ? user.avatar.url || avatar : avatarDefault}
                     alt=''
+                    width={20}
+                    height={20}
                     className='rounded-full w-5 h-5 object-cover 800px:h-[30px] 800px:w-[30px] cursor-pointer'
                 />
                 <h5 className='pl-2 800px:block dark:text-white text-black'>

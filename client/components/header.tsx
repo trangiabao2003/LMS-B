@@ -125,9 +125,12 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
               user ? (
                 <Link href={"/profile"} >
                   <Image
-                    src={user.avatar ? user.avatar : avatar}
+                    src={user.avatar ? user.avatar.url : avatar}
                     alt="Avatar"
-                    className="w-[30px] h-[30px] rounded-full"
+                    width={30}
+                    height={30}
+                    className="w-[30px] h-[30px] rounded-full cursor-pointer object-cover"
+                    style={{border: activeItem === 5 ? "2px solid #37a39a" : "none"}}
                   />
                 </Link>
               ) : (

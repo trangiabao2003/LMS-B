@@ -4,18 +4,18 @@ import { useState } from "react";
 import SidebarProfile from "./sidebar-profile";
 import { useLogOutQuery } from "@/redux/features/auth/authApi";
 import { signOut } from "next-auth/react";
-import { redirect } from "next/dist/server/api-utils";
+import ProfileInfo from "./profile-info";
 
 type Props = {
   user: any;
 }
 
-const Profile = (user: Props) => {
+const Profile = ({ user }: Props) => {
   const [scroll, setScroll] = useState(false);
   const [avatar, setAvatar] = useState(null);
   const [active, setActive] = useState(1);
   const [logout, setLogout] = useState(false);
-  const {} = useLogOutQuery(undefined, 
+  const { } = useLogOutQuery(undefined,
     { skip: !logout ? true : false });
 
   const logOutHandler = async () => {
@@ -24,15 +24,31 @@ const Profile = (user: Props) => {
   }
 
   return (
-    <div className='w-[85%] flex mx-auto'>
-      <div className={`w-[300px] 800px:w-[310px] h-[450px] dark:bg-slate-900 bg-white bg-opacity-90 border dark:border-[#ffffff1d] border-[#00000015] rounded-[5px] shadow-sm mt-20 mb-20 sticky ${scroll ? "top-[120px]" : "top-[30px]"} left-[30px]`}>
-        <SidebarProfile 
-          user={user}
-          active={active}
-          avatar={avatar}
-          setActive={setActive}
-          logOutHandler={logOutHandler}
-        />
+    <div className='w-full min-h-screen bg-background'>
+      <div className='max-w-7xl mx-auto px-4 py-8'>
+        <div className='flex flex-col lg:flex-row gap-8'>
+          {/* Sidebar */}
+          <div className={`w-full lg:w-[300px] lg:sticky ${scroll ? "lg:top-[120px]" : "lg:top-[30px]"}`}>
+            <div className='dark:bg-slate-900 bg-white bg-opacity-90 border dark:border-[#ffffff1d] border-[#00000015] rounded-[5px] shadow-sm'>
+              <SidebarProfile
+                user={user}
+                active={active}
+                avatar={avatar}
+                setActive={setActive}
+                logOutHandler={logOutHandler}
+              />
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className='flex-1'>
+            {active === 1 && (
+              <div className='bg-white dark:bg-slate-900 rounded-lg shadow-sm p-6'>
+                <ProfileInfo avatar={avatar} user={user} />
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )
