@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { AiOutlineCamera } from "react-icons/ai";
 import avatarIcon from "../../public/avatar.jpg"
-import { useUpdateAvatarMutation } from "@/redux/features/user/userApi";
+import { useEditProfileMutation, useUpdateAvatarMutation } from "@/redux/features/user/userApi";
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
 import toast from "react-hot-toast";
 
@@ -17,7 +17,9 @@ const ProfileInfo = ({ avatar, user }: Props) => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [updateAvatar, { isSuccess, error, isLoading }] = useUpdateAvatarMutation();
-    
+    const [editProfile, { isSuccess: isEditSuccess, error: editError}] = useEditProfileMutation();
+
+
     const { refetch } = useLoadUserQuery(undefined);
 
     // Update local state when user prop changes
@@ -66,21 +68,22 @@ const ProfileInfo = ({ avatar, user }: Props) => {
     };
 
     useEffect(() => {
-        if (isSuccess) {
-            toast.success("Avatar updated successfully!");
+        if (isSuccess || isEditSuccess) {
+            toast.success("Profile updated successfully!");
             refetch();
         }
-        if (error) {
-            console.error("Upload error:", error);
-            toast.error("Failed to update avatar");
+        if (error || editError) {
+            console.error("Upload error:", error || editError);
+            toast.error("Failed to update profile.");
         }
-    }, [isSuccess, error, refetch]);
+    }, [isSuccess, isEditSuccess, error, editError, refetch]);
 
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-        // TODO: Implement update user profile API call
-        console.log("Update profile:", { name, email });
+        if (name !== "") {
+            await editProfile({ name: name });
+        }
     };
 
     return (
