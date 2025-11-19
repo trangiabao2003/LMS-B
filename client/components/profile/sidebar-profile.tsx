@@ -1,8 +1,9 @@
 import Image from 'next/image';
 import avatarDefault from './../../public/avatar.jpg';
-import { MdLockPerson } from "react-icons/md";
+import { MdLockPerson, MdOutlineAdminPanelSettings } from "react-icons/md";
 import { SiCoursera } from "react-icons/si";
 import { FaSignOutAlt } from "react-icons/fa";
+import Link from 'next/link';
 
 type Props = {
     user: any;
@@ -51,6 +52,17 @@ const SidebarProfile = ({ user, active, avatar, setActive, logOutHandler }: Prop
                 <FaSignOutAlt size={20} className="dark:text-white text-black" />
                 <h5 className="pl-2 800px:block dark:text-white text-black">Log out</h5>
             </div>
+            {
+                user?.role === "admin" && (
+                    <Link
+                        className={`w-full flex items-center px-3 py-4 cursor-pointer ${active === 6 ? " dark:bg-slate-800 bg-slate-200" : "bg-transparent"}`}
+                        href={'/admin'}
+                    >
+                        <MdOutlineAdminPanelSettings size={20} className="dark:text-white text-black" />
+                        <h5 className="pl-2 800px:block dark:text-white text-black">Admin Dashboard</h5>
+                    </Link>
+                )
+            }
         </div >
     )
 }

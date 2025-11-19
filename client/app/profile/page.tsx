@@ -3,7 +3,7 @@
 import { Header } from '@/components/header'
 import Profile from '@/components/profile/page';
 import Protected from '@/hooks/use-protected';
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 
 type Props = {
@@ -15,6 +15,13 @@ const page = ({ user }: Props) => {
   const [activeItem, setActiveItem] = useState(5);
   const [route, setRoute] = useState("Login");
   const { user: reduxUser } = useSelector((state: any) => state.auth);
+  const currentUser = reduxUser || user;
+
+  useEffect(() => {
+    if (currentUser?.name) {
+      document.title = `${currentUser.name} profile - LMSB`;
+    }
+  }, [currentUser?.name]);
 
   return (
     <div>
@@ -26,7 +33,7 @@ const page = ({ user }: Props) => {
           route={route}
           setRoute={setRoute}
         />
-        <Profile user={reduxUser || user} />
+        <Profile user={currentUser} />
       </Protected>
     </div>
   )
