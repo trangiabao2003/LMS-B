@@ -16,6 +16,7 @@ import Link from "next/link"
 import { useLogOutQuery, useSocialAuthMutation } from "@/redux/features/auth/authApi"
 import { useSession } from "next-auth/react"
 import toast from "react-hot-toast"
+import { ThemeSwhitcher } from "@/app/utils/ThemeSwitcher"
 
 type Props = {
   // title: string;
@@ -111,15 +112,7 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
           {/* Right Actions */}
           <div className="flex items-center gap-4">
             {/* Theme Toggle */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="rounded-full"
-            >
-              {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              <span className="sr-only">Toggle theme</span>
-            </Button>
+           <ThemeSwhitcher />
 
             {
               user ? (

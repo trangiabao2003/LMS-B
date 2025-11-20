@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 import Image from "next/image";
 import avatarDefault from "../../../public/avatar.jpg";
 import {
@@ -21,9 +21,10 @@ interface itemProps {
     icon: React.ReactNode;
     selected: string;
     setSelected: (title: string) => void;
+    isCollapsed: boolean;
 }
 
-const Item = ({ title, to, icon, selected, setSelected }: itemProps) => {
+const Item = ({ title, to, icon, selected, setSelected, isCollapsed }: itemProps) => {
     return (
         <Link href={to}>
             <button
@@ -36,7 +37,7 @@ const Item = ({ title, to, icon, selected, setSelected }: itemProps) => {
                 title={title}
             >
                 <span className="text-xl shrink-0">{icon}</span>
-                <span className="hidden lg:inline">{title}</span>
+                {!isCollapsed && <span className="hidden lg:inline">{title}</span>}
             </button>
         </Link>
     );
@@ -45,6 +46,7 @@ const Item = ({ title, to, icon, selected, setSelected }: itemProps) => {
 const Sidebar = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [selected, setSelected] = useState("Dashboard");
+    const { user } = useSelector((state: any) => state.auth);
 
     return (
         <div
@@ -70,14 +72,14 @@ const Sidebar = () => {
                 <div className="p-6 border-b border-slate-800 text-center">
                     <div className="w-24 h-24 mx-auto mb-3 rounded-full border-4 border-blue-500 overflow-hidden">
                         <Image
-                            src={avatarDefault}
+                            src={user?.avatar?.url || avatarDefault}
                             alt="Admin"
                             width={96}
                             height={96}
                             className="object-cover"
                         />
                     </div>
-                    <h2 className="text-white font-semibold text-sm">shahriar sajeeb</h2>
+                    <h2 className="text-white font-semibold text-sm">{user?.name || "Admin User"}</h2>
                     <p className="text-gray-400 text-xs">- Admin</p>
                 </div>
             )}
@@ -92,6 +94,7 @@ const Sidebar = () => {
                         icon={<HomeOutlinedIcon />}
                         selected={selected}
                         setSelected={setSelected}
+                        isCollapsed={isCollapsed}
                     />
                 </div>
 
@@ -107,6 +110,7 @@ const Sidebar = () => {
                     icon={<PeopleOutlinedIcon />}
                     selected={selected}
                     setSelected={setSelected}
+                    isCollapsed={isCollapsed}
                 />
                 <Item
                     title="Invoices"
@@ -114,6 +118,7 @@ const Sidebar = () => {
                     icon={<ReceiptOutlinedIcon />}
                     selected={selected}
                     setSelected={setSelected}
+                    isCollapsed={isCollapsed}
                 />
 
                 {/* Content Section */}
@@ -128,6 +133,7 @@ const Sidebar = () => {
                     icon={<OndemandVideoIcon />}
                     selected={selected}
                     setSelected={setSelected}
+                    isCollapsed={isCollapsed}
                 />
                 <Item
                     title="Live Courses"
@@ -135,6 +141,7 @@ const Sidebar = () => {
                     icon={<OndemandVideoIcon />}
                     selected={selected}
                     setSelected={setSelected}
+                    isCollapsed={isCollapsed}
                 />
 
                 {/* Customization Section */}
@@ -149,6 +156,7 @@ const Sidebar = () => {
                     icon={<OndemandVideoIcon />}
                     selected={selected}
                     setSelected={setSelected}
+                    isCollapsed={isCollapsed}
                 />
                 <Item
                     title="FAQ"
@@ -156,6 +164,7 @@ const Sidebar = () => {
                     icon={<OndemandVideoIcon />}
                     selected={selected}
                     setSelected={setSelected}
+                    isCollapsed={isCollapsed}
                 />
                 <Item
                     title="Categories"
@@ -163,6 +172,7 @@ const Sidebar = () => {
                     icon={<OndemandVideoIcon />}
                     selected={selected}
                     setSelected={setSelected}
+                    isCollapsed={isCollapsed}
                 />
 
                 {/* Controllers Section */}
@@ -177,6 +187,7 @@ const Sidebar = () => {
                     icon={<PeopleOutlinedIcon />}
                     selected={selected}
                     setSelected={setSelected}
+                    isCollapsed={isCollapsed}
                 />
 
                 {/* Analytics Section */}
@@ -191,6 +202,7 @@ const Sidebar = () => {
                     icon={<OndemandVideoIcon />}
                     selected={selected}
                     setSelected={setSelected}
+                    isCollapsed={isCollapsed}
                 />
                 <Item
                     title="Orders Analytics"
@@ -198,6 +210,7 @@ const Sidebar = () => {
                     icon={<OndemandVideoIcon />}
                     selected={selected}
                     setSelected={setSelected}
+                    isCollapsed={isCollapsed}
                 />
                 <Item
                     title="Users Analytics"
@@ -205,6 +218,7 @@ const Sidebar = () => {
                     icon={<PeopleOutlinedIcon />}
                     selected={selected}
                     setSelected={setSelected}
+                    isCollapsed={isCollapsed}
                 />
             </nav>
 
@@ -221,6 +235,7 @@ const Sidebar = () => {
                     icon={<SettingsIcon />}
                     selected={selected}
                     setSelected={setSelected}
+                    isCollapsed={isCollapsed}
                 />
                 <Item
                     title="Logout"
@@ -228,6 +243,7 @@ const Sidebar = () => {
                     icon={<ExitToAppIcon />}
                     selected={selected}
                     setSelected={setSelected}
+                    isCollapsed={isCollapsed}
                 />
             </div>
         </div>
