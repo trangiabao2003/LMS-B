@@ -73,7 +73,7 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
                         <input
                             type="text"
                             name="name"
-                            required
+                            // required
                             value={courseInfo.name}
                             onChange={(e: any) => setCourseInfo({ ...courseInfo, name: e.target.value })}
                             id="name"
@@ -112,7 +112,7 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
                                 <input
                                     id="price"
                                     type="number"
-                                    required
+                                    // required
                                     placeholder="99"
                                     value={courseInfo.price}
                                     className={`${styles.input} pl-8`}
@@ -153,7 +153,7 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
                             type="text"
                             name="tags"
                             placeholder='e.g., Next.js, TypeScript, Tailwind CSS, MongoDB'
-                            required
+                            // required
                             value={courseInfo.tags}
                             className={styles.input}
                             onChange={(e: any) => setCourseInfo({ ...courseInfo, tags: e.target.value })}
@@ -171,7 +171,7 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
                                 type="text"
                                 name="level"
                                 placeholder='e.g., Beginner, Intermediate, Advanced'
-                                required
+                                // required
                                 value={courseInfo.level}
                                 className={styles.input}
                                 onChange={(e: any) => setCourseInfo({ ...courseInfo, level: e.target.value })}
@@ -187,7 +187,7 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
                                 type="url"
                                 name="demoUrl"
                                 placeholder='https://youtube.com/embed/...'
-                                required
+                                // required
                                 value={courseInfo.demoUrl}
                                 className={styles.input}
                                 onChange={(e: any) => setCourseInfo({ ...courseInfo, demoUrl: e.target.value })}
@@ -231,12 +231,11 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
 
                 {/* Action Buttons */}
                 <div className="flex gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                    <button
+                    <input
                         type="submit"
                         className={styles.button}
-                    >
-                        Continue to Next Step →
-                    </button>
+                        value={'Continue to Next Step →'}
+                    />
                 </div>
             </form>
         </div>
