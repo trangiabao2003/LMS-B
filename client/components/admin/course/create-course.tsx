@@ -3,7 +3,6 @@
 import React, { useState } from 'react'
 import CourseOptions from './course-options'
 import CourseInformation from './course-information'
-import { styles } from '@/styles/styles'
 
 type Props = {}
 
@@ -40,9 +39,10 @@ const CreateCourse = (props: Props) => {
     const [courseData, setCourseData] = useState({});
 
     return (
-        <div className={styles.courseContainer}>
-            <div className={styles.courseWrapper}>
-                <div className={styles.courseMainContent}>
+        <div className="w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+                {/* Main Form - Left Side (2 columns) */}
+                <div className="lg:col-span-3">
                     {
                         active === 0 && (
                             <CourseInformation
@@ -54,7 +54,9 @@ const CreateCourse = (props: Props) => {
                         )
                     }
                 </div>
-                <div className={styles.courseSidebar}>
+
+                {/* Sidebar - Right Side (1 column) */}
+                <div className="lg:col-span-1">
                     <CourseOptions active={active} setActive={setActive} />
                 </div>
             </div>

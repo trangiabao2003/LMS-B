@@ -1,22 +1,18 @@
 "use client"
 
 import DashboardHero from '@/components/admin/dashboard-hero'
-import AdminSidebar from '@/components/admin/sidebar/admin-sidebar'
 import AdminProtected from '@/hooks/admin-protected'
+import { AdminLayout } from '@/components/admin/layout/admin-layout'
 
-const page = () => {
+const AdminPage = () => {
 
   return (
     <AdminProtected>
-      <div className="flex h-screen bg-slate-950">
-        {/* Sidebar */}
-        <AdminSidebar />
-
-        {/* Main Content */}
+      <AdminLayout>
         <DashboardHero />
-      </div>
+      </AdminLayout>
     </AdminProtected>
   )
 }
 
-export default page
+export default AdminPage

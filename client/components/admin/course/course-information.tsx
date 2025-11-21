@@ -60,11 +60,11 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
     }
 
     return (
-        <div className={styles.courseMainContent}>
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
             <form onSubmit={handleSubmit} className={styles.courseForm}>
                 {/* Course Basic Info Section */}
                 <div className={styles.formSection}>
-                    <h3 className={styles.sectionTitle}>📚 Basic Information</h3>
+                    <h3 className={styles.sectionTitle}>Basic Information</h3>
                     
                     <div className={styles.formGroup}>
                         <label htmlFor="name" className={styles.label}>
@@ -100,7 +100,7 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
 
                 {/* Pricing Section */}
                 <div className={styles.formSection}>
-                    <h3 className={styles.sectionTitle}>💰 Pricing</h3>
+                    <h3 className={styles.sectionTitle}>Pricing</h3>
                     
                     <div className={styles.twoColumnGrid}>
                         <div className={styles.formGroup}>
@@ -142,7 +142,7 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
 
                 {/* Course Details Section */}
                 <div className={styles.formSection}>
-                    <h3 className={styles.sectionTitle}>🎯 Course Details</h3>
+                    <h3 className={styles.sectionTitle}>Course Details</h3>
                     
                     <div className={styles.formGroup}>
                         <label htmlFor="tags" className={styles.label}>
@@ -198,7 +198,7 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
 
                 {/* Thumbnail Upload Section */}
                 <div className={styles.formSection}>
-                    <h3 className={styles.sectionTitle}>🖼️ Course Thumbnail</h3>
+                    <h3 className={styles.sectionTitle}>Course Thumbnail</h3>
                     
                     <div className='w-full'>
                         <input type="file"

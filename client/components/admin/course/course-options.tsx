@@ -16,11 +16,11 @@ const CourseOptions = ({ active, setActive }: Props) => {
     ];
 
     return (
-        <div className={styles.stepperContainer}>
+        <div className="sticky top-20 bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 space-y-3">
             <h3 className={`${styles.label} text-[18px]`}>Course Creation Steps</h3>
             <div className="relative">
                 {options.map((option: any, index: number) => (
-                    <div key={index} className={`${styles.stepperItem} py-2`}
+                    <div key={index} className={`${styles.stepperItem} py-1.5`}
                         onClick={() => setActive(index)}>
                         <div
                             className={`${styles.stepperNumber} ${active + 1 > index ? "bg-green-500 shadow-lg shadow-green-500/50" : active === index ? "bg-blue-500 shadow-lg shadow-blue-500/50" : "bg-gray-400"}`}
