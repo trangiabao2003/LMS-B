@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import CourseOptions from './course-options'
 import CourseInformation from './course-information'
 import CourseData from './course-data'
+import CourseContentData from './course-content-data'
 
 type Props = {}
 
@@ -39,6 +40,10 @@ const CreateCourse = (props: Props) => {
 
     const [courseData, setCourseData] = useState({});
 
+    const handleSubmit = async () => {
+
+    }
+
     return (
         <div className="w-full">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
@@ -64,6 +69,18 @@ const CreateCourse = (props: Props) => {
                                 setPrerequisites={setPrerequisites}
                                 active={active}
                                 setActive={setActive}
+                            />
+                        )
+                    }
+
+                    {
+                        active === 2 && (
+                            <CourseContentData
+                                active={active}
+                                setActive={setActive}
+                                courseContentData={courseContentData}
+                                setCourseContentData={setCourseContentData}
+                                handleSubmit={handleSubmit}
                             />
                         )
                     }
