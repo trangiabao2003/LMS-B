@@ -1,22 +1,27 @@
 import { Button } from '@/components/ui/button';
 import { Box } from '@mui/material';
 import { useTheme } from 'next-themes';
-import React, { useEffect, useState } from 'react'
-import { AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
+import { useEffect, useState } from 'react'
+import { useGetAllUsersQuery } from '@/redux/features/user/userApi';
+import { AiOutlineDelete } from 'react-icons/ai';
+import { MdMailOutline } from "react-icons/md";
 import { DataGrid } from "@mui/x-data-grid"
-import { useGetAllCoursesQuery } from '@/redux/features/courses/coursesApi';
 import Loader from '@/components/Loader/Loader';
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en.json'
+import { styles } from '@/styles/styles';
 
 TimeAgo.addDefaultLocale(en)
 
-type Props = {}
+type Props = {
+    isTeam: boolean;
+}
 
-const AllCourses = (props: Props) => {
+const AllUsers = ({ isTeam }: Props) => {
+    const [active, setActive] = useState(false)
     const { theme } = useTheme();
     const [mounted, setMounted] = useState(false);
-    const { isLoading, data, error } = useGetAllCoursesQuery({})
+    const { isLoading, data, error } = useGetAllUsersQuery({})
 
     useEffect(() => {
         setMounted(true);
@@ -27,31 +32,12 @@ const AllCourses = (props: Props) => {
     const timeAgo = new TimeAgo('en-US')
 
     const columns = [
-        { field: "id", headerName: "ID", flex: 0.5 },
-        { field: "title", headerName: "Course Title", flex: 1 },
-        { field: "ratings", headerName: "Ratings", flex: .5 },
-        { field: "purchased", headerName: "Purchased", flex: .5 },
-        { field: "created_at", headerName: "Created At", flex: 0.5 },
-        {
-            field: "  ",
-            headerName: "Edit",
-            flex: 0.2,
-            renderCell: (params: any) => {
-                return (
-                    <Button
-                        className={`${isDark
-                                ? "bg-slate-600 hover:bg-slate-700"
-                                : "bg-gray-200 hover:bg-gray-300"
-                            }`}
-                    >
-                        <AiOutlineEdit
-                            className={isDark ? "text-white" : "text-black"}
-                            size={20}
-                        />
-                    </Button>
-                );
-            },
-        },
+        { field: "id", headerName: "ID", flex: .3 },
+        { field: "name", headerName: "Name", flex: .4 },
+        { field: "email", headerName: "Email", flex: .5 },
+        { field: "role", headerName: "Role", flex: .3 },
+        { field: "courses", headerName: "Purchased Courses", flex: .3 },
+        { field: "created_at", headerName: "Joined At", flex: .3 },
         {
             field: " ",
             headerName: "Delete",
@@ -60,8 +46,8 @@ const AllCourses = (props: Props) => {
                 return (
                     <Button
                         className={`${isDark
-                                ? "bg-slate-600 hover:bg-slate-700"
-                                : "bg-gray-200 hover:bg-gray-300"
+                            ? "bg-slate-600 hover:bg-slate-700"
+                            : "bg-gray-200 hover:bg-gray-300"
                             }`}
                     >
                         <AiOutlineDelete
@@ -72,19 +58,56 @@ const AllCourses = (props: Props) => {
                 );
             },
         },
+        {
+            field: "  ",
+            headerName: "Send Email",
+            flex: 0.2,
+            renderCell: (params: any) => {
+                return (
+                    <a
+                        href={`mailto:${params.row.email}`}
+                        className={`${isDark
+                            ? "bg-slate-600 hover:bg-slate-700"
+                            : "bg-gray-200 hover:bg-gray-300"
+                            } items-center`}
+                    >
+                        <MdMailOutline
+                            className={isDark ? "text-white" : "text-black"}
+                            size={20}
+                        />
+                    </a>
+                );
+            },
+        },
     ]
 
-    const rows: any= [];
+    const rows: any = [];
 
-    {
-        data &&
-            data.courses.forEach((item: any) => {
+    if (isTeam) {
+        const newData = data && data.users.filter((item: any) => item.role === "admin")
+
+        newData &&
+            newData.forEach((item: any) => {
                 const createdDate = item.createdAt ? new Date(item.createdAt) : new Date();
                 rows.push({
                     id: item._id,
-                    title: item.name,
-                    ratings: item.rating,
-                    purchased: item.purchased,
+                    name: item.name,
+                    email: item.email,
+                    role: item.role,
+                    courses: item.courses.length,
+                    created_at: timeAgo.format(createdDate),
+                })
+            })
+    } else {
+        data &&
+            data.users.forEach((item: any) => {
+                const createdDate = item.createdAt ? new Date(item.createdAt) : new Date();
+                rows.push({
+                    id: item._id,
+                    name: item.name,
+                    email: item.email,
+                    role: item.role,
+                    courses: item.courses.length,
                     created_at: timeAgo.format(createdDate),
                 })
             })
@@ -110,6 +133,12 @@ const AllCourses = (props: Props) => {
                     <Loader />
                 ) : (
                     <Box m="20px">
+                        <div className="w-full flex justify-end">
+                            <button className={`${styles.button} w-[200px]! dark:bg-[#3e4396] dark:border dark:border-[#6bdbcca2]`}
+                            onClick={() => setActive(!active)}>
+                                Add New Member
+                            </button>
+                        </div>
                         <Box
                             key={currentTheme}
                             m="40px 0 0 0"
@@ -254,4 +283,4 @@ const AllCourses = (props: Props) => {
     )
 }
 
-export default AllCourses
+export default AllUsers
