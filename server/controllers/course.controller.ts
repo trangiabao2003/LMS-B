@@ -17,6 +17,23 @@ export const uploadCourse = CatchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = req.body;
+      
+      // Validate required fields
+      const requiredFields = ['name', 'description', 'price', 'estimatedPrice', 'tags', 'level', 'demoUrl'];
+      for (const field of requiredFields) {
+        if (!data[field]) {
+          return next(new ErrorHandler(`${field} is required`, 400));
+        }
+      }
+
+      // Convert price fields to number if they're strings
+      if (typeof data.price === 'string') {
+        data.price = Number(data.price);
+      }
+      if (typeof data.estimatedPrice === 'string') {
+        data.estimatedPrice = Number(data.estimatedPrice);
+      }
+
       const thumbnail = data.thumbnail;
       if (thumbnail) {
         const myCloud = await cloudinary.v2.uploader.upload(thumbnail, {
