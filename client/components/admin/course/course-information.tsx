@@ -65,7 +65,7 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
                 {/* Course Basic Info Section */}
                 <div className={styles.formSection}>
                     <h3 className={styles.sectionTitle}>Basic Information</h3>
-                    
+
                     <div className={styles.formGroup}>
                         <label htmlFor="name" className={styles.label}>
                             Course Name <span className="text-red-500">*</span>
@@ -73,7 +73,7 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
                         <input
                             type="text"
                             name="name"
-                            // required
+                            required
                             value={courseInfo.name}
                             onChange={(e: any) => setCourseInfo({ ...courseInfo, name: e.target.value })}
                             id="name"
@@ -101,7 +101,7 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
                 {/* Pricing Section */}
                 <div className={styles.formSection}>
                     <h3 className={styles.sectionTitle}>Pricing</h3>
-                    
+
                     <div className={styles.twoColumnGrid}>
                         <div className={styles.formGroup}>
                             <label htmlFor="price" className={styles.label}>
@@ -112,7 +112,7 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
                                 <input
                                     id="price"
                                     type="number"
-                                    // required
+                                    required
                                     placeholder="99"
                                     value={courseInfo.price}
                                     className={`${styles.input} pl-8`}
@@ -143,7 +143,7 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
                 {/* Course Details Section */}
                 <div className={styles.formSection}>
                     <h3 className={styles.sectionTitle}>Course Details</h3>
-                    
+
                     <div className={styles.formGroup}>
                         <label htmlFor="tags" className={styles.label}>
                             Course Tags <span className="text-red-500">*</span>
@@ -153,7 +153,7 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
                             type="text"
                             name="tags"
                             placeholder='e.g., Next.js, TypeScript, Tailwind CSS, MongoDB'
-                            // required
+                            required
                             value={courseInfo.tags}
                             className={styles.input}
                             onChange={(e: any) => setCourseInfo({ ...courseInfo, tags: e.target.value })}
@@ -171,7 +171,7 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
                                 type="text"
                                 name="level"
                                 placeholder='e.g., Beginner, Intermediate, Advanced'
-                                // required
+                                required
                                 value={courseInfo.level}
                                 className={styles.input}
                                 onChange={(e: any) => setCourseInfo({ ...courseInfo, level: e.target.value })}
@@ -184,10 +184,10 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
                             </label>
                             <input
                                 id="demoUrl"
-                                type="url"
+                                type="text"
                                 name="demoUrl"
                                 placeholder='https://youtube.com/embed/...'
-                                // required
+                                required
                                 value={courseInfo.demoUrl}
                                 className={styles.input}
                                 onChange={(e: any) => setCourseInfo({ ...courseInfo, demoUrl: e.target.value })}
@@ -199,7 +199,7 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
                 {/* Thumbnail Upload Section */}
                 <div className={styles.formSection}>
                     <h3 className={styles.sectionTitle}>Course Thumbnail</h3>
-                    
+
                     <div className='w-full'>
                         <input type="file"
                             accept='image/*'
