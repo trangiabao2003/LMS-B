@@ -1,32 +1,33 @@
 import express from "express";
 import {
-	addAnswer,
-	addQuestion,
-	addReplyToReview,
-	addReview,
-	deleteCourse,
-	editCourse,
-	getAllCourses,
-	getAllCoursess,
-	getCourseByUser,
-	getSingleCourse,
-	uploadCourse,
+  addAnswer,
+  addQuestion,
+  addReplyToReview,
+  addReview,
+  deleteCourse,
+  editCourse,
+  generateVideoUrl,
+  getAllCourses,
+  getAllCoursess,
+  getCourseByUser,
+  getSingleCourse,
+  uploadCourse,
 } from "../controllers/course.controller";
 import { authorizeRoles, isAuthenticated } from "../middleware/auth";
 const courseRouter = express.Router();
 
 courseRouter.post(
-	"/create-course",
-	isAuthenticated,
-	authorizeRoles("admin"),
-	uploadCourse
+  "/create-course",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  uploadCourse
 );
 
 courseRouter.put(
-	"/edit-course/:id",
-	isAuthenticated,
-	authorizeRoles("admin"),
-	editCourse
+  "/edit-course/:id",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  editCourse
 );
 
 courseRouter.get("/get-course/:id", getSingleCourse);
@@ -42,24 +43,26 @@ courseRouter.put("/add-answer", isAuthenticated, addAnswer);
 courseRouter.put("/add-review/:id", isAuthenticated, addReview);
 
 courseRouter.put(
-	"/add-reply",
-	isAuthenticated,
-	authorizeRoles("admin"),
-	addReplyToReview
+  "/add-reply",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  addReplyToReview
 );
 
 courseRouter.get(
-	"/get-coursess",
-	isAuthenticated,
-	authorizeRoles("admin"),
-	getAllCoursess
+  "/get-coursess",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  getAllCoursess
 );
 
+courseRouter.post("/getVdoCipherOTP", generateVideoUrl);
+
 courseRouter.delete(
-	"/delete-course/:id",
-	isAuthenticated,
-	authorizeRoles("admin"),
-	deleteCourse
+  "/delete-course/:id",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  deleteCourse
 );
 
 export default courseRouter;
