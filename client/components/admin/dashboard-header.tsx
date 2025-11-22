@@ -37,7 +37,7 @@ const DashboardHeader = ({ }: Props) => {
                     {/* Notifications Dropdown */}
                     {open && (
                         <div className="absolute top-16 right-8 w-[380px] max-h-[60vh] dark:bg-slate-800 bg-white shadow-xl rounded-lg overflow-hidden z-50">
-                            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+                            <div className="bg-linear-to-r from-blue-500 to-blue-600 px-6 py-4">
                                 <h5 className="text-[18px] font-semibold text-white">
                                     Notifications
                                 </h5>
