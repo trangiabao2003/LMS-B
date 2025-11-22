@@ -127,7 +127,7 @@ const CoursePreview = ({
                         Course Details
                     </h1>
                     <p className="text-[18px] mt-5 whitespace-pre-line w-full overflow-hidden">
-                        {courseData?.descriaption}
+                        {courseData?.description}
                     </p>
                 </div>
                 <br />

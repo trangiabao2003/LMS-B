@@ -1,15 +1,33 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import CourseOptions from './course-options'
 import CourseInformation from './course-information'
 import CourseData from './course-data'
 import CourseContentData from './course-content-data'
 import CoursePreview from './course-preview'
+import { useCreateCourseMutation } from '@/redux/features/courses/coursesApi'
+import toast from 'react-hot-toast'
+import { redirect } from 'next/navigation'
 
 type Props = {}
 
 const CreateCourse = (props: Props) => {
+    const [createCourse, { isLoading, isSuccess, error }] = useCreateCourseMutation()
+
+    useEffect(() => {
+        if (isSuccess) {
+            toast.success("Course created successfully");
+            redirect("/admin/all-courses");
+        }
+        if (error) {
+            if ("data" in error) {
+                const errorMessage = error as any;
+                toast.error(errorMessage.data.message);
+            }
+        }
+    }, [isLoading, isSuccess, error]);
+
     const [active, setActive] = useState(0);
     const [courseInfo, setCourseInfo] = useState({
         name: "",
@@ -61,12 +79,12 @@ const CreateCourse = (props: Props) => {
             suggestion: courseContent.suggestion,
         }));
 
-        // prepare our data object
+        // prepare our data object with proper type conversion
         const data = {
             name: courseInfo.name,
             description: courseInfo.description,
-            price: courseInfo.price,
-            estimatedPrice: courseInfo.estimatedPrice,
+            price: Number(courseInfo.price) || 0,
+            estimatedPrice: Number(courseInfo.estimatedPrice) || 0,
             tags: courseInfo.tags,
             thumbnail: courseInfo.thumbnail,
             level: courseInfo.level,
@@ -80,7 +98,9 @@ const CreateCourse = (props: Props) => {
     }
 
     const handleCourseCreate = async (e: any) => {
-        const data = courseData;
+        if (!isLoading) {
+            await createCourse(courseData)
+        }
     }
 
     return (

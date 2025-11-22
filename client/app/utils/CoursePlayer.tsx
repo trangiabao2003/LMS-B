@@ -22,8 +22,6 @@ const CoursePlayer = ({ videoUrl, title }: Props) => {
         })
 
     }, [videoUrl])
-    console.log(">>>>>", videoData);
-
 
     return (
         <div style={{ paddingTop: "41%", position: "relative" }}>
