@@ -8,6 +8,7 @@ import { useGetAllCoursesQuery } from '@/redux/features/courses/coursesApi';
 import Loader from '@/components/Loader/Loader';
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en.json'
+import Link from 'next/link';
 
 TimeAgo.addDefaultLocale(en)
 
@@ -16,6 +17,7 @@ type Props = {}
 const AllCourses = (props: Props) => {
     const { theme } = useTheme();
     const [mounted, setMounted] = useState(false);
+    const [deleteCourseId, setDeleteCourseId] = useState("")
     const { isLoading, data, error } = useGetAllCoursesQuery({})
 
     useEffect(() => {
@@ -38,17 +40,19 @@ const AllCourses = (props: Props) => {
             flex: 0.2,
             renderCell: (params: any) => {
                 return (
-                    <Button
-                        className={`${isDark
+                    <Link href={`/admin/edit-course/${params.row.id}`}>
+                        <Button
+                            className={`${isDark
                                 ? "bg-slate-600 hover:bg-slate-700"
                                 : "bg-gray-200 hover:bg-gray-300"
-                            }`}
-                    >
-                        <AiOutlineEdit
-                            className={isDark ? "text-white" : "text-black"}
-                            size={20}
-                        />
-                    </Button>
+                                }`}
+                        >
+                            <AiOutlineEdit
+                                className={isDark ? "text-white" : "text-black"}
+                                size={20}
+                            />
+                        </Button>
+                    </Link>
                 );
             },
         },
@@ -60,8 +64,8 @@ const AllCourses = (props: Props) => {
                 return (
                     <Button
                         className={`${isDark
-                                ? "bg-slate-600 hover:bg-slate-700"
-                                : "bg-gray-200 hover:bg-gray-300"
+                            ? "bg-slate-600 hover:bg-slate-700"
+                            : "bg-gray-200 hover:bg-gray-300"
                             }`}
                     >
                         <AiOutlineDelete
@@ -74,7 +78,7 @@ const AllCourses = (props: Props) => {
         },
     ]
 
-    const rows: any= [];
+    const rows: any = [];
 
     {
         data &&
@@ -207,7 +211,7 @@ const AllCourses = (props: Props) => {
                                     color: isDark ? "#b7ebde !important" : "#000 !important",
                                 },
                                 "& .MuiCheckbox-root.Mui-checked": {
-                                    color: isDark ? "#b7ebde !important" : "#1976d2 !important",
+                                    color: isDark ? "#3e4396 !important" : "#3e4396 !important",
                                 },
                                 // Icons
                                 "& .MuiDataGrid-iconSeparator": {

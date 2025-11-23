@@ -12,7 +12,7 @@ const page = (props: Props) => {
         <AdminProtected>
             <AdminLayout>
                 <DashboardHero />
-                <AllUsers />
+                <AllUsers/>
             </AdminLayout>
         </AdminProtected>
     )
