@@ -56,10 +56,25 @@ export const editCourse = CatchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = req.body;
-      const thumbnail = data.thumbnail;
-      if (thumbnail) {
-        await cloudinary.v2.uploader.destroy(thumbnail.public_id);
+      const courseId = req.params.id;
 
+      // Find the existing course
+      const course = await CourseModel.findById(courseId);
+      if (!course) {
+        return next(new ErrorHandler("Course not found", 404));
+      }
+
+      // Handle thumbnail update
+      const thumbnail = data.thumbnail;
+      if (thumbnail && typeof thumbnail === 'string' && !thumbnail.startsWith("https://res.cloudinary.com")) {
+        // If thumbnail is a new base64 image (not a Cloudinary URL)
+        
+        // Delete old thumbnail from Cloudinary if it exists
+        if (course.thumbnail && (course.thumbnail as any).public_id) {
+          await cloudinary.v2.uploader.destroy((course.thumbnail as any).public_id);
+        }
+
+        // Upload new thumbnail
         const myCloud = await cloudinary.v2.uploader.upload(thumbnail, {
           folder: "courses",
         });
@@ -68,22 +83,35 @@ export const editCourse = CatchAsyncErrors(
           public_id: myCloud.public_id,
           url: myCloud.secure_url,
         };
+      } else if (!thumbnail || (typeof thumbnail === 'string' && thumbnail.startsWith("https://res.cloudinary.com"))) {
+        // Keep the existing thumbnail (it's already a Cloudinary URL or undefined)
+        data.thumbnail = course.thumbnail;
       }
 
-      const courseId = req.params.id;
-      const course = await CourseModel.findByIdAndUpdate(
+      // Convert price fields to number if they're strings
+      if (typeof data.price === 'string') {
+        data.price = Number(data.price);
+      }
+      if (typeof data.estimatedPrice === 'string') {
+        data.estimatedPrice = Number(data.estimatedPrice);
+      }
+
+      // Update the course
+      const updatedCourse = await CourseModel.findByIdAndUpdate(
         courseId,
-        {
-          $set: data,
-        },
+        { $set: data },
         { new: true }
       );
-      res.status(201).json({
+
+      // Clear Redis cache
+      await redis.del(courseId);
+
+      res.status(200).json({
         success: true,
-        course,
+        course: updatedCourse,
       });
     } catch (error: any) {
-      return next(new ErrorHandler("Course update failed", 500));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -398,7 +426,7 @@ export const addReplyToReview = CatchAsyncErrors(
 );
 
 //get all courses -- only for admin
-export const getAllCoursess = CatchAsyncErrors(
+export const getAdminAllCourses = CatchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       getAllCoursesService(res);
