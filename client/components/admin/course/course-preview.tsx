@@ -8,13 +8,15 @@ type Props = {
     setActive: (active: number) => void;
     courseData: any;
     handleCourseCreate: any;
+    isEdit?: boolean;
 }
 
 const CoursePreview = ({
     courseData,
     handleCourseCreate,
     setActive,
-    active
+    active,
+    isEdit = false
 }: Props) => {
 
     const dicountPercentenge =
@@ -75,8 +77,8 @@ const CoursePreview = ({
                 </div>
                 <p className="pb-1">• Source code included</p>
                 <p className="pb-1">• Full lifetime access</p>
-                <p className="pb-1"> Certificate of completion</p>
-                <p className="pb-3 800px:pb-1"> Premium Support</p>
+                <p className="pb-1">• Certificate of completion</p>
+                <p className="pb-3 800px:pb-1">• Premium Support</p>
 
             </div>
             <div className="w-full">
@@ -97,7 +99,7 @@ const CoursePreview = ({
                     </h1>
                 </div>
                 {courseData?.benefits?.map((item: any, index: number) => (
-                    <div className="w-full flex 800px: items-center py-2" key={index}>
+                    <div className="w-full flex 800px:items-center py-2" key={index}>
                         <div className="w-[15px] mr-1">
                             <IoCheckmarkDoneOutline size={20} />
                         </div>
@@ -144,7 +146,7 @@ const CoursePreview = ({
                     className="w-[15%] 800px:w-[180px] flex items-center justify-center h-10 bg-[#37a39a] text-center text-white rounded mt-8 cursor-pointer"
                     onClick={() => createCourse()}
                 >
-                    Create
+                    {isEdit ? "Update" : "Create"}
                 </div>
             </div>
         </div>

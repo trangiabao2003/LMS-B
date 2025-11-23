@@ -6,19 +6,25 @@ import CourseInformation from './course-information'
 import CourseData from './course-data'
 import CourseContentData from './course-content-data'
 import CoursePreview from './course-preview'
-import { useCreateCourseMutation } from '@/redux/features/courses/coursesApi'
+import { useEditCourseMutation, useGetAllCoursesQuery } from '@/redux/features/courses/coursesApi'
 import toast from 'react-hot-toast'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
-type Props = {}
+type Props = {
+    id: string;
+}
 
-const CreateCourse = (props: Props) => {
-    const [createCourse, { isLoading, isSuccess, error }] = useCreateCourseMutation()
+const EditCourse = ({ id }: Props) => {
+    const router = useRouter();
+    const [editCourse, { isLoading: isUpdating, isSuccess, error }] = useEditCourseMutation();
+    const { isLoading, data, refetch } = useGetAllCoursesQuery({}, { refetchOnMountOrArgChange: true });
+
+    const editCourseData = data?.courses?.find((i: any) => i._id === id);
 
     useEffect(() => {
         if (isSuccess) {
-            toast.success("Course created successfully");
-            redirect("/admin/courses");
+            toast.success("Course updated successfully");
+            router.push("/admin/courses");
         }
         if (error) {
             if ("data" in error) {
@@ -26,7 +32,25 @@ const CreateCourse = (props: Props) => {
                 toast.error(errorMessage.data.message);
             }
         }
-    }, [isLoading, isSuccess, error]);
+    }, [isSuccess, error, router]);
+
+    useEffect(() => {
+        if (editCourseData) {
+            setCourseInfo({
+                name: editCourseData.name,
+                description: editCourseData.description,
+                price: editCourseData.price,
+                estimatedPrice: editCourseData.estimatedPrice,
+                tags: editCourseData.tags,
+                level: editCourseData.level,
+                demoUrl: editCourseData.demoUrl,
+                thumbnail: editCourseData?.thumbnail?.url,
+            })
+            setBenefits(editCourseData.benefits);
+            setPrerequisites(editCourseData.prerequisites);
+            setCourseContentData(editCourseData.courseData);
+        }
+    }, [editCourseData]);
 
     const [active, setActive] = useState(0);
     const [courseInfo, setCourseInfo] = useState({
@@ -83,8 +107,8 @@ const CreateCourse = (props: Props) => {
         const data = {
             name: courseInfo.name,
             description: courseInfo.description,
-            price: Number(courseInfo.price) || 0,
-            estimatedPrice: Number(courseInfo.estimatedPrice) || 0,
+            price: courseInfo.price,
+            estimatedPrice: courseInfo.estimatedPrice,
             tags: courseInfo.tags,
             thumbnail: courseInfo.thumbnail,
             level: courseInfo.level,
@@ -97,16 +121,32 @@ const CreateCourse = (props: Props) => {
         setCourseData(data)
     }
 
-    const handleCourseCreate = async (e: any) => {
-        if (!isLoading) {
-            await createCourse(courseData)
+    const handleCourseUpdate = async (e: any) => {
+        if (!isUpdating) {
+            await editCourse({ id, data: courseData });
         }
+    }
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <p className="text-gray-500">Loading course data...</p>
+            </div>
+        );
+    }
+
+    if (!editCourseData) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <p className="text-red-500">Course not found!</p>
+            </div>
+        );
     }
 
     return (
         <div className="w-full">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-                {/* Main Form - Left Side (2 columns) */}
+                {/* Main Form - Left Side (3 columns) */}
                 <div className="lg:col-span-3">
                     {
                         active === 0 && (
@@ -150,7 +190,8 @@ const CreateCourse = (props: Props) => {
                                 active={active}
                                 setActive={setActive}
                                 courseData={courseData}
-                                handleCourseCreate={handleCourseCreate}
+                                handleCourseCreate={handleCourseUpdate}
+                                isEdit={true}
                             />
                         )
                     }
@@ -165,4 +206,4 @@ const CreateCourse = (props: Props) => {
     )
 }
 
-export default CreateCourse
+export default EditCourse

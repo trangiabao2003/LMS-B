@@ -1,24 +1,48 @@
 import { Button } from '@/components/ui/button';
 import { Box } from '@mui/material';
 import { useTheme } from 'next-themes';
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useDeleteCourseMutation, useGetAllCoursesQuery } from '@/redux/features/courses/coursesApi';
 import { AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
 import { DataGrid } from "@mui/x-data-grid"
-import { useGetAllCoursesQuery } from '@/redux/features/courses/coursesApi';
 import Loader from '@/components/Loader/Loader';
+import { styles } from '@/styles/styles';
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en.json'
-import Link from 'next/link';
 
 TimeAgo.addDefaultLocale(en)
 
 type Props = {}
 
 const AllCourses = (props: Props) => {
+    const router = useRouter();
     const { theme } = useTheme();
     const [mounted, setMounted] = useState(false);
-    const [deleteCourseId, setDeleteCourseId] = useState("")
-    const { isLoading, data, error } = useGetAllCoursesQuery({})
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteCourseId, setDeleteCourseId] = useState("");
+    const [deleteCourseName, setDeleteCourseName] = useState("");
+    const timeAgo = new TimeAgo('en-US');
+    
+    const { isLoading, data, refetch } = useGetAllCoursesQuery({}, { refetchOnMountOrArgChange: true });
+    const [deleteCourse, { isSuccess: deleteSuccess, error: deleteError }] = useDeleteCourseMutation();
+
+    useEffect(() => {
+        if (deleteSuccess) {
+            refetch();
+            toast.success("Course deleted successfully!");
+            setShowDeleteModal(false);
+            setDeleteCourseId("");
+            setDeleteCourseName("");
+        }
+        if (deleteError) {
+            if ("data" in deleteError) {
+                const errorMessage = deleteError as any;
+                toast.error(errorMessage.data.message);
+            }
+        }
+    }, [deleteSuccess, deleteError, refetch]);
 
     useEffect(() => {
         setMounted(true);
@@ -26,22 +50,22 @@ const AllCourses = (props: Props) => {
 
     const currentTheme = mounted ? theme : 'light';
     const isDark = currentTheme === 'dark';
-    const timeAgo = new TimeAgo('en-US')
 
     const columns = [
         { field: "id", headerName: "ID", flex: 0.5 },
         { field: "title", headerName: "Course Title", flex: 1 },
-        { field: "ratings", headerName: "Ratings", flex: .5 },
-        { field: "purchased", headerName: "Purchased", flex: .5 },
+        { field: "ratings", headerName: "Ratings", flex: 0.5 },
+        { field: "purchased", headerName: "Purchased", flex: 0.5 },
         { field: "created_at", headerName: "Created At", flex: 0.5 },
         {
-            field: "  ",
+            field: "edit",
             headerName: "Edit",
             flex: 0.2,
             renderCell: (params: any) => {
                 return (
-                    <Link href={`/admin/edit-course/${params.row.id}`}>
+                    <div className="flex items-center justify-center w-full h-full">
                         <Button
+                            onClick={() => router.push(`/admin/edit-course/${params.row.id}`)}
                             className={`${isDark
                                 ? "bg-slate-600 hover:bg-slate-700"
                                 : "bg-gray-200 hover:bg-gray-300"
@@ -52,49 +76,54 @@ const AllCourses = (props: Props) => {
                                 size={20}
                             />
                         </Button>
-                    </Link>
+                    </div>
                 );
             },
         },
         {
-            field: " ",
+            field: "delete",
             headerName: "Delete",
             flex: 0.2,
             renderCell: (params: any) => {
+                const handleDelete = () => {
+                    setDeleteCourseId(params.row.id);
+                    setDeleteCourseName(params.row.title);
+                    setShowDeleteModal(true);
+                };
                 return (
-                    <Button
-                        className={`${isDark
-                            ? "bg-slate-600 hover:bg-slate-700"
-                            : "bg-gray-200 hover:bg-gray-300"
-                            }`}
-                    >
-                        <AiOutlineDelete
-                            className={isDark ? "text-white" : "text-black"}
-                            size={20}
-                        />
-                    </Button>
+                    <div className="flex items-center justify-center w-full h-full">
+                        <Button
+                            onClick={handleDelete}
+                            className={`${isDark
+                                ? "bg-slate-600 hover:bg-slate-700"
+                                : "bg-gray-200 hover:bg-gray-300"
+                                }`}
+                        >
+                            <AiOutlineDelete
+                                className={isDark ? "text-white" : "text-black"}
+                                size={20}
+                            />
+                        </Button>
+                    </div>
                 );
             },
         },
-    ]
+    ];
 
     const rows: any = [];
 
-    {
-        data &&
-            data.courses.forEach((item: any) => {
-                const createdDate = item.createdAt ? new Date(item.createdAt) : new Date();
-                rows.push({
-                    id: item._id,
-                    title: item.name,
-                    ratings: item.rating,
-                    purchased: item.purchased,
-                    created_at: timeAgo.format(createdDate),
-                })
-            })
+    if (data && data.courses) {
+        data.courses.forEach((item: any) => {
+            rows.push({
+                id: item._id,
+                title: item.name,
+                ratings: item.rating,
+                purchased: item.purchased || 0,
+                created_at: item.createdAt ? timeAgo.format(new Date(item.createdAt)) : 'N/A',
+            });
+        });
     }
 
-    // Show loading state while mounting
     if (!mounted) {
         return (
             <div className="mt-[120px]">
@@ -108,9 +137,9 @@ const AllCourses = (props: Props) => {
     }
 
     return (
-        <div className="mt-[120px]">
-            {
-                isLoading ? (
+        <>
+            <div className="mt-[120px]">
+                {isLoading ? (
                     <Loader />
                 ) : (
                     <Box m="20px">
@@ -123,15 +152,18 @@ const AllCourses = (props: Props) => {
                                     border: "none",
                                     outline: "none",
                                 },
-                                // Select dropdown icon
+                                "& .MuiDataGrid-cell": {
+                                    borderBottom: "none !important",
+                                    color: isDark ? "#fff !important" : "#000 !important",
+                                    display: "flex !important",
+                                    alignItems: "center !important",
+                                },
                                 "& .css-pqjvzy-MuiSvgIcon-root-MuiSelect-icon": {
                                     color: isDark ? "#fff !important" : "#000 !important",
                                 },
-                                // Sort icons
                                 "& .MuiDataGrid-sortIcon": {
                                     color: isDark ? "#fff !important" : "#000 !important",
                                 },
-                                // Data rows
                                 "& .MuiDataGrid-row": {
                                     color: isDark ? "#fff !important" : "#000 !important",
                                     borderBottom: isDark
@@ -141,7 +173,6 @@ const AllCourses = (props: Props) => {
                                         backgroundColor: isDark ? "#2d3748 !important" : "#f5f5f5 !important",
                                     },
                                 },
-                                // Pagination
                                 "& .MuiTablePagination-root": {
                                     color: isDark ? "#fff !important" : "#000 !important",
                                 },
@@ -154,11 +185,6 @@ const AllCourses = (props: Props) => {
                                 "& .MuiTablePagination-actions": {
                                     color: isDark ? "#fff !important" : "#000 !important",
                                 },
-                                // Cells
-                                "& .MuiDataGrid-cell": {
-                                    borderBottom: "none !important",
-                                    color: isDark ? "#fff !important" : "#000 !important",
-                                },
                                 "& .MuiDataGrid-cell:focus": {
                                     outline: "none !important",
                                 },
@@ -168,12 +194,10 @@ const AllCourses = (props: Props) => {
                                 "& .name-column--cell": {
                                     color: isDark ? "#fff !important" : "#000 !important",
                                 },
-                                // Column Headers Container
                                 "& .MuiDataGrid-columnHeaders": {
                                     backgroundColor: isDark ? "#3e4396 !important" : "#A4A9FC !important",
                                     borderBottom: "none !important",
                                 },
-                                // Individual Column Header
                                 "& .MuiDataGrid-columnHeader": {
                                     backgroundColor: isDark ? "#3e4396 !important" : "#A4A9FC !important",
                                     color: isDark ? "#fff !important" : "#000 !important",
@@ -185,77 +209,84 @@ const AllCourses = (props: Props) => {
                                         outline: "none !important",
                                     },
                                 },
-                                // Column Header Content
                                 "& .MuiDataGrid-columnHeaderTitle": {
                                     color: isDark ? "#fff !important" : "#000 !important",
                                     fontWeight: "600 !important",
                                 },
-                                "& .MuiDataGrid-columnHeaderTitleContainer": {
-                                    color: isDark ? "#fff !important" : "#000 !important",
-                                },
-                                "& .MuiDataGrid-columnHeaderDraggableContainer": {
-                                    color: isDark ? "#fff !important" : "#000 !important",
-                                },
-                                // Virtual Scroller (body area)
                                 "& .MuiDataGrid-virtualScroller": {
                                     backgroundColor: isDark ? "#1F2A40 !important" : "#F2F0F0 !important",
                                 },
-                                // Footer
                                 "& .MuiDataGrid-footerContainer": {
                                     color: isDark ? "#fff !important" : "#000 !important",
                                     borderTop: "none !important",
                                     backgroundColor: isDark ? "#3e4396 !important" : "#A4A9FC !important",
                                 },
-                                // Checkbox
                                 "& .MuiCheckbox-root": {
                                     color: isDark ? "#b7ebde !important" : "#000 !important",
                                 },
                                 "& .MuiCheckbox-root.Mui-checked": {
-                                    color: isDark ? "#3e4396 !important" : "#3e4396 !important",
+                                    color: isDark ? "#70d8bd !important" : "#3e4396 !important",
                                 },
-                                // Icons
+                                "& .MuiDataGrid-row.Mui-selected": {
+                                    backgroundColor: isDark ? "#374151 !important" : "#e5e7eb !important",
+                                    "&:hover": {
+                                        backgroundColor: isDark ? "#4b5563 !important" : "#d1d5db !important",
+                                    },
+                                },
+                                "& .MuiDataGrid-row.Mui-selected .MuiDataGrid-cell": {
+                                    color: isDark ? "#fff !important" : "#000 !important",
+                                },
                                 "& .MuiDataGrid-iconSeparator": {
                                     color: isDark ? "rgba(255,255,255,0.3) !important" : "rgba(0,0,0,0.3) !important",
                                 },
-                                "& .MuiDataGrid-menuIcon": {
-                                    color: isDark ? "#fff !important" : "#000 !important",
-                                },
-                                "& .MuiDataGrid-menuIconButton": {
-                                    color: isDark ? "#fff !important" : "#000 !important",
-                                },
-                                "& .MuiIconButton-root": {
-                                    color: isDark ? "#fff !important" : "#000 !important",
-                                },
-                                // All SVG icons
                                 "& .MuiSvgIcon-root": {
                                     color: isDark ? "#fff !important" : "#000 !important",
-                                },
-                                // Toolbar (if used)
-                                "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-                                    color: isDark ? "#fff !important" : "#000 !important",
-                                },
-                                // Filter panel
-                                "& .MuiDataGrid-filterForm": {
-                                    color: isDark ? "#fff !important" : "#000 !important",
-                                },
-                                // Column menu
-                                "& .MuiDataGrid-columnMenu": {
-                                    backgroundColor: isDark ? "#1F2A40 !important" : "#fff !important",
-                                },
-                                // Overlay (when no rows)
-                                "& .MuiDataGrid-overlay": {
-                                    backgroundColor: isDark ? "#1F2A40 !important" : "#F2F0F0 !important",
                                 },
                             }}
                         >
                             <DataGrid checkboxSelection rows={rows} columns={columns} />
                         </Box>
                     </Box>
-                )
+                )}
+            </div>
 
-            }
-        </div>
-    )
-}
+            {/* Delete Confirmation Modal */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+                    <div className={`${isDark ? "bg-slate-900" : "bg-white"} p-8 rounded-lg w-96`}>
+                        <h3 className={`text-xl font-bold mb-4 ${isDark ? "text-white" : "text-black"}`}>
+                            Confirm Delete
+                        </h3>
+                        <p className={`mb-6 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+                            Are you sure you want to delete <strong>{deleteCourseName}</strong>? This action cannot be undone.
+                        </p>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => {
+                                    setShowDeleteModal(false);
+                                    setDeleteCourseId("");
+                                    setDeleteCourseName("");
+                                }}
+                                className={`${isDark ? "bg-gray-600 hover:bg-gray-700" : "bg-gray-300 hover:bg-gray-400"} text-white px-4 py-2 rounded w-full`}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    if (deleteCourseId) {
+                                        await deleteCourse(deleteCourseId);
+                                    }
+                                }}
+                                className={`bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded w-full`}
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
+    );
+};
 
-export default AllCourses
+export default AllCourses;

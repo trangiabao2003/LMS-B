@@ -28,6 +28,34 @@ const CourseContentData = ({
 
   const [activeSection, setActiveSection] = useState(1);
 
+  // Helper function to deep clone and update data immutably
+  const updateContentData = (index: number, field: string, value: any) => {
+    const updatedData = courseContentData.map((item: any, i: number) => {
+      if (i === index) {
+        return { ...item, [field]: value };
+      }
+      return item;
+    });
+    setCourseContentData(updatedData);
+  };
+
+  // Helper function to update nested link data
+  const updateLinkData = (contentIndex: number, linkIndex: number, field: string, value: any) => {
+    const updatedData = courseContentData.map((item: any, i: number) => {
+      if (i === contentIndex) {
+        const updatedLinks = item.links.map((link: any, j: number) => {
+          if (j === linkIndex) {
+            return { ...link, [field]: value };
+          }
+          return link;
+        });
+        return { ...item, links: updatedLinks };
+      }
+      return item;
+    });
+    setCourseContentData(updatedData);
+  };
+
   const handleSubmit = (e: any) => {
     e.preventDefault();
   };
@@ -39,14 +67,23 @@ const CourseContentData = ({
   };
 
   const handleRemoveLink = (index: number, linkIndex: number) => {
-    const updatedData = [...courseContentData];
-    updatedData[index].links.splice(linkIndex, 1);
+    const updatedData = courseContentData.map((item: any, i: number) => {
+      if (i === index) {
+        const updatedLinks = item.links.filter((_: any, j: number) => j !== linkIndex);
+        return { ...item, links: updatedLinks };
+      }
+      return item;
+    });
     setCourseContentData(updatedData);
   };
 
   const handleAddLink = (index: number) => {
-    const updatedData = [...courseContentData];
-    updatedData[index].links.push({ title: "", url: "" });
+    const updatedData = courseContentData.map((item: any, i: number) => {
+      if (i === index) {
+        return { ...item, links: [...item.links, { title: "", url: "" }] };
+      }
+      return item;
+    });
     setCourseContentData(updatedData);
   };
 
@@ -58,7 +95,6 @@ const CourseContentData = ({
       if (courseContentData.length > 0) {
         const lastVideoSection = courseContentData[courseContentData.length - 1].videoSection;
 
-        // use the last videoSection if available, else use user input
         if (lastVideoSection) {
           newVideoSection = lastVideoSection;
         }
@@ -69,6 +105,7 @@ const CourseContentData = ({
         description: "",
         videoSection: newVideoSection,
         links: [{ title: "", url: "" }],
+        suggestion: "",
       }
 
       setCourseContentData([...courseContentData, newContent])
@@ -76,26 +113,40 @@ const CourseContentData = ({
   }
 
   const addNewSection = () => {
-    if (
-      courseContentData[courseContentData.length - 1].title === "" ||
-      courseContentData[courseContentData.length - 1].description === "" ||
-      courseContentData[courseContentData.length - 1].videoUrl === "" ||
-      courseContentData[courseContentData.length - 1].links[0].title === "" ||
-      courseContentData[courseContentData.length - 1].links[0].url === ""
-    ) {
-      toast.error("Please fill all the fields first!");
-    } else {
-      setActive(activeSection + 1)
-      const newContent = {
-        videoUrl: "",
-        title: "",
-        description: "",
-        videoSection: `Untitle Section ${activeSection}`,
-        links: [{ title: "", url: "" }],
+    const lastItem = courseContentData[courseContentData.length - 1];
+
+    if (lastItem) {
+      if (
+        !lastItem.title ||
+        lastItem.title === "" ||
+        !lastItem.description ||
+        lastItem.description === "" ||
+        !lastItem.videoUrl ||
+        lastItem.videoUrl === ""
+      ) {
+        toast.error("Please fill all the fields first!");
+        return;
       }
-      setCourseContentData([...courseContentData, newContent])
     }
-  }
+
+    const newSection = {
+      videoUrl: "",
+      title: "",
+      description: "",
+      videoSection: lastItem?.videoSection || "Untitled Section",
+      links: [{ title: "", url: "" }],
+      suggestion: "",
+    };
+
+    setCourseContentData([...courseContentData, newSection]);
+  };
+
+  const handleDeleteContent = (index: number) => {
+    if (index > 0) {
+      const updatedData = courseContentData.filter((_: any, i: number) => i !== index);
+      setCourseContentData(updatedData);
+    }
+  };
 
   const prevButton = () => {
     setActive(active - 1);
@@ -140,11 +191,7 @@ const CourseContentData = ({
                           : "w-min"
                           } font-Poppins cursor-pointer dark:text-white text-black bg-transparent outline-none`}
                         value={item.videoSection}
-                        onChange={(e) => {
-                          const updatedData = [...courseContentData];
-                          updatedData[index].videoSection = e.target.value;
-                          setCourseContentData(updatedData);
-                        }}
+                        onChange={(e) => updateContentData(index, 'videoSection', e.target.value)}
                       />
                       <BsPencil className="cursor-pointer dark:text-white text-black" />
                     </div>
@@ -170,13 +217,7 @@ const CourseContentData = ({
                     <AiOutlineDelete
                       className={`dark:text-white text-[20px] mr-2 text-black ${index > 0 ? "cursor-pointer" : "cursor-no-drop"
                         }`}
-                      onClick={() => {
-                        if (index > 0) {
-                          const updatedData = [...courseContentData];
-                          updatedData.splice(index, 1);
-                          setCourseContentData(updatedData);
-                        }
-                      }}
+                      onClick={() => handleDeleteContent(index)}
                     />
 
                     <MdOutlineKeyboardArrowDown
@@ -203,11 +244,7 @@ const CourseContentData = ({
                         placeholder="Project Plan..."
                         className={`${styles.input}`}
                         value={item.title}
-                        onChange={(e) => {
-                          const updatedData = [...courseContentData];
-                          updatedData[index].title = e.target.value;
-                          setCourseContentData(updatedData);
-                        }}
+                        onChange={(e) => updateContentData(index, 'title', e.target.value)}
                       />
                     </div>
 
@@ -218,11 +255,7 @@ const CourseContentData = ({
                         placeholder="write something..."
                         className={`${styles.input}`}
                         value={item.videoUrl}
-                        onChange={(e) => {
-                          const updatedData = [...courseContentData];
-                          updatedData[index].videoUrl = e.target.value;
-                          setCourseContentData(updatedData);
-                        }}
+                        onChange={(e) => updateContentData(index, 'videoUrl', e.target.value)}
                       />
                     </div>
 
@@ -236,11 +269,7 @@ const CourseContentData = ({
                         placeholder="write something..."
                         className={`${styles.input} min-h-28 py-2 resize-y`}
                         value={item.description}
-                        onChange={(e) => {
-                          const updatedData = [...courseContentData];
-                          updatedData[index].description = e.target.value;
-                          setCourseContentData(updatedData);
-                        }}
+                        onChange={(e) => updateContentData(index, 'description', e.target.value)}
                       />
                       <br />
                       <br />
@@ -269,12 +298,7 @@ const CourseContentData = ({
                           placeholder="Source Code... (Link title)"
                           className={`${styles.input}`}
                           value={link.title}
-                          onChange={(e) => {
-                            const updatedData = [...courseContentData];
-                            updatedData[index].links[linkIndex].title =
-                              e.target.value;
-                            setCourseContentData(updatedData);
-                          }}
+                          onChange={(e) => updateLinkData(index, linkIndex, 'title', e.target.value)}
                         />
 
                         <input
@@ -282,12 +306,7 @@ const CourseContentData = ({
                           placeholder="Source Code Url... (Link URL)"
                           className={`${styles.input} mt-6`}
                           value={link.url}
-                          onChange={(e) => {
-                            const updatedData = [...courseContentData];
-                            updatedData[index].links[linkIndex].url =
-                              e.target.value;
-                            setCourseContentData(updatedData);
-                          }}
+                          onChange={(e) => updateLinkData(index, linkIndex, 'url', e.target.value)}
                         />
                       </div>
                     ))}
@@ -334,7 +353,7 @@ const CourseContentData = ({
           Prev
         </div>
         <div
-          className="w-[15%] 800px: [180px] flex items-center justify-center h-10 bg-[#37a39a] text-center text-white rounded mt-8 cursor-pointer"
+          className="w-[15%] 800px:w-[180px] flex items-center justify-center h-10 bg-[#37a39a] text-center text-white rounded mt-8 cursor-pointer"
           onClick={() => handleOptions()}
         >
           Next
