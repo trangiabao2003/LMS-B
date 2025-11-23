@@ -135,7 +135,7 @@ const EditHero = (props: Props) => {
           {/* Text Content Section */}
           <div className="w-full 1000px:w-[60%] flex flex-col items-center 1000px:items-start 1000px:mt-[0px] text-center 1000px:text-left mt-[50px]">
             <textarea
-              className="dark:text-white resize-none text-[#000000c7] text-[30px] px-3 w-full 1000px:text-[50px] 1500px:text-[60px] font-[600] font-Josefin py-2 1000px:leading-[60px] 1500px:leading-[70px] bg-transparent outline-none border-none"
+              className="dark:text-white resize-none text-[#000000c7] text-[30px] px-3 w-full 1000px:text-[50px] 1500px:text-[60px] font-semibold font-Josefin py-2 1000px:leading-[60px] 1500px:leading-[70px] bg-transparent outline-none border-none"
               placeholder="Improve Your Online Learning Experience Better Instantly"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -145,22 +145,22 @@ const EditHero = (props: Props) => {
               value={subTitle}
               onChange={(e) => setSubTitle(e.target.value)}
               placeholder="We have 20k+ Online courses & 500K+ Online registered student. Find your desired Courses from them."
-              className="dark:text-[#edfff4] text-[#000000ac] font-Josefin font-[600] text-[16px] 1000px:text-[18px] w-full bg-transparent resize-none outline-none border-none mt-4"
+              className="dark:text-[#edfff4] text-[#000000ac] font-Josefin font-semibold text-[16px] 1000px:text-[18px] w-full bg-transparent resize-none outline-none border-none mt-4"
               rows={3}
             />
             <div className="mt-8 1000px:mt-10">
               <button
                 className={`
                   ${styles.button}
-                  !w-[100px] 
-                  !min-h-[40px] 
-                  !h-[40px] 
-                  !rounded
+                  w-[100px] 
+                  min-h-10 
+                  h-10 
+                  rounded
                   dark:text-white 
                   text-black 
                   ${hasChanges && !updateLoading
-                    ? "!cursor-pointer !bg-[#42d383] hover:!bg-[#3aba75]"
-                    : "!cursor-not-allowed !bg-[#cccccc34]"
+                    ? "cursor-pointer bg-[#42d383] hover:bg-[#3aba75]"
+                    : "cursor-not-allowed bg-[#cccccc34]"
                   }
                   ${updateLoading ? "opacity-50" : ""}
                 `}
