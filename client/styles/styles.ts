@@ -3,6 +3,7 @@ export const styles = {
     label: "text-[16px] font-Poppins text-black dark:text-white font-[500]",
     input: "w-full text-black dark:text-white bg-transparent border border-gray-300 dark:border-gray-600 rounded-lg h-[40px] px-3 outline-none mt-[10px] font-Poppins focus:border-blue-500 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all",
     
+    select: "w-full text-black dark:text-white bg-white dark:bg-slate-700 border border-gray-300 dark:border-gray-600 rounded-lg h-[40px] px-3 outline-none mt-[10px] font-Poppins focus:border-blue-500 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all",
     // Create Course Styles
     courseContainer: "w-full min-h-screen bg-gray-50 dark:bg-slate-900",
     courseWrapper: "w-full flex gap-8 p-8",
