@@ -42,6 +42,7 @@ const EditCourse = ({ id }: Props) => {
                 price: editCourseData.price,
                 estimatedPrice: editCourseData.estimatedPrice,
                 tags: editCourseData.tags,
+                categories: editCourseData.categories,
                 level: editCourseData.level,
                 demoUrl: editCourseData.demoUrl,
                 thumbnail: editCourseData?.thumbnail?.url,
@@ -59,6 +60,7 @@ const EditCourse = ({ id }: Props) => {
         price: "",
         estimatedPrice: "",
         tags: "",
+        categories: "",
         level: "",
         demoUrl: "",
         thumbnail: "",
@@ -71,6 +73,7 @@ const EditCourse = ({ id }: Props) => {
             title: "",
             description: "",
             videoSection: "Untitled Section",
+            videoLength: "",
             links: [
                 {
                     title: "",
@@ -95,6 +98,7 @@ const EditCourse = ({ id }: Props) => {
             videoUrl: courseContent.videoUrl,
             title: courseContent.title,
             description: courseContent.description,
+            videoLength: Number(courseContent.videoLength) || 0,
             videoSection: courseContent.videoSection,
             links: courseContent.links.map((link) => ({
                 title: link.title,
@@ -110,6 +114,7 @@ const EditCourse = ({ id }: Props) => {
             price: courseInfo.price,
             estimatedPrice: courseInfo.estimatedPrice,
             tags: courseInfo.tags,
+            categories: courseInfo.categories,
             thumbnail: courseInfo.thumbnail,
             level: courseInfo.level,
             demoUrl: courseInfo.demoUrl,

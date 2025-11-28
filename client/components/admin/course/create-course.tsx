@@ -35,6 +35,7 @@ const CreateCourse = (props: Props) => {
         price: "",
         estimatedPrice: "",
         tags: "",
+        categories: "",
         level: "",
         demoUrl: "",
         thumbnail: "",
@@ -47,6 +48,7 @@ const CreateCourse = (props: Props) => {
             title: "",
             description: "",
             videoSection: "Untitled Section",
+            videoLength:"",
             links: [
                 {
                     title: "",
@@ -71,6 +73,7 @@ const CreateCourse = (props: Props) => {
             videoUrl: courseContent.videoUrl,
             title: courseContent.title,
             description: courseContent.description,
+            videoLength: Number(courseContent.videoLength) || 0,
             videoSection: courseContent.videoSection,
             links: courseContent.links.map((link) => ({
                 title: link.title,
@@ -86,6 +89,7 @@ const CreateCourse = (props: Props) => {
             price: Number(courseInfo.price) || 0,
             estimatedPrice: Number(courseInfo.estimatedPrice) || 0,
             tags: courseInfo.tags,
+            categories: courseInfo.categories,
             thumbnail: courseInfo.thumbnail,
             level: courseInfo.level,
             demoUrl: courseInfo.demoUrl,
@@ -102,6 +106,8 @@ const CreateCourse = (props: Props) => {
             await createCourse(courseData)
         }
     }
+    
+    console.log(courseData);
 
     return (
         <div className="w-full">

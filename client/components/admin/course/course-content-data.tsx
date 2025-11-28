@@ -259,6 +259,17 @@ const CourseContentData = ({
                       />
                     </div>
 
+                      <div className="mb-3">
+                      <label className={styles.label}>Video Length(in minutes)</label>
+                      <input
+                        type="number"
+                        placeholder="10"
+                        className={`${styles.input}`}
+                        value={item.videoLength}
+                        onChange={(e) => updateContentData(index, 'videoLength', e.target.value)}
+                      />
+                    </div>
+
                     <div className="mb-3">
                       <label className={styles.label}>
                         Video Description

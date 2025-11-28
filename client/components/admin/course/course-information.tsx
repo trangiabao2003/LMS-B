@@ -1,7 +1,8 @@
 "use client"
 
+import { useGetHeroDataQuery } from '@/redux/features/layout/layoutApi';
 import { styles } from '@/styles/styles';
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { IoCloudUploadOutline } from 'react-icons/io5';
 
 type Props = {
@@ -13,6 +14,15 @@ type Props = {
 
 const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Props) => {
     const [dragging, setDragging] = useState(false);
+    const { data } = useGetHeroDataQuery("Categories", {});
+    const [categories, setCategories] = useState([]);
+
+    useEffect(() => {
+        if (data) {
+            setCategories(data.layout.categories);
+        }
+
+    }, [data]);
 
     const handleSubmit = (e: any) => {
         e.preventDefault();
@@ -143,22 +153,42 @@ const CourseInformation = ({ courseInfo, setCourseInfo, active, setActive }: Pro
                 {/* Course Details Section */}
                 <div className={styles.formSection}>
                     <h3 className={styles.sectionTitle}>Course Details</h3>
+                    <div className={styles.twoColumnGrid}>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="tags" className={styles.label}>
+                                Course Tags <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                id="tags"
+                                type="text"
+                                name="tags"
+                                placeholder='e.g., Next.js, TypeScript, Tailwind CSS, MongoDB'
+                                required
+                                value={courseInfo.tags}
+                                className={styles.input}
+                                onChange={(e: any) => setCourseInfo({ ...courseInfo, tags: e.target.value })}
+                            />
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Separate tags with commas</p>
+                        </div>
 
-                    <div className={styles.formGroup}>
-                        <label htmlFor="tags" className={styles.label}>
-                            Course Tags <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            id="tags"
-                            type="text"
-                            name="tags"
-                            placeholder='e.g., Next.js, TypeScript, Tailwind CSS, MongoDB'
-                            required
-                            value={courseInfo.tags}
-                            className={styles.input}
-                            onChange={(e: any) => setCourseInfo({ ...courseInfo, tags: e.target.value })}
-                        />
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Separate tags with commas</p>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="categories" className={styles.label}>
+                                Course Category <span className="text-red-500">*</span>
+                            </label>
+                            <select 
+                                id="categories"
+                                className={styles.select}
+                                value={courseInfo.categories}
+                                onChange={(e: any) => {setCourseInfo({...courseInfo, categories: e.target.value})}}
+                            >
+                                <option value="">Select Category</option>
+                                {categories.map((item: any) => (
+                                    <option value={item.title} key={item._id}>
+                                        {item.title}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
                     <div className={styles.twoColumnGrid}>
