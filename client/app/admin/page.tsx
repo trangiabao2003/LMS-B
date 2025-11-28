@@ -9,7 +9,7 @@ const AdminPage = () => {
   return (
     <AdminProtected>
       <AdminLayout>
-        <DashboardHero />
+        <DashboardHero isDashboard={true} />
       </AdminLayout>
     </AdminProtected>
   )
