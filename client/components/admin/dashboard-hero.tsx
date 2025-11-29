@@ -1,14 +1,15 @@
-import React from 'react'
-import DashboardHeader from './dashboard-header'
+import DashboardHeader from "./dashboard-header";
 
-type Props = {}
+type Props = {
+  isDashboard?: boolean;
+};
 
-const DashboardHero = (props: Props) => {
+const DashboardHero = ({ isDashboard }: Props) => {
+
   return (
     <div>
-        {/* <DashboardHeader /> */}
     </div>
-  )
-}
+  );
+};
 
-export default DashboardHero
+export default DashboardHero;

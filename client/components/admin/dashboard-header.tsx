@@ -1,13 +1,15 @@
 "use client";
 
 import { ThemeSwhitcher } from "@/app/utils/ThemeSwitcher";
-import React, { FC, useState } from "react";
+import { useState } from "react";
 import { IoMdNotificationsOutline } from "react-icons/io";
 
-type Props = {};
+type Props = {
+    open?: boolean;
+    setOpen?: any;
+};
 
-const DashboardHeader = ({ }: Props) => {
-    const [open, setOpen] = useState(false);
+const DashboardHeader = ({ open, setOpen }: Props) => {
 
     return (
         <div className="w-full bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 sticky top-0 z-40">
