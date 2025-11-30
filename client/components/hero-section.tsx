@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button"
+import { useGetHeroDataQuery } from "@/redux/features/layout/layoutApi";
 import { ArrowRight, Star } from "lucide-react"
+import Image from "next/image"
 
 export function HeroSection() {
+  const { data, isLoading } = useGetHeroDataQuery("Banner", {});
   return (
     <section className="relative w-full py-20 md:py-32 overflow-hidden">
       {/* Background gradient effect */}
@@ -19,12 +22,11 @@ export function HeroSection() {
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight text-balance">
-              Learn Skills That Matter
+              {data?.layout?.banner?.title}
             </h1>
 
             <p className="text-lg text-muted-foreground leading-relaxed text-balance">
-              Discover thousands of courses from industry experts. Learn at your own pace and advance your career with
-              LearnHub.
+              {data?.layout?.banner?.subTitle}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -56,25 +58,38 @@ export function HeroSection() {
 
           {/* Right Visual */}
           <div className="relative h-96 md:h-full min-h-96">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl blur-3xl" />
-            <div className="relative h-full rounded-2xl border border-border bg-card p-8 flex flex-col justify-center items-center gap-6">
-              <div className="w-full space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-4 p-4 rounded-lg bg-background/50 hover:bg-background transition-colors"
-                  >
-                    <div className="h-12 w-12 rounded-lg bg-primary/20 flex items-center justify-center">
-                      <div className="h-6 w-6 rounded bg-primary/40" />
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <div className="h-3 w-24 rounded bg-muted" />
-                      <div className="h-2 w-32 rounded bg-muted/50" />
-                    </div>
+            {data ? (
+              <Image
+                src={data?.layout?.banner?.image?.url}
+                alt="banner"
+                width={600}
+                height={400}
+                className="object-contain 1100px:max-w-[90%] w-[90%] 1500px:max-w-[85%] h-auto z-10"
+              />
+            ) : (
+              <div className="">
+                <div className="absolute inset-0 bg-linear-to-br from-primary/20 to-primary/5 rounded-2xl blur-3xl" />
+                <div className="relative h-full rounded-2xl border border-border bg-card p-8 flex flex-col justify-center items-center gap-6">
+                  <div className="w-full space-y-4">
+                    {[1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-4 p-4 rounded-lg bg-background/50 hover:bg-background transition-colors"
+                      >
+                        <div className="h-12 w-12 rounded-lg bg-primary/20 flex items-center justify-center">
+                          <div className="h-6 w-6 rounded bg-primary/40" />
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <div className="h-3 w-24 rounded bg-muted" />
+                          <div className="h-2 w-32 rounded bg-muted/50" />
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
+            )
+            }
           </div>
         </div>
       </div>

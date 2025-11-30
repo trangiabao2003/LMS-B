@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Moon, Sun, Menu, X } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
@@ -8,15 +8,26 @@ import { LoginModal } from "@/components/auth/login-modal"
 import { VerificationModal } from "./auth/verification-modal"
 import { SignupModal } from "./auth/signup-modal"
 
-// import { CustomModal } from "@/app/utils/CustomModal"
+import { CustomModal } from "@/app/utils/CustomModal"
+import { useSelector } from "react-redux"
+import Image from "next/image"
+import avatar from "./../public/avatar.jpg"
+import Link from "next/link"
+import { useLogOutQuery, useSocialAuthMutation } from "@/redux/features/auth/authApi"
+import { useSession } from "next-auth/react"
+import toast from "react-hot-toast"
+import { ThemeSwhitcher } from "@/app/utils/ThemeSwitcher"
 
-// type Props = {
-//   open: boolean;
-//   setOpen: (open: boolean) => void;
-//   activeItem: number;
-//   route: string;
-//   setRoute: (route: string) => void;
-// }
+type Props = {
+  // title: string;
+  // description: string;
+  // keywords: string;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  activeItem: number;
+  route: string;
+  setRoute: (route: string) => void;
+}
 
 export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
   const [isOpen, setIsOpen] = useState(false)
@@ -25,6 +36,32 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
   const [signupModalOpen, setSignupModalOpen] = useState(false)
   const [verificationModalOpen, setVerificationModalOpen] = useState(false)
   const [userEmail, setUserEmail] = useState("")
+  const { user } = useSelector((state: any) => state.auth);
+  const { data } = useSession();
+  const [socialAuth, { isSuccess, error }] = useSocialAuthMutation()
+  const [logout, setLogout] = useState(false);
+  const { } = useLogOutQuery(undefined,
+    { skip: !logout ? true : false });
+
+  useEffect(() => {
+    if (!user) {
+      if (data) {
+        socialAuth({
+          email: data?.user?.email,
+          name: data?.user?.name,
+          avatar: data.user?.image
+        })
+      }
+    }
+    if (data === null) {
+      if (isSuccess) {
+        toast.success("Login successful")
+      }
+    }
+    if (data === null) {
+      setLogout(true);
+    }
+  }, [data, user]);
 
   const handleOpenLogin = () => {
     setSignupModalOpen(false)
@@ -46,7 +83,7 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">      <div className="container mx-auto px-4 py-4">
+      <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">      <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
@@ -58,7 +95,10 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <a href="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+              Home
+            </a>
+            <a href="/courses" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
               Courses
             </a>
             <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
@@ -75,29 +115,29 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
           {/* Right Actions */}
           <div className="flex items-center gap-4">
             {/* Theme Toggle */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="rounded-full"
-            >
-              {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              <span className="sr-only">Toggle theme</span>
-            </Button>
+           <ThemeSwhitcher />
 
-            {/* Auth Buttons - Desktop */}
-            <div className="hidden md:flex items-center gap-2">
-              <Button variant="ghost" onClick={handleOpenLogin}>
-                Sign In
-              </Button>
-              <Button onClick={handleOpenSignup}>Sign Up</Button>
-            </div>
+            {
+              user ? (
+                <Link href={"/profile"} >
+                  <Image
+                    src={user.avatar ? user.avatar.url : avatar}
+                    alt="Avatar"
+                    width={30}
+                    height={30}
+                    className="w-[30px] h-[30px] rounded-full cursor-pointer object-cover"
+                    style={{border: activeItem === 5 ? "2px solid #37a39a" : "none"}}
+                  />
+                </Link>
+              ) : (
+                <>
+                  <Button variant="ghost" onClick={handleOpenLogin}>
+                    Sign In
+                  </Button>
+                  <Button onClick={handleOpenSignup}>Sign Up</Button>
+                </>
+              )}
 
-            {/* Mobile Menu Button */}
-            <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)} className="md:hidden">
-              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              <span className="sr-only">Toggle menu</span>
-            </Button>
           </div>
         </div>
 
@@ -127,41 +167,85 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
           </nav>
         )}
       </div>
-        {/* {
-        route === "Login" && 
+
+      </header>
+
+      {
+        route === "Login" &&
         (
           <>
             {
               open && (
                 <CustomModal
-                  open={open} 
-                  setOpen={setOpen} 
-                  activeItem={activeItem} 
-                  component={<LoginModal setRoute={setRoute} />} 
-                  setRoute={setRoute} 
+                  open={open}
+                  setOpen={setOpen}
+                  activeItem={activeItem}
+                  setRoute={setRoute}
+                  component={LoginModal}
                 />
               )
             }
           </>
         )
-      } */}
-      </header>
+      }
+
+      {
+        route === "Signup" &&
+        (
+          <>
+            {
+              open && (
+                <CustomModal
+                  open={open}
+                  setOpen={setOpen}
+                  activeItem={activeItem}
+                  setRoute={setRoute}
+                  component={SignupModal}
+                />
+              )
+            }
+          </>
+        )
+      }
+
+      {
+        route === "Verification" &&
+        (
+          <>
+            {
+              open && (
+                <CustomModal
+                  open={open}
+                  setOpen={setOpen}
+                  activeItem={activeItem}
+                  setRoute={setRoute}
+                  component={VerificationModal}
+                />
+              )
+            }
+          </>
+        )
+      }
 
       <LoginModal
         isOpen={loginModalOpen}
         onClose={() => setLoginModalOpen(false)}
         onSwitchToSignup={handleOpenSignup}
+        setOpen={setOpen}
+        setRoute={setRoute}
       />
       <SignupModal
         isOpen={signupModalOpen}
         onClose={() => setSignupModalOpen(false)}
         onSwitchToLogin={handleOpenLogin}
-        onSignupSuccess={() => handleSignupSuccess()}
+        onSignupSuccess={(email?: string) => handleSignupSuccess(email)}
+        setRoute={setRoute}
       />
       <VerificationModal
         isOpen={verificationModalOpen}
         onClose={() => setVerificationModalOpen(false)}
         email={userEmail}
+        setRoute={setRoute}
       />
     </>
   )
