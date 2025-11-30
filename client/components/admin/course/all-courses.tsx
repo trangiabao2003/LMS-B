@@ -6,7 +6,6 @@ import { useDeleteCourseMutation, useGetAllCoursesQuery } from '@/redux/features
 import { AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
 import { DataGrid } from "@mui/x-data-grid"
 import Loader from '@/components/Loader/Loader';
-import { styles } from '@/styles/styles';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import TimeAgo from 'javascript-time-ago'

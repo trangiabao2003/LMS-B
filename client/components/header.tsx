@@ -95,7 +95,10 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <a href="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+              Home
+            </a>
+            <a href="/courses" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
               Courses
             </a>
             <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">

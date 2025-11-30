@@ -57,7 +57,9 @@ const Sidebar = () => {
             {/* Header */}
             <div className="p-4 border-b border-slate-800 flex items-center justify-center lg:justify-between gap-2">
                 {!isCollapsed && (
+                    <a href="/" className="flex items-center gap-2">
                     <h1 className="text-lg font-bold text-white hidden lg:block">ELEARNING</h1>
+                    </a>
                 )}
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
