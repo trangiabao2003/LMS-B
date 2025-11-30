@@ -7,6 +7,7 @@ import { Footer } from "@/components/footer"
 import { useState } from "react";
 import Reviews from "@/components/route/reviews"
 import FAQ from "@/components/faq/faq"
+import { Heading } from "./utils/Heading"
 
 export default function Home() {
   const [open, setOpen] = useState(false);
@@ -15,6 +16,9 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-background">
+      <Heading 
+      title="LMSB - Buoc tiep di 4 life"
+      />
       <Header
         open={open}
         setOpen={setOpen}

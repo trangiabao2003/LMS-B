@@ -32,7 +32,7 @@ const FAQ = (props: Props) => {
                 </h1>
                 <div className="mt-12">
                     <dl className="space-y-8">
-                        {questions.map((q) => (
+                        {questions.map((q, index) => (
                             <div key={q.id}
                                 className={` ${q._id !== questions[0]?._id && "border-t"
                                     } border-gray-200 pt-6`}
@@ -42,7 +42,7 @@ const FAQ = (props: Props) => {
                                         className="flex items-start justify-between w-full text-left focus: outline-none"
                                         onClick={() => toggleQuestion(q._id)}
                                     >
-                                        <span className="font-medium text-black dark:text-white">{q.question}</span>
+                                        <span className="font-medium text-black dark:text-white">{`${index + 1}. ${q.question}`}</span>
                                         <span className="ml-6 shrink-0">
                                             {activeQuestion === q._id ? (
                                                 <HiOutlineMinusSm className="h-6 w-6 text-black dark:text-white" />
