@@ -19,9 +19,6 @@ import toast from "react-hot-toast"
 import { ThemeSwhitcher } from "@/app/utils/ThemeSwitcher"
 
 type Props = {
-  // title: string;
-  // description: string;
-  // keywords: string;
   open: boolean;
   setOpen: (open: boolean) => void;
   activeItem: number;
