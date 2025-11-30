@@ -26,9 +26,7 @@ const Ratings = ({ rating }: Props) => {
                 />
             );
         } else {
-
             stars.push(
-
                 <AiOutlineStar
                     key={i}
                     size={20}

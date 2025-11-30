@@ -6,6 +6,7 @@ import { CourseGrid } from "@/components/course/course-grid"
 import { Footer } from "@/components/footer"
 import { useState } from "react";
 import Reviews from "@/components/route/reviews"
+import FAQ from "@/components/faq/faq"
 
 export default function Home() {
   const [open, setOpen] = useState(false);
@@ -24,6 +25,7 @@ export default function Home() {
       <HeroSection />
       <CourseGrid />
       <Reviews />
+      <FAQ />
       <Footer />
     </main>
   )
