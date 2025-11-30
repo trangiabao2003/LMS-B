@@ -193,7 +193,7 @@ const CourseDetails = ({ data }: Props) => {
 
               {/* Video Preview Card */}
               <Card className="overflow-hidden">
-                <div className="flex justify-center">
+                <div className="w-full">
                   <CoursePlayer videoUrl={data?.demoUrl} title={data?.name} />
                 </div>
 

@@ -24,24 +24,16 @@ const CoursePlayer = ({ videoUrl, title }: Props) => {
     }, [videoUrl])
 
     return (
-        <div style={{ paddingTop: "41%", position: "relative" }}>
-            {
-                videoData.otp && videoData.playbackInfo !== "" && (
-                    <iframe
-                        src={`https://player.vdocipher.com/v2/?otp=${videoData?.otp}&playbackInfo=${videoData.playbackInfo}&player=0Q3uzzltUdkK6D5S`}
-                        style={{
-                            border: 0,
-                            width: "90%",
-                            height: "100%",
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                        }}
-                        allowFullScreen={true}
-                        allow="encrypted-media"
-                    ></iframe>
-                )
-            }
+        <div className="relative w-full aspect-video overflow-hidden bg-black">
+            {videoData.otp && videoData.playbackInfo && (
+                <iframe
+                    src={`https://player.vdocipher.com/v2/?otp=${videoData.otp}&playbackInfo=${videoData.playbackInfo}&player=0Q3uzzltUdkK6D5S`}
+                    className="absolute top-0 left-0 w-full h-full object-cover"
+                    allowFullScreen
+                    allow="encrypted-media"
+                    style={{ border: 'none' }}
+                />
+            )}
         </div>
     )
 }
