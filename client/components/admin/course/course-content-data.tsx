@@ -129,11 +129,13 @@ const CourseContentData = ({
       }
     }
 
+    const newSectionName = `Section ${courseContentData.length}`;
+    
     const newSection = {
       videoUrl: "",
       title: "",
       description: "",
-      videoSection: lastItem?.videoSection || "Untitled Section",
+      videoSection: newSectionName,
       links: [{ title: "", url: "" }],
       suggestion: "",
     };
