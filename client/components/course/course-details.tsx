@@ -126,7 +126,8 @@ const CourseDetails = ({ data }: Props) => {
             <Card>
               <CardContent className="p-6">
                 <h2 className="text-2xl font-bold mb-6">Course Content</h2>
-                <CourseContentList />
+                <CourseContentList data={data?.courseData}
+                  isDemo={true} />
               </CardContent>
             </Card>
 
