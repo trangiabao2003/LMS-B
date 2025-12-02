@@ -1,5 +1,5 @@
 import Ratings from '@/app/utils/Ratings';
-import { IoCheckmarkDoneOutline } from 'react-icons/io5';
+import { IoCheckmarkDoneOutline, IoCloseOutline } from 'react-icons/io5';
 import { useSelector } from 'react-redux';
 import CoursePlayer from '@/app/utils/CoursePlayer';
 import { styles } from '@/styles/styles';
@@ -10,13 +10,19 @@ import { format } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { useState } from 'react';
+import CheckoutForm from '../payment/checkout-form';
+import { Elements } from '@stripe/react-stripe-js';
 
 type Props = {
   data: any;
+  clientSecret?: string;
+  stripePromise?: any;
 }
 
-const CourseDetails = ({ data }: Props) => {
+const CourseDetails = ({ data, clientSecret, stripePromise }: Props) => {
   const { user } = useSelector((state: any) => state.auth);
+  const [open, setOpen] = useState(false);
 
   const discountPercentage = data?.estimatedPrice
     ? ((data.estimatedPrice - data.price) / data.estimatedPrice) * 100
@@ -24,16 +30,16 @@ const CourseDetails = ({ data }: Props) => {
 
   const isPurchased = user && user?.courses?.find((item: any) => item._id === data._id);
 
-  const handleOrder = (e: any) => {
-    console.log("Order course:", data._id);
-  };
-
   // Calculate total duration from courseData
   const totalDuration = data?.courseData?.reduce((acc: number, item: any) => {
     return acc + (item.videoLength || 0)
   }, 0) || 0
 
   const durationInHours = (totalDuration / 60).toFixed(1);
+
+  const handleOrder = (e: any) => {
+    setOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-linear-to-b from-background to-muted/20">
@@ -311,6 +317,34 @@ const CourseDetails = ({ data }: Props) => {
 
         </div>
       </div>
+      <>
+        {open && (
+          <div className="w-full h-screen bg-[#00000036] fixed top-0 left-0 z-50 flex items-center justify-center">
+            <div className="w-[500px] min-h-[500px] bg-white rounded-xl shadow p-3">
+              <div className="w-full flex justify-end">
+                <IoCloseOutline
+                  size={40}
+                  className="text-black cursor-pointer"
+                  onClick={() => setOpen(false)}
+                />
+              </div>
+              <div className="full">
+                {
+                  stripePromise && clientSecret && (
+                    <Elements
+                      stripe={stripePromise} options={{ clientSecret: clientSecret }}>
+                      <CheckoutForm
+                        setOpen={setOpen}
+                        data={data}
+                      />
+                    </Elements>
+                    )
+                  }
+              </div>
+            </div>
+          </div>
+        )}
+      </>
     </div>
   );
 };
