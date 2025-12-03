@@ -34,9 +34,23 @@ export const ordersApi = apiSlice.injectEndpoints({
         method: "POST",
         credentials: "include" as const,
       }),
+      invalidatesTags: ["CoursePurchased"], // Invalidate cache on order creation
+    }),
+    checkCoursePurchased: builder.query({
+      query: (courseId) => ({
+        url: `check-purchased/${courseId}`,
+        method: "GET",
+        credentials: "include" as const,
+      }),
+      providesTags: ["CoursePurchased"], // Cache tag
     }),
   }),
 });
 
-export const { useGetAllOrdersQuery, useGetStripePublishablekeyQuery, useCreatePaymentIntentMutation, useCreateOrderMutation } =
-  ordersApi;
+export const { 
+  useGetAllOrdersQuery, 
+  useGetStripePublishablekeyQuery, 
+  useCreatePaymentIntentMutation, 
+  useCreateOrderMutation,
+  useCheckCoursePurchasedQuery 
+} = ordersApi;

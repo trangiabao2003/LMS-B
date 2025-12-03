@@ -8,6 +8,7 @@ export const apiSlice = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1",
   }),
+  tagTypes: ["User", "CoursePurchased"],
   endpoints: (builder) => ({
     getCourses: builder.query<Course[], void>({
       query: () => "courses",

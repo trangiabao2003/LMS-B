@@ -15,61 +15,65 @@ type Props = {
 const CourseDetailsPage = ({ id }: Props) => {
     const [route, setRoute] = useState("Login");
     const [open, setOpen] = useState(false);
-    const { data, isLoading } = useGetCourseDetailsQuery(id);
+    const { data, isLoading, refetch } = useGetCourseDetailsQuery(id);
     const { data: config } = useGetStripePublishablekeyQuery({});
     const [createPaymentIntent, { data: paymentIntentData }] = useCreatePaymentIntentMutation();
     const [stripePromise, setStripePromise] = useState<any>(null);
     const [clientSecret, setClientSecret] = useState('');
 
+        useEffect(() => {
+        refetch();
+    }, []);
+
     useEffect(() => {
         if (config) {
-            const publishablekey = config?.publishableKey;
+            const publishablekey = config?.publishablekey;
             setStripePromise(loadStripe(publishablekey));
         }
-        if (data) {
+    }, [config]);
+
+    useEffect(() => {
+        if (data && !clientSecret) {
             const amount = Math.round(data.course.price * 100);
             createPaymentIntent(amount);
-        };
-
-    }, [config, data]);
+        }
+    }, [data, clientSecret]);
 
     useEffect(() => {
         if (paymentIntentData) {
-            setClientSecret(paymentIntentData?.clientSecret);
+            console.log("Payment Intent Data:", paymentIntentData); // Debug
+            setClientSecret(paymentIntentData?.client_secret);
         }
-
     }, [paymentIntentData]);
 
     return (
         <>
-            {
-                isLoading ? (<Loader />) : (
-                    <div className="">
-                        <Heading
-                            title={data?.course.name + " Deatails - LMSB"}
-                            description={
-                                "ELearning is a programming community which is developed by shahriar sajeeb for helping programmers"
-                            }
-                            keywords={data?.course?.tags}
-                        />
-                        <Header
-                            open={open}
-                            setOpen={setOpen}
-                            route={route} setRoute={setRoute}
-                            activeItem={1}
-                        />
-                        {
-                            stripePromise && (
-                                <CourseDetails data={data.course} stripePromise={stripePromise} clientSecret={clientSecret} />
-                            )
-                        }
-
-                        <Footer />
-                    </div>
-                )
-            }
+            {isLoading ? (
+                <Loader />
+            ) : (
+                <div className="">
+                    <Heading
+                        title={data?.course.name + " Details - LMSB"}
+                        description="ELearning platform"
+                        keywords={data?.course?.tags}
+                    />
+                    <Header
+                        open={open}
+                        setOpen={setOpen}
+                        route={route}
+                        setRoute={setRoute}
+                        activeItem={1}
+                    />
+                    <CourseDetails 
+                        data={data.course} 
+                        stripePromise={stripePromise} 
+                        clientSecret={clientSecret} 
+                    />
+                    <Footer />
+                </div>
+            )}
         </>
-    )
-}
+    );
+};
 
 export default CourseDetailsPage

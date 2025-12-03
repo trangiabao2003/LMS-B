@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { useState } from 'react';
 import CheckoutForm from '../payment/checkout-form';
 import { Elements } from '@stripe/react-stripe-js';
+import { useCheckCoursePurchasedQuery } from '@/redux/features/orders/ordersApi';
 
 type Props = {
   data: any;
@@ -21,14 +22,23 @@ type Props = {
 }
 
 const CourseDetails = ({ data, clientSecret, stripePromise }: Props) => {
-  const { user } = useSelector((state: any) => state.auth);
+   const { user } = useSelector((state: any) => state.auth);
   const [open, setOpen] = useState(false);
+
+  // Check if course is purchased via orders collection
+  const { 
+    data: purchaseData, 
+    isLoading: checkingPurchase,
+    refetch: refetchPurchased 
+  } = useCheckCoursePurchasedQuery(data?._id, {
+    skip: !user || !data?._id, // Skip if no user or course ID
+  });
+
+  const isPurchased = purchaseData?.isPurchased || false;
 
   const discountPercentage = data?.estimatedPrice
     ? ((data.estimatedPrice - data.price) / data.estimatedPrice) * 100
     : 0;
-
-  const isPurchased = user && user?.courses?.find((item: any) => item._id === data._id);
 
   // Calculate total duration from courseData
   const totalDuration = data?.courseData?.reduce((acc: number, item: any) => {
@@ -38,6 +48,9 @@ const CourseDetails = ({ data, clientSecret, stripePromise }: Props) => {
   const durationInHours = (totalDuration / 60).toFixed(1);
 
   const handleOrder = (e: any) => {
+    if (!user) {
+      return;
+    }
     setOpen(true);
   };
 
@@ -225,22 +238,36 @@ const CourseDetails = ({ data, clientSecret, stripePromise }: Props) => {
                   </div>
 
                   {/* CTA Button */}
-                  {isPurchased ? (
+                  {checkingPurchase ? (
+                    <div className="flex justify-center py-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600"></div>
+                    </div>
+                  ) : isPurchased ? (
                     <Link
                       href={`/course-access/${data?._id}`}
                       className="block w-full"
                     >
-                      <button className={`${styles.button} w-full py-4 text-lg font-semibold`}>
-                        Enter Course
+                      <button className={`${styles.button} w-full py-4 text-lg font-semibold bg-green-600 hover:bg-green-700`}>
+                        Enter to Course
                       </button>
                     </Link>
                   ) : (
                     <div className="flex justify-center">
                       <button
                         onClick={handleOrder}
-                        className={`${styles.button} w-[80%] py-4 text-lg font-semibold bg-cyan-600 hover:bg-cyan-400/50`}
+                        disabled={!clientSecret || !user}
+                        className={`${styles.button} w-[80%] py-4 text-lg font-semibold ${
+                          !clientSecret || !user
+                            ? 'bg-gray-400 cursor-not-allowed opacity-60' 
+                            : 'bg-cyan-600 hover:bg-cyan-400/50'
+                        }`}
                       >
-                        Buy Now - ${data?.price}
+                        {!user 
+                          ? 'Login to Buy' 
+                          : !clientSecret 
+                          ? 'Loading...' 
+                          : `Buy Now - $${data?.price}`
+                        }
                       </button>
                     </div>
                   )}
@@ -328,18 +355,26 @@ const CourseDetails = ({ data, clientSecret, stripePromise }: Props) => {
                   onClick={() => setOpen(false)}
                 />
               </div>
-              <div className="full">
+              <div className="w-full">
                 {
-                  stripePromise && clientSecret && (
+                  stripePromise && clientSecret ? (
                     <Elements
-                      stripe={stripePromise} options={{ clientSecret: clientSecret }}>
+                      stripe={stripePromise} 
+                      options={{ clientSecret: clientSecret }}
+                    >
                       <CheckoutForm
                         setOpen={setOpen}
                         data={data}
+                        refetchPurchased={refetchPurchased}
                       />
                     </Elements>
-                    )
-                  }
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-600 mb-4"></div>
+                      <p className="text-gray-600 font-medium">Preparing payment...</p>
+                    </div>
+                  )
+                }
               </div>
             </div>
           </div>

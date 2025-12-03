@@ -35,6 +35,7 @@ export const createOrder = CatchAsyncErrors(
       const courseExistInUser = user?.courses.some(
         (course: any) => course._id.toString() === courseId
       );
+      
       if (courseExistInUser) {
         return next(
           new ErrorHandler("You have already purchased this course", 400)
@@ -65,11 +66,6 @@ export const createOrder = CatchAsyncErrors(
         },
       };
 
-      const html = await ejs.renderFile(
-        path.join(__dirname, "../mails/order-confirmation.ejs"),
-        { order: mailData }
-      );
-
       try {
         if (user) {
           await sendMail({
@@ -80,24 +76,30 @@ export const createOrder = CatchAsyncErrors(
           });
         }
       } catch (error: any) {
-        return next(new ErrorHandler(error.message, 500));
+        console.error("Email error:", error.message);
       }
 
+      // Add course to user's courses
       user?.courses.push(course?._id);
 
-      await redis.set(req.user?.id, JSON.stringify(user));
-
+      // Save user first
       await user?.save();
+
+      // Update Redis with the new user data
+      await redis.set(req.user?._id, JSON.stringify(user), 'EX', 604800); // 7 days
+
+      // Create notification
       await NotificationModel.create({
         user: user?._id,
         title: "New Order",
         message: `You have a new order from ${course?.name}`,
       });
 
+      // Update purchased count
       course.purchased = (course.purchased ?? 0) + 1;
-
       await course.save();
 
+      // Return order
       newOrder(data, res, next);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
@@ -116,21 +118,50 @@ export const getAllOrders = CatchAsyncErrors(
   }
 );
 
+export const checkCoursePurchased = CatchAsyncErrors(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { courseId } = req.params;
+      const userId = req.user?._id;
+
+      const order = await OrderModel.findOne({
+        courseId,
+        userId,
+      });
+
+      res.status(200).json({
+        success: true,
+        isPurchased: !!order,
+        order: order || null,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
 // send stripe publishble key
 export const sendStripePublishableKey = CatchAsyncErrors(
   async (req: Request, res: Response) => {
     res.status(200).json({
-      publishablekey: process.env.STRIPE_PUBLISHABLE_KEY,
+      publishablekey: process.env.STRIPE_PUBLISHABLE_KEY, // Lowercase 'key'
     });
   }
 );
 
-// new payment
+// order.controller.ts
 export const newPayment = CatchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const { amount } = req.body;
+      
+      // Validate amount
+      if (!amount || amount <= 0) {
+        return next(new ErrorHandler("Invalid amount", 400));
+      }
+
       const myPayment = await stripe.paymentIntents.create({
-        amount: req.body.amount,
+        amount: Math.round(amount), // Đảm bảo là số nguyên
         currency: "USD",
         metadata: {
           company: "E-Learning",
@@ -139,11 +170,13 @@ export const newPayment = CatchAsyncErrors(
           enabled: true,
         },
       });
+      
       res.status(201).json({
         success: true,
         client_secret: myPayment.client_secret,
       });
     } catch (error: any) {
+      console.error("Stripe Payment Error:", error); // Thêm log
       return next(new ErrorHandler(error.message, 500));
     }
   }
