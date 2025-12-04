@@ -47,10 +47,10 @@ export const ordersApi = apiSlice.injectEndpoints({
   }),
 });
 
-export const { 
-  useGetAllOrdersQuery, 
-  useGetStripePublishablekeyQuery, 
-  useCreatePaymentIntentMutation, 
+export const {
+  useGetAllOrdersQuery,
+  useGetStripePublishablekeyQuery,
+  useCreatePaymentIntentMutation,
   useCreateOrderMutation,
-  useCheckCoursePurchasedQuery 
+  useCheckCoursePurchasedQuery
 } = ordersApi;

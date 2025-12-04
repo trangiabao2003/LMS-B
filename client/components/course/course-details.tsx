@@ -14,6 +14,7 @@ import { useState } from 'react';
 import CheckoutForm from '../payment/checkout-form';
 import { Elements } from '@stripe/react-stripe-js';
 import { useCheckCoursePurchasedQuery } from '@/redux/features/orders/ordersApi';
+import { useLoadUserQuery } from '@/redux/features/api/apiSlice';
 
 type Props = {
   data: any;
@@ -22,14 +23,15 @@ type Props = {
 }
 
 const CourseDetails = ({ data, clientSecret, stripePromise }: Props) => {
-   const { user } = useSelector((state: any) => state.auth);
+  const { data: userData } = useLoadUserQuery(undefined, {});
+  const user = userData?.user;
   const [open, setOpen] = useState(false);
 
   // Check if course is purchased via orders collection
-  const { 
-    data: purchaseData, 
+  const {
+    data: purchaseData,
     isLoading: checkingPurchase,
-    refetch: refetchPurchased 
+    refetch: refetchPurchased
   } = useCheckCoursePurchasedQuery(data?._id, {
     skip: !user || !data?._id, // Skip if no user or course ID
   });
@@ -256,17 +258,16 @@ const CourseDetails = ({ data, clientSecret, stripePromise }: Props) => {
                       <button
                         onClick={handleOrder}
                         disabled={!clientSecret || !user}
-                        className={`${styles.button} w-[80%] py-4 text-lg font-semibold ${
-                          !clientSecret || !user
-                            ? 'bg-gray-400 cursor-not-allowed opacity-60' 
-                            : 'bg-cyan-600 hover:bg-cyan-400/50'
-                        }`}
+                        className={`${styles.button} w-[80%] py-4 text-lg font-semibold ${!clientSecret || !user
+                          ? 'bg-gray-400 cursor-not-allowed opacity-60'
+                          : 'bg-cyan-600 hover:bg-cyan-400/50'
+                          }`}
                       >
-                        {!user 
-                          ? 'Login to Buy' 
-                          : !clientSecret 
-                          ? 'Loading...' 
-                          : `Buy Now - $${data?.price}`
+                        {!user
+                          ? 'Login to Buy'
+                          : !clientSecret
+                            ? 'Loading...'
+                            : `Buy Now - $${data?.price}`
                         }
                       </button>
                     </div>
@@ -359,7 +360,7 @@ const CourseDetails = ({ data, clientSecret, stripePromise }: Props) => {
                 {
                   stripePromise && clientSecret ? (
                     <Elements
-                      stripe={stripePromise} 
+                      stripe={stripePromise}
                       options={{ clientSecret: clientSecret }}
                     >
                       <CheckoutForm

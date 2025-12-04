@@ -1,4 +1,3 @@
-import { useLoadUserQuery } from '@/redux/features/api/apiSlice';
 import { useCreateOrderMutation } from '@/redux/features/orders/ordersApi';
 import { styles } from '@/styles/styles';
 import { LinkAuthenticationElement, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
@@ -27,12 +26,12 @@ const CheckoutForm = ({ setOpen, data, refetchPurchased }: Props) => {
             return;
         }
         setIsLoading(true);
-        
+
         const { error, paymentIntent } = await stripe.confirmPayment({
             elements,
             redirect: "if_required",
         });
-        
+
         if (error) {
             setMessage(error.message);
             setIsLoading(false);
@@ -47,18 +46,18 @@ const CheckoutForm = ({ setOpen, data, refetchPurchased }: Props) => {
             toast.success("Course purchased successfully! 🎉");
             setIsLoading(false);
             setOpen(false);
-            
-            // Refetch purchase status
+
+            // Refetch purchase status để update UI
             if (refetchPurchased) {
                 refetchPurchased();
             }
-            
-            // Redirect to course
+
+            // Redirect using Next.js router (CLIENT-SIDE)
             setTimeout(() => {
                 router.push(`/course-access/${data._id}`);
             }, 1000);
         }
-        
+
         if (error) {
             if ("data" in error) {
                 const errorMessage = error as any;
@@ -66,17 +65,17 @@ const CheckoutForm = ({ setOpen, data, refetchPurchased }: Props) => {
             }
             setIsLoading(false);
         }
-    }, [orderData, error, isSuccess]);
+    }, [orderData, error, isSuccess, data._id, router, setOpen, refetchPurchased]);
 
     return (
         <form id="payment-form" onSubmit={handleSubmit}>
             <LinkAuthenticationElement id="link-authentication-element" />
             <PaymentElement id="payment-element" />
-            <button 
-                disabled={isLoading || !stripe || !elements} 
+            <button
+                disabled={isLoading || !stripe || !elements}
                 id="submit"
                 type="submit"
-                className={`${styles.button} mt-2 h-[35px]! w-full`}
+                className={`${styles.button} mt-2 !h-[35px] w-full`}
             >
                 {isLoading ? "Processing..." : "Pay now"}
             </button>
