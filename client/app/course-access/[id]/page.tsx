@@ -25,7 +25,7 @@ const CourseAccessPage = () => {
         skip: !user || !courseId,
     });
 
-    // Get course content (not details) - for purchased users only
+    // Get course content
     const {
         data: contentData,
         isLoading: contentLoading,

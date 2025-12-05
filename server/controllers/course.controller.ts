@@ -11,6 +11,7 @@ import path from "path";
 import sendMail from "../utils/sendMail";
 import NotificationModel from "../models/notification.model";
 import axios from "axios";
+import OrderModel from "../models/order.model";
 
 //upload course
 export const uploadCourse = CatchAsyncErrors(
@@ -168,18 +169,35 @@ export const getAllCourses = CatchAsyncErrors(
 export const getCourseByUser = CatchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userCourseList = req.user?.courses;
       const courseId = req.params.id;
-      const courseExists = userCourseList?.find(
-        (course: any) => course._id.toString() === courseId
-      );
-      if (!courseExists) {
-        return next(
-          new ErrorHandler("You have not purchased this course", 404)
+      const userId = req.user?._id;
+
+      // Check if user purchased the course via orders collection
+      const orderExists = await OrderModel.findOne({
+        courseId,
+        userId: userId.toString(),
+      });
+
+      if (!orderExists) {
+        // Fallback: check user.courses array
+        const userCourseList = req.user?.courses;
+        const courseExists = userCourseList?.find(
+          (course: any) => course._id.toString() === courseId
         );
+        
+        if (!courseExists) {
+          return next(
+            new ErrorHandler("You have not purchased this course", 404)
+          );
+        }
       }
+
       const course = await CourseModel.findById(courseId);
-      const content = course?.courseData;
+      if (!course) {
+        return next(new ErrorHandler("Course not found", 404));
+      }
+
+      const content = course.courseData;
       res.status(200).json({
         success: true,
         content,

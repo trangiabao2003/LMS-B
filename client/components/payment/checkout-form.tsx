@@ -75,7 +75,7 @@ const CheckoutForm = ({ setOpen, data, refetchPurchased }: Props) => {
                 disabled={isLoading || !stripe || !elements}
                 id="submit"
                 type="submit"
-                className={`${styles.button} mt-2 !h-[35px] w-full`}
+                className={`${styles.button} mt-2 h-[35px]! w-full`}
             >
                 {isLoading ? "Processing..." : "Pay now"}
             </button>

@@ -32,10 +32,21 @@ export const createOrder = CatchAsyncErrors(
       }
 
       const user = await userModel.findById(req.user?._id);
+      const existingOrder = await OrderModel.findOne({
+        courseId,
+        userId: user?._id.toString(),
+      });
+
+      if (existingOrder) {
+        return next(
+          new ErrorHandler("You have already purchased this course", 400)
+        );
+      }
+
       const courseExistInUser = user?.courses.some(
         (course: any) => course._id.toString() === courseId
       );
-      
+
       if (courseExistInUser) {
         return next(
           new ErrorHandler("You have already purchased this course", 400)
@@ -48,8 +59,8 @@ export const createOrder = CatchAsyncErrors(
       }
 
       const data: any = {
-        courseId: course._id,
-        userId: user?._id,
+        courseId: course._id.toString(),
+        userId: user?._id.toString(),
         payment_info,
       };
 
@@ -80,13 +91,17 @@ export const createOrder = CatchAsyncErrors(
       }
 
       // Add course to user's courses
-      user?.courses.push(course?._id);
-
-      // Save user first
+      user?.courses.push(course._id);
       await user?.save();
 
       // Update Redis with the new user data
-      await redis.set(req.user?._id, JSON.stringify(user), 'EX', 604800); // 7 days
+      const updatedUser = await userModel.findById(user?._id);
+      await redis.set(
+        user?._id.toString(),
+        JSON.stringify(updatedUser),
+        "EX",
+        604800
+      );
 
       // Create notification
       await NotificationModel.create({
@@ -124,9 +139,13 @@ export const checkCoursePurchased = CatchAsyncErrors(
       const { courseId } = req.params;
       const userId = req.user?._id;
 
+      if (!userId) {
+        return next(new ErrorHandler("User not authenticated", 401));
+      }
+
       const order = await OrderModel.findOne({
         courseId,
-        userId,
+        userId: userId.toString(),
       });
 
       res.status(200).json({
@@ -154,7 +173,7 @@ export const newPayment = CatchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { amount } = req.body;
-      
+
       // Validate amount
       if (!amount || amount <= 0) {
         return next(new ErrorHandler("Invalid amount", 400));
@@ -170,7 +189,7 @@ export const newPayment = CatchAsyncErrors(
           enabled: true,
         },
       });
-      
+
       res.status(201).json({
         success: true,
         client_secret: myPayment.client_secret,
