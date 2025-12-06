@@ -18,9 +18,17 @@ export const uploadCourse = CatchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = req.body;
-      
+
       // Validate required fields
-      const requiredFields = ['name', 'description', 'price', 'estimatedPrice', 'tags', 'level', 'demoUrl'];
+      const requiredFields = [
+        "name",
+        "description",
+        "price",
+        "estimatedPrice",
+        "tags",
+        "level",
+        "demoUrl",
+      ];
       for (const field of requiredFields) {
         if (!data[field]) {
           return next(new ErrorHandler(`${field} is required`, 400));
@@ -28,10 +36,10 @@ export const uploadCourse = CatchAsyncErrors(
       }
 
       // Convert price fields to number if they're strings
-      if (typeof data.price === 'string') {
+      if (typeof data.price === "string") {
         data.price = Number(data.price);
       }
-      if (typeof data.estimatedPrice === 'string') {
+      if (typeof data.estimatedPrice === "string") {
         data.estimatedPrice = Number(data.estimatedPrice);
       }
 
@@ -67,12 +75,18 @@ export const editCourse = CatchAsyncErrors(
 
       // Handle thumbnail update
       const thumbnail = data.thumbnail;
-      if (thumbnail && typeof thumbnail === 'string' && !thumbnail.startsWith("https://res.cloudinary.com")) {
+      if (
+        thumbnail &&
+        typeof thumbnail === "string" &&
+        !thumbnail.startsWith("https://res.cloudinary.com")
+      ) {
         // If thumbnail is a new base64 image (not a Cloudinary URL)
-        
+
         // Delete old thumbnail from Cloudinary if it exists
         if (course.thumbnail && (course.thumbnail as any).public_id) {
-          await cloudinary.v2.uploader.destroy((course.thumbnail as any).public_id);
+          await cloudinary.v2.uploader.destroy(
+            (course.thumbnail as any).public_id
+          );
         }
 
         // Upload new thumbnail
@@ -84,16 +98,20 @@ export const editCourse = CatchAsyncErrors(
           public_id: myCloud.public_id,
           url: myCloud.secure_url,
         };
-      } else if (!thumbnail || (typeof thumbnail === 'string' && thumbnail.startsWith("https://res.cloudinary.com"))) {
+      } else if (
+        !thumbnail ||
+        (typeof thumbnail === "string" &&
+          thumbnail.startsWith("https://res.cloudinary.com"))
+      ) {
         // Keep the existing thumbnail (it's already a Cloudinary URL or undefined)
         data.thumbnail = course.thumbnail;
       }
 
       // Convert price fields to number if they're strings
-      if (typeof data.price === 'string') {
+      if (typeof data.price === "string") {
         data.price = Number(data.price);
       }
-      if (typeof data.estimatedPrice === 'string') {
+      if (typeof data.estimatedPrice === "string") {
         data.estimatedPrice = Number(data.estimatedPrice);
       }
 
@@ -150,16 +168,15 @@ export const getSingleCourse = CatchAsyncErrors(
 export const getAllCourses = CatchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const courses = await CourseModel.find().select(
-          "-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links"
-        );
+      const courses = await CourseModel.find().select(
+        "-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links"
+      );
 
-        res.status(200).json({
-          success: true,
-          courses,
-        });
-      }
-    catch (error: any) {
+      res.status(200).json({
+        success: true,
+        courses,
+      });
+    } catch (error: any) {
       return next(new ErrorHandler("Failed to fetch course", 500));
     }
   }
@@ -184,7 +201,7 @@ export const getCourseByUser = CatchAsyncErrors(
         const courseExists = userCourseList?.find(
           (course: any) => course._id.toString() === courseId
         );
-        
+
         if (!courseExists) {
           return next(
             new ErrorHandler("You have not purchased this course", 404)
@@ -293,6 +310,8 @@ export const addAnswer = CatchAsyncErrors(
       const newAnswer: any = {
         user: req.user,
         answer,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
       //add this answer to our course content
@@ -425,6 +444,8 @@ export const addReplyToReview = CatchAsyncErrors(
       const replyData: any = {
         user: req.user,
         comment,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
       if (!review.commentReplies) {

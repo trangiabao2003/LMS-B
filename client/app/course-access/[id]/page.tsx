@@ -29,9 +29,9 @@ const CourseAccessPage = () => {
     const {
         data: contentData,
         isLoading: contentLoading,
-        error: contentError
+        refetch
     } = useGetCourseContentQuery(courseId, {
-        skip: !courseId || !purchaseData?.isPurchased,
+        skip: !courseId || !purchaseData?.isPurchased, refetchOnMountOrArgChange: true
     });
 
     // Redirect if not purchased
@@ -78,6 +78,8 @@ const CourseAccessPage = () => {
                     <CourseContent
                         data={contentData?.courseContent}
                         user={userData.user}
+                        refetchContent={refetch}
+                        courseId={courseId}
                     />
                 </div>
             )}
