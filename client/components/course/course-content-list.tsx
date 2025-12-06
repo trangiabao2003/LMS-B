@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
 import { MdOutlineOndemandVideo } from "react-icons/md";
 
@@ -18,6 +18,14 @@ const CourseContentList = (props: Props) => {
   const videoSections: string[] = [
     ...new Set<string>(props.data?.map((item: any) => item.videoSection)),
   ];
+
+  // Auto-expand all sections when not in demo mode
+  useEffect(() => {
+    if (props.data && !props.isDemo && videoSections.length > 0) {
+      setVisibleSections(new Set<string>(videoSections));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.isDemo]);
 
   let totalCount = 0;
 
@@ -43,7 +51,7 @@ const CourseContentList = (props: Props) => {
 
         const sectionVideoCount = sectionVideos.length;
         const sectionVideoLength = sectionVideos.reduce(
-          (sum: number, item: any) => sum + item.videoLength,
+          (sum: number, item: any) => sum + (item.videoLength || 0),
           0
         );
 
@@ -55,12 +63,12 @@ const CourseContentList = (props: Props) => {
         return (
           <div
             key={section}
-            className={`${!props.isDemo && "border-b border-[#ffffff8e] pb-2"}`}
+            className={`mb-4 ${!props.isDemo && "border-b border-[#ffffff8e] pb-2"}`}
           >
             {/* Section Header */}
             <div className="flex items-center justify-between cursor-pointer">
               <button
-                className="mr-4 cursor-pointer text-black dark:text-white flex items-center gap-2"
+                className="mr-4 cursor-pointer text-black dark:text-white flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors w-full"
                 onClick={() => toggleSection(section)}
               >
                 {isSectionVisible ? (
@@ -73,7 +81,7 @@ const CourseContentList = (props: Props) => {
             </div>
 
             {/* Section Info */}
-            <h5 className="text-black dark:text-white mt-2">
+            <h5 className="text-black dark:text-white mt-2 text-sm opacity-80">
               {sectionVideoCount} Lessons –{" "}
               {sectionVideoLength < 60
                 ? sectionVideoLength
@@ -85,7 +93,7 @@ const CourseContentList = (props: Props) => {
 
             {/* Section Content */}
             {isSectionVisible && (
-              <div className="w-full">
+              <div className="w-full space-y-1">
                 {sectionVideos.map((item: any, index: number) => {
                   const videoIndex = sectionStartIndex + index;
                   const contentLength = item.videoLength / 60;
@@ -98,23 +106,27 @@ const CourseContentList = (props: Props) => {
                       }
                       className={`w-full ${
                         videoIndex === props.activeVideo
-                          ? "bg-slate-800"
-                          : ""
-                      } cursor-pointer transition-all p-2`}
+                          ? "bg-slate-200 dark:bg-slate-800 border-l-4 border-blue-600"
+                          : "hover:bg-slate-100 dark:hover:bg-slate-800/50 border-l-4 border-transparent"
+                      } cursor-pointer transition-all p-3 rounded-lg ${
+                        props.isDemo ? "cursor-default" : ""
+                      }`}
                     >
                       <div className="flex items-start gap-2">
                         <MdOutlineOndemandVideo
                           size={25}
-                          color="#1cdada"
-                          className="mt-1"
+                          color={videoIndex === props.activeVideo ? "#2563eb" : "#1cdada"}
+                          className="mt-1 shrink-0"
                         />
 
-                        <h1 className="text-[18px] wrap-break-word text-black dark:text-white">
+                        <h1 className={`text-[16px] wrap-break-word text-black dark:text-white ${
+                          videoIndex === props.activeVideo ? "font-semibold" : ""
+                        }`}>
                           {item.title}
                         </h1>
                       </div>
 
-                      <h5 className="pl-8 text-black dark:text-white">
+                      <h5 className="pl-8 text-black dark:text-white text-sm opacity-70 mt-1">
                         {item.videoLength > 60
                           ? contentLength.toFixed(2)
                           : item.videoLength}{" "}

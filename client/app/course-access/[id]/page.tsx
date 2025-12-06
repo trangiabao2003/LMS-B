@@ -70,13 +70,18 @@ const CourseAccessPage = () => {
     }
 
     return (
-        <div>
-            <CourseContent
-                data={contentData?.courseContent}
-                id={courseId}
-                user={user}
-            />
-        </div>
+        <>
+            {userLoading ? (
+                <Loader />
+            ) : (
+                <div>
+                    <CourseContent
+                        data={contentData?.courseContent}
+                        user={userData.user}
+                    />
+                </div>
+            )}
+        </>
     );
 };
 

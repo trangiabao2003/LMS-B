@@ -23,7 +23,7 @@ export const styles = {
     uploadAreaActive: "border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/20",
     uploadText: "text-center text-gray-600 dark:text-gray-400 font-Poppins",
     
-    button: "px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-[600] font-Poppins rounded-lg transition-all hover:shadow-lg",
+    button: "flex justify-center items-center px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-[600] font-Poppins rounded-lg transition-all hover:shadow-lg",
     buttonDisabled: "px-6 py-3 bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 font-[600] font-Poppins rounded-lg cursor-not-allowed",
     
     stepperContainer: "sticky top-20 bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 space-y-4",
