@@ -11,11 +11,11 @@ import { Heading } from '@/app/utils/Heading';
 type Props = {
     data: any;
     user: any;
-    refetchContent?: any;
+    refetch: any;
     courseId: string;
 }
 
-const CourseContent = ({ data, user, refetchContent, courseId }: Props) => {
+const CourseContent = ({ data, user, refetch, courseId }: Props) => {
     const [open, setOpen] = useState(false);
     const [route, setRoute] = useState('Login');
     const [activeVideo, setActiveVideo] = useState(0);
@@ -52,7 +52,7 @@ const CourseContent = ({ data, user, refetchContent, courseId }: Props) => {
                             activeVideo={activeVideo}
                             setActiveVideo={setActiveVideo}
                             user={user}
-                            refetchContent={refetchContent}
+                            refetch={refetch}
                             courseId={courseId}
                         />
                     </div>

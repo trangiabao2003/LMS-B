@@ -8,26 +8,28 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { styles } from '@/styles/styles';
 import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
-import toast from 'react-hot-toast';
-import { useAddAnswerInQuestionMutation, useAddNewQuestionMutation } from '@/redux/features/courses/coursesApi';
+import { toast } from 'react-hot-toast';
+import { useAddAnswerInQuestionMutation, useAddNewQuestionMutation, useAddReviewInCourseMutation, useGetCourseDetailsQuery } from '@/redux/features/courses/coursesApi';
 import TimeAgo from 'javascript-time-ago';
-import en from 'javascript-time-ago/locale/en.json';
 import { MdMessage, MdVerified } from 'react-icons/md';
+import Ratings from '@/app/utils/Ratings';
+import en from 'javascript-time-ago/locale/en.json'
 
-TimeAgo.addDefaultLocale(en);
+TimeAgo.addLocale(en);
+const timeAgo = new TimeAgo('en-US');
 
 type Props = {
     data: any;
     activeVideo: number;
     setActiveVideo: (index: number) => void;
     user: any;
-    refetchContent?: any;
+    refetch: any;
     courseId: string;
 };
 
 type TabType = 'Overview' | 'Resources' | 'Q&A' | 'Reviews';
 
-const CourseContentMedia = ({ data, activeVideo, setActiveVideo, user, refetchContent, courseId }: Props) => {
+const CourseContentMedia = ({ data, activeVideo, setActiveVideo, user, refetch, courseId }: Props) => {
     const [activeTab, setActiveTab] = useState<TabType>('Overview');
     const [question, setQuestion] = useState('');
     const [answer, setAnswer] = useState('');
@@ -36,10 +38,13 @@ const CourseContentMedia = ({ data, activeVideo, setActiveVideo, user, refetchCo
     const [review, setReview] = useState('');
     const [addNewQuestion, { isSuccess, error, isLoading: questionCreationLoading }] = useAddNewQuestionMutation();
     const [replyActive, setReplyActive] = useState(false);
+    const [isReviewReply, setIsReviewReply] = useState(false);
     const [addAnswerInQuestion, { isSuccess: answerSuccess, error: answerError, isLoading: answerCreationLoading }] = useAddAnswerInQuestionMutation()
-    const timeAgo = new TimeAgo('en-US');
+    const [addReviewInCourse, { isSuccess: reviewSuccess, error: reviewError, isLoading: reviewCreationLoading }] = useAddReviewInCourseMutation();
+    const { data: courseData, refetch: courseRefetch } = useGetCourseDetailsQuery(courseId, { refetchOnMountOrArgChange: true })
+    const course = courseData?.course;
 
-    const isReviewExists = data?.reviews?.find(
+    const isReviewExists = course?.reviews?.find(
         (item: any) => item.user._id === user._id
     );
 
@@ -86,12 +91,12 @@ const CourseContentMedia = ({ data, activeVideo, setActiveVideo, user, refetchCo
     useEffect(() => {
         if (isSuccess) {
             setQuestion("");
-            refetchContent?.();
+            refetch();
             toast.success("Question added successfully");
         }
         if (answerSuccess) {
             setAnswer("");
-            refetchContent?.();
+            refetch();
             toast.success("Answer added successfully");
         }
         if (error) {
@@ -102,25 +107,37 @@ const CourseContentMedia = ({ data, activeVideo, setActiveVideo, user, refetchCo
         }
         if (answerError) {
             if ("data" in answerError) {
-                const errorMessage = error as any;
+                const errorMessage = answerError as any;
                 toast.error(errorMessage.data.message);
             }
         }
-    }, [isSuccess, error, answerSuccess, answerError]);
+        if (reviewSuccess) {
+            setReview("");
+            setRating(0);
+            courseRefetch();
+            toast.success("Review added successfully");
+        }
+        if (reviewError) {
+            if ("data" in reviewError) {
+                const errorMessage = reviewError as any;
+                toast.error(errorMessage.data.message);
+            }
+        }
+
+    }, [isSuccess, error, answerSuccess, answerError, reviewError, reviewSuccess]);
 
     const handleAnswerSubmit = () => {
         addAnswerInQuestion({ answer, courseId, contentId: currentVideo._id, questionId: questionId });
         toast.success("Answer submitted: " + answer);
         setAnswer("");
     }
-    console.log(questionId);
 
     const handleReviewSubmit = async () => {
         if (review.length === 0) {
             toast.error("Review can't be empty");
         }
         else {
-
+            await addReviewInCourse({ review, rating, courseId: courseId })
         }
     }
 
@@ -417,13 +434,64 @@ const CourseContentMedia = ({ data, activeVideo, setActiveVideo, user, refetchCo
                                             </div>
                                         </div>
                                         <div className="w-full flex justify-end">
-                                            <button className={`${styles.button} w-[120px] h-10 text-[16px]`}
-                                            onClick={handleReviewSubmit}>
+                                            <button className={`${styles.button} w-[120px] h-10 text-[16px] ${reviewCreationLoading && "cursor-no-drop"}`}
+                                                onClick={reviewCreationLoading ? () => { } : handleReviewSubmit}>
                                                 Submit
                                             </button>
                                         </div>
                                     </div>
                                 )}
+                                <br />
+                                <div className="w-full h-px bg-[#ffffff3b]"></div>
+                                <div className="w-full">
+                                    {course?.reviews && course.reviews.length > 0 ? (
+                                        [...course.reviews].reverse().map((item: any, index: number) => (
+                                            <div className="w-full my-5">
+                                                <div className="w-full flex">
+                                                    <div>
+                                                        <Image
+                                                            src={
+                                                                item.user.avatar
+                                                                    ? item.user.avatar.url
+                                                                    : "avatar.jpg"
+                                                            }
+                                                            width={36}
+                                                            height={36}
+                                                            alt=""
+                                                            className="w-9 h-9 rounded-full object-cover"
+                                                        />
+                                                    </div>
+                                                    <div className="ml-2">
+                                                        <h1 className="text-[18px]">{item?.user.name}</h1>
+                                                        <Ratings rating={item.rating} />
+                                                        <p>{item.comment}</p>
+                                                        <small className="text-slate-700 dark:text-[#ffffff83]">
+                                                            {item.createdAt ? timeAgo.format(new Date(item.createdAt)) : "Just now"}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                {
+                                                    user.role === "admin" && (
+                                                        <span className={`${styles.label} ml-10! cursor-pointer`}
+                                                            onClick={() => setIsReviewReply(!isReviewReply)} >
+                                                            Add Reply <MdMessage size={16} className="cursor-pointer text-slate-600 dark:text-[#ffffff83]" />
+                                                        </span>
+                                                    )}
+                                                {
+                                                    isReviewReply && (
+                                                        <input
+                                                            type="text"
+                                                            className={`${styles.input} border-0! rounded-none w-[90%] ml-[3%] border-b!`}
+                                                            id=''
+                                                            name='' />
+                                                    )}
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="pt-3 text-muted-foreground">No reviews yet</p>
+                                    )}
+                                </div>
+
                             </div>
                         )}
                     </div>

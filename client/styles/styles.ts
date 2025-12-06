@@ -1,6 +1,6 @@
 export const styles = {
     title: "text-[25px] text-black dark:text-white font-[500] font-Poppins text-center py-2",
-    label: "text-[16px] font-Poppins text-black dark:text-white font-[500]",
+    label: "flex items-center text-[16px] font-Poppins text-black dark:text-white font-[500]",
     input: "w-full text-black dark:text-white bg-transparent border border-gray-300 dark:border-gray-600 rounded-lg h-[40px] px-3 outline-none mt-[10px] font-Poppins focus:border-blue-500 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all",
     
     select: "w-full text-black dark:text-white bg-white dark:bg-slate-700 border border-gray-300 dark:border-gray-600 rounded-lg h-[40px] px-3 outline-none mt-[10px] font-Poppins focus:border-blue-500 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all",

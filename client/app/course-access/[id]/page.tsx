@@ -78,7 +78,7 @@ const CourseAccessPage = () => {
                     <CourseContent
                         data={contentData?.courseContent}
                         user={userData.user}
-                        refetchContent={refetch}
+                        refetch={refetch}
                         courseId={courseId}
                     />
                 </div>
