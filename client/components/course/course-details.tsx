@@ -32,7 +32,6 @@ const CourseDetails = ({ data, clientSecret, stripePromise }: Props) => {
 
   // Initialize TimeAgo on client side only
   useEffect(() => {
-    TimeAgo.addDefaultLocale(en);
     setTimeAgo(new TimeAgo('en-US'));
   }, []);
 
