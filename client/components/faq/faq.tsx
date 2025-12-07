@@ -27,7 +27,7 @@ const FAQ = (props: Props) => {
     return (
         <div>
             <div className="w-[90%] md:w-[80%] m-auto">
-                <h1 className={`${styles.title} 800px:text-[40px]`}>
+                <h1 className={`${styles.title} md:text-[40px]`}>
                     Frequently Asked Questions
                 </h1>
                 <div className="mt-12">

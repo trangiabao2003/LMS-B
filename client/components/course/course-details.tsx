@@ -1,20 +1,22 @@
 import Ratings from '@/app/utils/Ratings';
 import { IoCheckmarkDoneOutline, IoCloseOutline } from 'react-icons/io5';
-import { useSelector } from 'react-redux';
 import CoursePlayer from '@/app/utils/CoursePlayer';
 import { styles } from '@/styles/styles';
 import Link from 'next/link';
 import { Check, Users, Star, Clock, BookOpen, Award, Shield } from 'lucide-react';
 import CourseContentList from './course-content-list';
-import { format } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CheckoutForm from '../payment/checkout-form';
 import { Elements } from '@stripe/react-stripe-js';
 import { useCheckCoursePurchasedQuery } from '@/redux/features/orders/ordersApi';
 import { useLoadUserQuery } from '@/redux/features/api/apiSlice';
+import Image from 'next/image';
+import { MdVerified } from 'react-icons/md';
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
 
 type Props = {
   data: any;
@@ -26,6 +28,13 @@ const CourseDetails = ({ data, clientSecret, stripePromise }: Props) => {
   const { data: userData } = useLoadUserQuery(undefined, {});
   const user = userData?.user;
   const [open, setOpen] = useState(false);
+  const [timeAgo, setTimeAgo] = useState<TimeAgo | null>(null);
+
+  // Initialize TimeAgo on client side only
+  useEffect(() => {
+    TimeAgo.addDefaultLocale(en);
+    setTimeAgo(new TimeAgo('en-US'));
+  }, []);
 
   // Check if course is purchased via orders collection
   const {
@@ -182,25 +191,59 @@ const CourseDetails = ({ data, clientSecret, stripePromise }: Props) => {
                   <div className="space-y-6">
                     {[...data.reviews].reverse().map((item: any, index: number) => (
                       <div key={index} className="border-b last:border-0 pb-6 last:pb-0">
-                        <div className="flex gap-4">
+                        {/* Main Review */}
+                        <div className="flex gap-3">
                           <div className="shrink-0">
-                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                              <span className="text-lg font-semibold text-primary uppercase">
-                                {item.user?.name?.slice(0, 2) || "AN"}
-                              </span>
-                            </div>
+                            <Image
+                              src={
+                                item.user.avatar
+                                  ? item.user.avatar.url
+                                  : "/avatar.jpg"
+                              }
+                              height={36}
+                              width={36}
+                              alt="avatar"
+                              className="w-9 h-9 rounded-full object-cover"
+                            />
                           </div>
-                          <div className="flex-1 space-y-2">
-                            <div className="flex items-center justify-between">
-                              <h4 className="font-semibold">{item.user?.name || "Anonymous"}</h4>
-                              <span className="text-sm text-muted-foreground">
-                                {item.createdAt ? format(new Date(item.createdAt), "MMM dd, yyyy") : "N/A"}
-                              </span>
-                            </div>
+                          <div className="flex-1">
+                            <h4 className="text-[18px] font-semibold">{item.user?.name || "Anonymous"}</h4>
                             <Ratings rating={item.rating || 0} />
-                            <p className="text-foreground">{item.comment}</p>
+                            <p className="text-foreground mt-1">{item.comment}</p>
+                            <small className="text-slate-700 dark:text-[#ffffff83]">
+                              {item.createdAt && timeAgo ? timeAgo.format(new Date(item.createdAt)) : "N/A"}
+                            </small>
                           </div>
                         </div>
+
+                        {/* Admin Replies - Indented to the right */}
+                        {item.commentReplies.map((i: any, replyIndex: number) => (
+                          <div key={replyIndex} className="w-full flex md:ml-16 my-5">
+                            <div className="w-10 h-10 shrink-0">
+                              <Image
+                                src={
+                                  i.user.avatar
+                                    ? i.user.avatar.url
+                                    : "/avatar.jpg"
+                                }
+                                width={40}
+                                height={40}
+                                alt="avatar"
+                                className="w-10 h-10 rounded-full object-cover"
+                              />
+                            </div>
+                            <div className="pl-2 flex-1">
+                              <div className="flex items-center gap-2">
+                                <h5 className="text-[16px] font-semibold">{i.user.name}</h5>
+                                <MdVerified className="text-[#0095F6] text-[20px]" />
+                              </div>
+                              <p className="mt-1">{i.comment}</p>
+                              <small className="text-[#ffffff83]">
+                                {timeAgo?.format(new Date(i.createdAt)) || 'Just now'}
+                              </small>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     ))}
                   </div>
@@ -381,7 +424,7 @@ const CourseDetails = ({ data, clientSecret, stripePromise }: Props) => {
           </div>
         )}
       </>
-    </div>
+    </div >
   );
 };
 

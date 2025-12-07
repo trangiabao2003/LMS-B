@@ -21,7 +21,7 @@ const CourseDetailsPage = ({ id }: Props) => {
     const [stripePromise, setStripePromise] = useState<any>(null);
     const [clientSecret, setClientSecret] = useState('');
 
-        useEffect(() => {
+    useEffect(() => {
         refetch();
     }, []);
 
@@ -41,7 +41,6 @@ const CourseDetailsPage = ({ id }: Props) => {
 
     useEffect(() => {
         if (paymentIntentData) {
-            console.log("Payment Intent Data:", paymentIntentData); // Debug
             setClientSecret(paymentIntentData?.client_secret);
         }
     }, [paymentIntentData]);
@@ -64,10 +63,10 @@ const CourseDetailsPage = ({ id }: Props) => {
                         setRoute={setRoute}
                         activeItem={1}
                     />
-                    <CourseDetails 
-                        data={data.course} 
-                        stripePromise={stripePromise} 
-                        clientSecret={clientSecret} 
+                    <CourseDetails
+                        data={data.course}
+                        stripePromise={stripePromise}
+                        clientSecret={clientSecret}
                     />
                     <Footer />
                 </div>

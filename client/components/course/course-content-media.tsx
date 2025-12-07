@@ -9,7 +9,7 @@ import Image from 'next/image';
 import { styles } from '@/styles/styles';
 import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
 import { toast } from 'react-hot-toast';
-import { useAddAnswerInQuestionMutation, useAddNewQuestionMutation, useAddReviewInCourseMutation, useGetCourseDetailsQuery } from '@/redux/features/courses/coursesApi';
+import { useAddAnswerInQuestionMutation, useAddNewQuestionMutation, useAddReplyInReviewMutation, useAddReviewInCourseMutation, useGetCourseDetailsQuery } from '@/redux/features/courses/coursesApi';
 import TimeAgo from 'javascript-time-ago';
 import { MdMessage, MdVerified } from 'react-icons/md';
 import Ratings from '@/app/utils/Ratings';
@@ -39,8 +39,11 @@ const CourseContentMedia = ({ data, activeVideo, setActiveVideo, user, refetch, 
     const [addNewQuestion, { isSuccess, error, isLoading: questionCreationLoading }] = useAddNewQuestionMutation();
     const [replyActive, setReplyActive] = useState(false);
     const [isReviewReply, setIsReviewReply] = useState(false);
+    const [reviewId, setReviewId] = useState('');
+    const [replyReview, setReplyReview] = useState('');
     const [addAnswerInQuestion, { isSuccess: answerSuccess, error: answerError, isLoading: answerCreationLoading }] = useAddAnswerInQuestionMutation()
     const [addReviewInCourse, { isSuccess: reviewSuccess, error: reviewError, isLoading: reviewCreationLoading }] = useAddReviewInCourseMutation();
+    const [addReplyInReview, { isSuccess: replySuccess, error: replyError, isLoading: replyCreationLoading }] = useAddReplyInReviewMutation();
     const { data: courseData, refetch: courseRefetch } = useGetCourseDetailsQuery(courseId, { refetchOnMountOrArgChange: true })
     const course = courseData?.course;
 
@@ -140,6 +143,31 @@ const CourseContentMedia = ({ data, activeVideo, setActiveVideo, user, refetch, 
             await addReviewInCourse({ review, rating, courseId: courseId })
         }
     }
+
+    const handleReviewReplySubmit = async () => {
+        if (replyReview.length === 0) {
+            toast.error("Reply can't be empty");
+        }
+        else {
+            await addReplyInReview({ comment: replyReview, courseId: courseId, reviewId: reviewId });
+            toast.success("Reply submitted: " + replyReview);
+            setReplyReview("");
+        }
+    }
+
+    useEffect(() => {
+        if (replySuccess) {
+            setReplyReview("");
+            courseRefetch();
+            toast.success("Reply added successfully");
+        }
+        if (replyError) {
+            if ("data" in replyError) {
+                const errorMessage = replyError as any;
+                toast.error(errorMessage.data.message);
+            }
+        }
+    }, [replySuccess, replyError]);
 
     return (
         <div className="space-y-6">
@@ -473,18 +501,58 @@ const CourseContentMedia = ({ data, activeVideo, setActiveVideo, user, refetch, 
                                                 {
                                                     user.role === "admin" && (
                                                         <span className={`${styles.label} ml-10! cursor-pointer`}
-                                                            onClick={() => setIsReviewReply(!isReviewReply)} >
+                                                            onClick={() => {
+                                                                setIsReviewReply(!isReviewReply);
+                                                                setReviewId(item._id);
+                                                            }} >
                                                             Add Reply <MdMessage size={16} className="cursor-pointer text-slate-600 dark:text-[#ffffff83]" />
                                                         </span>
                                                     )}
                                                 {
                                                     isReviewReply && (
-                                                        <input
-                                                            type="text"
-                                                            className={`${styles.input} border-0! rounded-none w-[90%] ml-[3%] border-b!`}
-                                                            id=''
-                                                            name='' />
+                                                        <div className="w-full flex relative">
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Enter your reply..."
+                                                                value={replyReview}
+                                                                onChange={(e) => setReplyReview(e.target.value)}
+                                                                className="block md:ml-12 mt-2 outline-none bg-transparent border-b border-white dark:border-[#ffffff83] p-[5px] w-[95%]"
+                                                            />
+                                                            <button
+                                                                type="submit"
+                                                                className="absolute right-0 bottom-1"
+                                                                onClick={() => handleReviewReplySubmit()}
+                                                            >
+                                                                Submit
+                                                            </button>
+                                                        </div>
+
                                                     )}
+                                                {item.commentReplies.map((i: any, index: number) => (
+                                                    <div className="w-full flex md:ml-16 my-5">
+                                                        <div className="w-10 h-10">
+                                                            <Image
+                                                                src={
+                                                                    i.user.avatar
+                                                                        ? i.user.avatar.url
+                                                                        :
+                                                                        "/avatar.jpg"
+                                                                }
+                                                                height={40}
+                                                                width={40}
+                                                                alt="avatar"
+                                                                className="w-10 h-10 rounded-full object-cover"
+                                                            />
+                                                        </div>
+                                                        <div className="pl-2">
+                                                            <h5 className="text-[16px]">{i.user.name}</h5>
+                                                            <p>{i.comment}</p>
+                                                            <small className="text-[#ffffff83]">
+                                                                {i.createdAt ? timeAgo.format(new Date(i.createdAt)) : "Just now"}
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
                                         ))
                                     ) : (

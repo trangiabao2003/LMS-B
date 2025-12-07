@@ -13,10 +13,10 @@ const ChangePassword = (props: Props) => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [updatePassword, { isSuccess, error }] = useUpdatePasswordMutation();
     const passwordChangeHandler = async (e: any) => {
-        if(oldPassword === "" || newPassword === "" || confirmPassword === ""){
+        if (oldPassword === "" || newPassword === "" || confirmPassword === "") {
             toast.error("Please fill all the fields");
             return;
-        } else if(newPassword !== confirmPassword){
+        } else if (newPassword !== confirmPassword) {
             toast.error("New password and confirm password do not match");
             return;
         }
@@ -36,11 +36,11 @@ const ChangePassword = (props: Props) => {
             toast.error(errorData.data.message);
         }
     }, [isSuccess, error])
-    
+
 
     return (
-        <div className="w-full pl-7 px-2 800px:px-5 800px:pl-0">
-            <h1 className="block text-[25px] 800px:text-[30px] font-Poppins text-center font-medium text-black dark:text-white pb-2">
+        <div className="w-full pl-7 px-2 md:px-5 md:pl-0">
+            <h1 className="block text-[25px] md:text-[30px] font-Poppins text-center font-medium text-black dark:text-white pb-2">
                 Change Password
             </h1>
             <div className="w-full flex flex-col items-center mb-12">
@@ -49,7 +49,7 @@ const ChangePassword = (props: Props) => {
                     onSubmit={passwordChangeHandler}
                     className="flex flex-col items-center"
                 >
-                    <div className="w-full 800px:w-[60%] mt-5">
+                    <div className="w-full md:w-[60%] mt-5">
                         <label className="block text-sm font-semibold text-foreground mb-2">Enter your old password</label>
                         <input
                             type="password"
@@ -59,7 +59,7 @@ const ChangePassword = (props: Props) => {
                             onChange={(e) => setOldPassword(e.target.value)}
                         />
                     </div>
-                    <div className="flex flex-col w-full 800px:w-[60%] mt-2">
+                    <div className="flex flex-col w-full md:w-[60%] mt-2">
                         <label className="block text-sm font-semibold text-foreground mb-2">Enter your new password</label>
                         <input
                             type="password"
@@ -69,7 +69,7 @@ const ChangePassword = (props: Props) => {
                             onChange={(e) => setNewPassword(e.target.value)}
                         />
                     </div>
-                    <div className="flex flex-col w-full 800px:w-[60%] mt-2">
+                    <div className="flex flex-col w-full md:w-[60%] mt-2">
                         <label className="block text-sm font-semibold text-foreground mb-2">
                             Enter your confirm password
                         </label>

@@ -13,12 +13,12 @@ interface CourseCardProps {
 export function CourseCard({ course, isProfile = false }: CourseCardProps) {
   // Calculate total lessons from courseData
   const totalLessons = course.courseData?.length || 0
-  
+
   // Calculate total duration from courseData (in hours)
   const totalDuration = course.courseData?.reduce((acc: number, item: any) => {
     return acc + (item.videoLength || 0)
   }, 0) || 0
-  
+
   const durationInHours = (totalDuration / 60).toFixed(1)
 
   return (
@@ -74,12 +74,19 @@ export function CourseCard({ course, isProfile = false }: CourseCardProps) {
         </div>
       </CardContent>
 
-      <CardFooter className="flex items-center justify-between pt-3 border-t border-border">
+      <CardFooter className="flex items-center justify-between pt-3 border-t border-border mb-4">
         <div className="text-lg font-bold text-foreground">
-          {course.price === 0 ? (
-            <span className="text-green-600">Free</span>
+          {course.price === 0 ? (<>
+            <div className="flex items-center gap-2">
+              <span className="text-green-600">Free</span>
+              <span className="text-[#6B7280] dark:text-[#9CA3AF] text-xs ml-2 text-muted-foreground line-through">${course.estimatedPrice}</span>
+            </div>
+          </>
           ) : (
-            <>${course.price}</>
+            <div className="flex items-center gap-2">
+              <span>${course.price}</span>
+              <span className="text-[#6B7280] dark:text-[#9CA3AF] text-xs pb-2 block line-through">${course.estimatedPrice}</span>
+            </div>
           )}
         </div>
         {!isProfile && (

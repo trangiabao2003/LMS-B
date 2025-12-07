@@ -144,12 +144,12 @@ const CourseData = ({
             </div>
             <div className="w-full flex items-center justify-between">
                 <div
-                    className="w-[15%] 800px:w-[180px] flex items-center justify-center h-10 bg-[#37a39a] text-center text-white rounded mt-8 cursor-pointer"
+                    className="w-[15%] md:w-[180px] flex items-center justify-center h-10 bg-[#37a39a] text-center text-white rounded mt-8 cursor-pointer"
                     onClick={() => prevButton()}
                 >
                     Prev
                 </div>
-                <div className="w-[15%] 800px:w-[180px] flex items-center justify-center h-10 bg-[#37a39a] text-center text-white rounded mt-8 cursor-pointer"
+                <div className="w-[15%] md:w-[180px] flex items-center justify-center h-10 bg-[#37a39a] text-center text-white rounded mt-8 cursor-pointer"
                     onClick={() => handleOptions()}
                 >
                     Next

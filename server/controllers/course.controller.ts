@@ -141,7 +141,7 @@ export const getSingleCourse = CatchAsyncErrors(
     try {
       const courseId = req.params.id;
       const isCacheExist = await redis.get(courseId);
-      
+
       if (isCacheExist) {
         const course = JSON.parse(isCacheExist);
         res.status(200).json({
@@ -244,19 +244,19 @@ export const addQuestion = CatchAsyncErrors(
     try {
       const { question, courseId, contentId }: IAddQuestionData = req.body;
       const course = await CourseModel.findById(courseId);
-      
+
       if (!course) {
         return next(new ErrorHandler("Course not found", 404));
       }
-      
+
       if (!mongoose.Types.ObjectId.isValid(contentId)) {
         return next(new ErrorHandler("Invalid content ID", 400));
       }
-      
+
       const courseContent = course.courseData?.find((item: any) =>
         item._id.equals(contentId)
       );
-      
+
       if (!courseContent) {
         return next(new ErrorHandler("Content not found", 404));
       }
@@ -279,7 +279,7 @@ export const addQuestion = CatchAsyncErrors(
 
       //save the updated course
       await course.save();
-      
+
       res.status(200).json({
         success: true,
         course,
@@ -304,19 +304,19 @@ export const addAnswer = CatchAsyncErrors(
       const { answer, courseId, contentId, questionId }: IAddAnswerData =
         req.body;
       const course = await CourseModel.findById(courseId);
-      
+
       if (!course) {
         return next(new ErrorHandler("Course not found", 404));
       }
-      
+
       if (!mongoose.Types.ObjectId.isValid(contentId)) {
         return next(new ErrorHandler("Invalid content ID", 400));
       }
-      
+
       const courseContent = course.courseData?.find((item: any) =>
         item._id.equals(contentId)
       );
-      
+
       if (!courseContent) {
         return next(new ErrorHandler("Content not found", 404));
       }
@@ -324,7 +324,7 @@ export const addAnswer = CatchAsyncErrors(
       const question = courseContent.questions?.find((item: any) =>
         item._id.equals(questionId)
       );
-      
+
       if (!question) {
         return next(new ErrorHandler("Invalid question id", 400));
       }
@@ -407,9 +407,9 @@ export const addReview = CatchAsyncErrors(
           new ErrorHandler("You are not eligible to access this course", 404)
         );
       }
-      
+
       const course = await CourseModel.findById(courseId);
-      
+
       if (!course) {
         return next(new ErrorHandler("Course not found", 404));
       }
@@ -430,7 +430,7 @@ export const addReview = CatchAsyncErrors(
       course.reviews.forEach((rev: any) => {
         avg += rev.rating;
       });
-      
+
       // Calculate average rating
       course.rating = avg / course.reviews.length;
 
@@ -468,19 +468,19 @@ export const addReplyToReview = CatchAsyncErrors(
     try {
       const { comment, courseId, reviewId } = req.body as IAddReplyReviewData;
       const course = await CourseModel.findById(courseId);
-      
+
       if (!course) {
         return next(new ErrorHandler("Course not found", 404));
       }
-      
+
       const review = course.reviews.find(
         (rev: any) => rev._id.toString() === reviewId
       );
-      
+
       if (!review) {
         return next(new ErrorHandler("Review not found", 404));
       }
-      
+
       const replyData: any = {
         user: req.user,
         comment,
@@ -493,11 +493,14 @@ export const addReplyToReview = CatchAsyncErrors(
       }
 
       review.commentReplies.push(replyData);
+
+      await redis.set(courseId, JSON.stringify(course), "EX", 604800); //7days
+
       await course.save();
-      
+
       // Clear Redis cache after adding reply
       await redis.del(courseId);
-      
+
       res.status(200).json({
         success: true,
         course,
