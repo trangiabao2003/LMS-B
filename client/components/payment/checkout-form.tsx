@@ -2,16 +2,20 @@ import { useCreateOrderMutation } from '@/redux/features/orders/ordersApi';
 import { styles } from '@/styles/styles';
 import { LinkAuthenticationElement, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
+import socketIO from "socket.io-client";
+const ENDPOINT = process.env.NEXT_PUBLIC_SOCKET_SERVER_URI || "";
+const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
 type Props = {
     setOpen: any;
     data: any;
     refetchPurchased?: () => void;
+    user: any;
 }
 
-const CheckoutForm = ({ setOpen, data, refetchPurchased }: Props) => {
+const CheckoutForm = ({ setOpen, data, refetchPurchased, user }: Props) => {
     const stripe = useStripe();
     const elements = useElements();
     const router = useRouter();
@@ -43,16 +47,20 @@ const CheckoutForm = ({ setOpen, data, refetchPurchased }: Props) => {
 
     useEffect(() => {
         if (isSuccess && orderData) {
-            toast.success("Course purchased successfully! 🎉");
+            toast.success("Course purchased successfully!");
             setIsLoading(false);
             setOpen(false);
+            socketId.emit("notification", {
+                title: "New Order",
+                message: `You have a new order from ${data.name}`,
+                userId: user._id,
+                type: "success",
+            });
 
-            // Refetch purchase status để update UI
             if (refetchPurchased) {
                 refetchPurchased();
             }
 
-            // Redirect using Next.js router (CLIENT-SIDE)
             setTimeout(() => {
                 router.push(`/course-access/${data._id}`);
             }, 1000);

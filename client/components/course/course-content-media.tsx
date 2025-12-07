@@ -9,11 +9,20 @@ import Image from 'next/image';
 import { styles } from '@/styles/styles';
 import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
 import { toast } from 'react-hot-toast';
-import { useAddAnswerInQuestionMutation, useAddNewQuestionMutation, useAddReplyInReviewMutation, useAddReviewInCourseMutation, useGetCourseDetailsQuery } from '@/redux/features/courses/coursesApi';
+import {
+    useAddAnswerInQuestionMutation,
+    useAddNewQuestionMutation,
+    useAddReplyInReviewMutation,
+    useAddReviewInCourseMutation,
+    useGetCourseDetailsQuery
+} from '@/redux/features/courses/coursesApi';
 import TimeAgo from 'javascript-time-ago';
 import { MdMessage, MdVerified } from 'react-icons/md';
 import Ratings from '@/app/utils/Ratings';
 import en from 'javascript-time-ago/locale/en.json'
+import socketIO from "socket.io-client";
+const ENDPOINT = process.env.NEXT_PUBLIC_SOCKET_SERVER_URI || "";
+const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
 TimeAgo.addLocale(en);
 const timeAgo = new TimeAgo('en-US');
@@ -96,11 +105,25 @@ const CourseContentMedia = ({ data, activeVideo, setActiveVideo, user, refetch, 
             setQuestion("");
             refetch();
             toast.success("Question added successfully");
+            socketId.emit("notification", {
+                title: "New Question received",
+                message: `You have a new question in ${data[activeVideo].title}`,
+                userId: user._id,
+                type: "success",
+            });
         }
         if (answerSuccess) {
             setAnswer("");
             refetch();
             toast.success("Answer added successfully");
+            if (user.role !== "admin") {
+                socketId.emit("notification", {
+                    title: "New question reply received",
+                    message: `You have a new question reply in ${data[activeVideo].title}`,
+                    userId: user._id,
+                    type: "success",
+                });
+            }
         }
         if (error) {
             if ("data" in error) {
@@ -119,6 +142,12 @@ const CourseContentMedia = ({ data, activeVideo, setActiveVideo, user, refetch, 
             setRating(0);
             courseRefetch();
             toast.success("Review added successfully");
+            socketId.emit("notification", {
+                title: "New Review received",
+                message: `You have a new review in ${data[activeVideo].title}`,
+                userId: user._id,
+                type: "success",
+            });
         }
         if (reviewError) {
             if ("data" in reviewError) {
@@ -160,6 +189,12 @@ const CourseContentMedia = ({ data, activeVideo, setActiveVideo, user, refetch, 
             setReplyReview("");
             courseRefetch();
             toast.success("Reply added successfully");
+            socketId.emit("notification", {
+                title: "New Reply review received",
+                message: `You have a new reply review in ${data[activeVideo].title}`,
+                userId: user._id,
+                type: "success",
+            });
         }
         if (replyError) {
             if ("data" in replyError) {

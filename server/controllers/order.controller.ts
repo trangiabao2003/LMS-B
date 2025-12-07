@@ -3,7 +3,7 @@ import { CatchAsyncErrors } from "../middleware/catchAsyncErrors";
 import ErrorHandler from "../utils/ErrorHandler";
 import OrderModel, { IOrder } from "../models/order.model";
 import userModel from "../models/user.model";
-import CourseModel from "../models/course.model";
+import CourseModel, { ICourse } from "../models/course.model";
 import path from "path";
 import ejs from "ejs";
 import sendMail from "../utils/sendMail";
@@ -53,7 +53,7 @@ export const createOrder = CatchAsyncErrors(
         );
       }
 
-      const course = await CourseModel.findById(courseId);
+      const course: ICourse | null = await CourseModel.findById(courseId);
       if (!course) {
         return next(new ErrorHandler("Course not found", 404));
       }
@@ -111,7 +111,7 @@ export const createOrder = CatchAsyncErrors(
       });
 
       // Update purchased count
-      course.purchased = (course.purchased ?? 0) + 1;
+      course.purchased = course.purchased + 1;
       await course.save();
 
       // Return order

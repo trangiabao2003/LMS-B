@@ -17,6 +17,7 @@ import { useLogOutQuery, useSocialAuthMutation } from "@/redux/features/auth/aut
 import { useSession } from "next-auth/react"
 import toast from "react-hot-toast"
 import { ThemeSwhitcher } from "@/app/utils/ThemeSwitcher"
+import { useLoadUserQuery } from "@/redux/features/api/apiSlice"
 
 type Props = {
   open: boolean;
@@ -28,11 +29,11 @@ type Props = {
 
 export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
   const [isOpen, setIsOpen] = useState(false)
-  const { theme, setTheme } = useTheme()
   const [loginModalOpen, setLoginModalOpen] = useState(false)
   const [signupModalOpen, setSignupModalOpen] = useState(false)
   const [verificationModalOpen, setVerificationModalOpen] = useState(false)
   const [userEmail, setUserEmail] = useState("")
+  const { data: userData, isLoading, refetch } = useLoadUserQuery(undefined, {})
   const { user } = useSelector((state: any) => state.auth);
   const { data } = useSession();
   const [socialAuth, { isSuccess, error }] = useSocialAuthMutation()
@@ -41,24 +42,27 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
     { skip: !logout ? true : false });
 
   useEffect(() => {
-    if (!user) {
-      if (data) {
-        socialAuth({
-          email: data?.user?.email,
-          name: data?.user?.name,
-          avatar: data.user?.image
-        })
+    if (!isLoading) {
+      if (!userData) {
+        if (data) {
+          socialAuth({
+            email: data?.user?.email,
+            name: data?.user?.name,
+            avatar: data.user?.image
+          });
+          refetch();
+        }
+      }
+      if (data === null) {
+        if (isSuccess) {
+          toast.success("Login successful")
+        }
+      }
+      if (data === null && !userData && !isLoading) {
+        setLogout(true);
       }
     }
-    if (data === null) {
-      if (isSuccess) {
-        toast.success("Login successful")
-      }
-    }
-    if (data === null) {
-      setLogout(true);
-    }
-  }, [data, user]);
+  }, [data, userData, isLoading]);
 
   const handleOpenLogin = () => {
     setSignupModalOpen(false)
@@ -112,18 +116,18 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
           {/* Right Actions */}
           <div className="flex items-center gap-4">
             {/* Theme Toggle */}
-           <ThemeSwhitcher />
+            <ThemeSwhitcher />
 
             {
-              user ? (
+              userData ? (
                 <Link href={"/profile"} >
                   <Image
-                    src={user.avatar ? user.avatar.url : avatar}
+                    src={userData.user.avatar ? userData.user.avatar.url : avatar}
                     alt="Avatar"
                     width={30}
                     height={30}
                     className="w-[30px] h-[30px] rounded-full cursor-pointer object-cover"
-                    style={{border: activeItem === 5 ? "2px solid #37a39a" : "none"}}
+                    style={{ border: activeItem === 5 ? "2px solid #37a39a" : "none" }}
                   />
                 </Link>
               ) : (
@@ -179,6 +183,7 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
                   activeItem={activeItem}
                   setRoute={setRoute}
                   component={LoginModal}
+                  refetch={refetch}
                 />
               )
             }

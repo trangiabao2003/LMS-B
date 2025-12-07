@@ -13,6 +13,7 @@ import { signIn } from "next-auth/react"
 type Props = {
   setRoute: (route: string) => void
   setOpen: (open: boolean) => void
+  refetch?: () => void
 }
 interface LoginModalProps {
   isOpen: boolean
@@ -20,7 +21,7 @@ interface LoginModalProps {
   onSwitchToSignup: () => void
 }
 
-export function LoginModal({ isOpen, onClose, onSwitchToSignup, setRoute, setOpen }: LoginModalProps & Props) {
+export function LoginModal({ isOpen, onClose, onSwitchToSignup, setRoute, setOpen, refetch }: LoginModalProps & Props) {
   const [login, { isSuccess, error }] = authApi.useLoginMutation();
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -37,7 +38,6 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup, setRoute, setOpe
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true)
     await login(data);
-    // console.log("Login data:", data)
     setIsLoading(false)
     reset()
     onClose()
@@ -46,7 +46,8 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup, setRoute, setOpe
   useEffect(() => {
     if (isSuccess) {
       toast.success("Login successfully")
-      // setOpen(false)
+      setOpen(false)
+      refetch?.()
     }
     if (error) {
       const errorData = error as any

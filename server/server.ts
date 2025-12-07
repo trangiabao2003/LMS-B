@@ -7,6 +7,8 @@ require("dotenv").config();
 
 const server = http.createServer(app);
 
+initSocketServer(server);
+
 //cloudinary config
 cloudinary.v2.config({
 	cloud_name: process.env.CLOUD_NAME,
@@ -14,10 +16,9 @@ cloudinary.v2.config({
 	api_secret: process.env.CLOUD_SECRET_KEY,
 });
 
-initSocketServer(server);
 
 // create server
-app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
 	console.log(`Server is running on port ${process.env.PORT}`);
 	connectDB();
 });

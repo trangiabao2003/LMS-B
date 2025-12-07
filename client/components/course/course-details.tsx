@@ -28,12 +28,9 @@ const CourseDetails = ({ data, clientSecret, stripePromise }: Props) => {
   const { data: userData } = useLoadUserQuery(undefined, {});
   const user = userData?.user;
   const [open, setOpen] = useState(false);
-  const [timeAgo, setTimeAgo] = useState<TimeAgo | null>(null);
 
-  // Initialize TimeAgo on client side only
-  useEffect(() => {
-    setTimeAgo(new TimeAgo('en-US'));
-  }, []);
+  TimeAgo.addLocale(en);
+  const timeAgo = new TimeAgo('en-US');
 
   // Check if course is purchased via orders collection
   const {
@@ -409,6 +406,7 @@ const CourseDetails = ({ data, clientSecret, stripePromise }: Props) => {
                         setOpen={setOpen}
                         data={data}
                         refetchPurchased={refetchPurchased}
+                        user={user}
                       />
                     </Elements>
                   ) : (
