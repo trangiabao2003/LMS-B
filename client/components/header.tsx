@@ -96,20 +96,25 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            <a href="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <a href="/" className={`text-sm font-medium transition-colors ${activeItem === 0 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
               Home
             </a>
-            <a href="/courses" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <a href="/courses" className={`text-sm font-medium transition-colors ${activeItem === 1 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
               Courses
             </a>
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              Categories
-            </a>
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <a href="/about" className={`text-sm font-medium transition-colors ${activeItem === 2 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
               About
             </a>
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              Contact
+            <a href="/policies" className={`text-sm font-medium transition-colors ${activeItem === 3 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
+              Policies
+            </a>
+            <a href="/faq" className={`text-sm font-medium transition-colors ${activeItem === 4 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
+              FAQ
             </a>
           </nav>
 
@@ -145,26 +150,36 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
         {/* Mobile Navigation */}
         {isOpen && (
           <nav className="md:hidden mt-4 flex flex-col gap-4 border-t border-border pt-4">
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <a href="/" className={`text-sm font-medium transition-colors ${activeItem === 0 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
+              Home
+            </a>
+            <a href="/courses" className={`text-sm font-medium transition-colors ${activeItem === 1 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
               Courses
             </a>
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              Categories
-            </a>
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <a href="/about" className={`text-sm font-medium transition-colors ${activeItem === 2 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
               About
             </a>
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              Contact
+            <a href="/policies" className={`text-sm font-medium transition-colors ${activeItem === 3 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
+              Policies
             </a>
-            <div className="flex flex-col gap-2 border-t border-border pt-4">
-              <Button variant="ghost" className="w-full" onClick={handleOpenLogin}>
-                Sign In
-              </Button>
-              <Button className="w-full" onClick={handleOpenSignup}>
-                Sign Up
-              </Button>
-            </div>
+            <a href="/faq" className={`text-sm font-medium transition-colors ${activeItem === 4 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
+              FAQ
+            </a>
+            {!userData && (
+              <div className="flex flex-col gap-2 border-t border-border pt-4">
+                <Button variant="ghost" className="w-full" onClick={handleOpenLogin}>
+                  Sign In
+                </Button>
+                <Button className="w-full" onClick={handleOpenSignup}>
+                  Sign Up
+                </Button>
+              </div>
+            )}
           </nav>
         )}
       </div>

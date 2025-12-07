@@ -20,6 +20,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Footer } from "@/components/footer";
 
 const page = () => {
     const searchParams = useSearchParams();
@@ -360,6 +361,7 @@ const page = () => {
                     </div>
                 </>
             )}
+            <Footer />
         </div>
     );
 };
