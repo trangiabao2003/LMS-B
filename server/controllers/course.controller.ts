@@ -566,3 +566,57 @@ export const generateVideoUrl = CatchAsyncErrors(
     }
   }
 );
+
+// get user's enrolled courses with full details
+export const getEnrolledCourses = CatchAsyncErrors(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?._id;
+
+      if (!userId) {
+        return next(new ErrorHandler("User not authenticated", 401));
+      }
+
+      // Get user's course IDs - handle both formats
+      // Format 1: courses array contains ObjectIds directly
+      // Format 2: courses array contains {courseId: string} objects
+      const userCourses = req.user?.courses || [];
+
+      const userCourseIds = userCourses.map((course: any) => {
+        // If it's an object with courseId property
+        if (course.courseId) {
+          return course.courseId;
+        }
+        // If it's an ObjectId or string directly
+        return course._id || course;
+      });
+
+      console.log("User courses:", userCourses);
+      console.log("Extracted course IDs:", userCourseIds);
+
+      if (userCourseIds.length === 0) {
+        return res.status(200).json({
+          success: true,
+          courses: [],
+        });
+      }
+
+      // Fetch full course details for enrolled courses
+      const courses = await CourseModel.find({
+        _id: { $in: userCourseIds }
+      }).select(
+        "-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links"
+      );
+
+      console.log("Found courses:", courses.length);
+
+      res.status(200).json({
+        success: true,
+        courses,
+      });
+    } catch (error: any) {
+      console.error("Error in getEnrolledCourses:", error);
+      return next(new ErrorHandler("Failed to fetch enrolled courses", 500));
+    }
+  }
+);

@@ -82,7 +82,7 @@ export function CourseGrid({ isProfile = false }: CourseGridProps) {
             {isProfile ? "My Courses" : "Featured Courses"}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            {isProfile 
+            {isProfile
               ? "Access all your enrolled courses and continue your learning journey."
               : "Explore our most popular courses and start learning today. Choose from a wide variety of topics and skill levels."
             }
@@ -90,7 +90,7 @@ export function CourseGrid({ isProfile = false }: CourseGridProps) {
         </div>
 
         {/* Search Bar */}
-        <div className="mb-8 relative">
+        {/* <div className="mb-8 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             placeholder="Search courses by title, topic, or tags..."
@@ -98,7 +98,7 @@ export function CourseGrid({ isProfile = false }: CourseGridProps) {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 py-6 text-base"
           />
-        </div>
+        </div> */}
 
         {/* Filters */}
         <div className="mb-8 space-y-4">
@@ -171,9 +171,9 @@ export function CourseGrid({ isProfile = false }: CourseGridProps) {
         {filteredCourses.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredCourses.map((course: any) => (
-              <CourseCard 
-                key={course._id} 
-                course={course} 
+              <CourseCard
+                key={course._id}
+                course={course}
                 isProfile={isProfile}
               />
             ))}

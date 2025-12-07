@@ -75,28 +75,30 @@ export function CourseCard({ course, isProfile = false }: CourseCardProps) {
       </CardContent>
 
       <CardFooter className="flex items-center justify-between pt-3 border-t border-border mb-4">
-        <div className="text-lg font-bold text-foreground">
-          {course.price === 0 ? (<>
-            <div className="flex items-center gap-2">
-              <span className="text-green-600">Free</span>
-              <span className="text-[#6B7280] dark:text-[#9CA3AF] text-xs ml-2 text-muted-foreground line-through">${course.estimatedPrice}</span>
-            </div>
-          </>
-          ) : (
-            <div className="flex items-center gap-2">
-              <span>${course.price}</span>
-              <span className="text-[#6B7280] dark:text-[#9CA3AF] text-xs pb-2 block line-through">${course.estimatedPrice}</span>
-            </div>
-          )}
-        </div>
+        {!isProfile && (
+          <div className="text-lg font-bold text-foreground">
+            {course.price === 0 ? (<>
+              <div className="flex items-center gap-2">
+                <span className="text-green-600">Free</span>
+                <span className="text-[#6B7280] dark:text-[#9CA3AF] text-xs ml-2 text-muted-foreground line-through">${course.estimatedPrice}</span>
+              </div>
+            </>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span>${course.price}</span>
+                <span className="text-[#6B7280] dark:text-[#9CA3AF] text-xs pb-2 block line-through">${course.estimatedPrice}</span>
+              </div>
+            )}
+          </div>
+        )}
         {!isProfile && (
           <Link href={`/course/${course._id}`}>
             <Button size="sm">Enroll</Button>
           </Link>
         )}
         {isProfile && (
-          <Link href={`/course/${course._id}`}>
-            <Button size="sm" variant="outline">Continue</Button>
+          <Link href={`/course-access/${course._id}`} className="ml-auto">
+            <Button size="sm" variant="outline">Continue Learning</Button>
           </Link>
         )}
       </CardFooter>

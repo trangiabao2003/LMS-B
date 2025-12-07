@@ -39,17 +39,17 @@ const ChangePassword = (props: Props) => {
 
 
     return (
-        <div className="w-full pl-7 px-2 md:px-5 md:pl-0">
-            <h1 className="block text-[25px] md:text-[30px] font-Poppins text-center font-medium text-black dark:text-white pb-2">
+        <div className="w-full px-4 md:px-8">
+            <h1 className="block text-[25px] md:text-[30px] font-Poppins text-center font-medium text-black dark:text-white pb-6">
                 Change Password
             </h1>
             <div className="w-full flex flex-col items-center mb-12">
                 <form
                     aria-required
                     onSubmit={passwordChangeHandler}
-                    className="flex flex-col items-center"
+                    className="w-full max-w-md space-y-5"
                 >
-                    <div className="w-full md:w-[60%] mt-5">
+                    <div className="w-full mb-3">
                         <label className="block text-sm font-semibold text-foreground mb-2">Enter your old password</label>
                         <input
                             type="password"
@@ -59,7 +59,7 @@ const ChangePassword = (props: Props) => {
                             onChange={(e) => setOldPassword(e.target.value)}
                         />
                     </div>
-                    <div className="flex flex-col w-full md:w-[60%] mt-2">
+                    <div className="w-full mb-3">
                         <label className="block text-sm font-semibold text-foreground mb-2">Enter your new password</label>
                         <input
                             type="password"
@@ -69,24 +69,24 @@ const ChangePassword = (props: Props) => {
                             onChange={(e) => setNewPassword(e.target.value)}
                         />
                     </div>
-                    <div className="flex flex-col w-full md:w-[60%] mt-2">
+                    <div className="w-full mb-3">
                         <label className="block text-sm font-semibold text-foreground mb-2">
                             Enter your confirm password
                         </label>
                         <input
                             type="password"
-                            className={`${styles.input} w-full px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-[#37a39a] focus:outline-none focus:ring-2 focus:ring-[#37a39a]/20`}
+                            className={`${styles.input} w-full mb-6 px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-[#37a39a] focus:outline-none focus:ring-2 focus:ring-[#37a39a]/20`}
                             required
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                         />
-                        <input
-                            className={`w-full py-2.5 mt-8 border-2 border-[#37a39a] text-[#37a39a] dark:text-white font-semibold rounded-lg hover:bg-[#37a39a] hover:text-white transition duration-200`}
-                            required
-                            value="Update"
-                            type="submit"
-                        />
                     </div>
+                    <button
+                        type="submit"
+                        className="w-full py-2.5 mt-6 border-2 border-[#37a39a] text-[#37a39a] dark:text-white font-semibold rounded-lg hover:bg-[#37a39a] hover:text-white transition duration-200 cursor-pointer"
+                    >
+                        Update
+                    </button>
                 </form>
             </div>
         </div>
