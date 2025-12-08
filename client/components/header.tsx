@@ -125,7 +125,7 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
 
             {
               userData ? (
-                <Link href={"/profile"} >
+                <div className="relative">
                   <Image
                     src={userData.user.avatar ? userData.user.avatar.url : avatar}
                     alt="Avatar"
@@ -133,8 +133,31 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
                     height={30}
                     className="w-[30px] h-[30px] rounded-full cursor-pointer object-cover"
                     style={{ border: activeItem === 5 ? "2px solid #37a39a" : "none" }}
+                    onClick={() => setIsOpen(!isOpen)}
                   />
-                </Link>
+
+                  {/* Dropdown Menu */}
+                  {isOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700">
+                      <Link
+                        href="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        Profile
+                      </Link>
+                      <button
+                        onClick={() => {
+                          setLogout(true);
+                          setIsOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <>
                   <Button variant="ghost" onClick={handleOpenLogin}>
@@ -177,6 +200,25 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
                 </Button>
                 <Button className="w-full" onClick={handleOpenSignup}>
                   Sign Up
+                </Button>
+              </div>
+            )}
+            {userData && (
+              <div className="flex flex-col gap-2 border-t border-border pt-4">
+                <Link href="/profile">
+                  <Button variant="ghost" className="w-full">
+                    Profile
+                  </Button>
+                </Link>
+                <Button
+                  variant="ghost"
+                  className="w-full text-red-600 dark:text-red-400"
+                  onClick={() => {
+                    setLogout(true);
+                    setIsOpen(false);
+                  }}
+                >
+                  Logout
                 </Button>
               </div>
             )}
