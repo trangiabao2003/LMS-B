@@ -1,32 +1,54 @@
 import Ratings from '@/app/utils/Ratings';
-import { IoCheckmarkDoneOutline } from 'react-icons/io5';
-import { useSelector } from 'react-redux';
+import { IoCheckmarkDoneOutline, IoCloseOutline } from 'react-icons/io5';
 import CoursePlayer from '@/app/utils/CoursePlayer';
 import { styles } from '@/styles/styles';
 import Link from 'next/link';
 import { Check, Users, Star, Clock, BookOpen, Award, Shield } from 'lucide-react';
 import CourseContentList from './course-content-list';
-import { format } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { useState, useEffect } from 'react';
+import CheckoutForm from '../payment/checkout-form';
+import { Elements } from '@stripe/react-stripe-js';
+import { useCheckCoursePurchasedQuery } from '@/redux/features/orders/ordersApi';
+import { useLoadUserQuery } from '@/redux/features/api/apiSlice';
+import Image from 'next/image';
+import { MdVerified } from 'react-icons/md';
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
 
 type Props = {
   data: any;
+  clientSecret?: string;
+  stripePromise?: any;
+  createPaymentIntent?: any;
+  setClientSecret?: any;
 }
 
-const CourseDetails = ({ data }: Props) => {
-  const { user } = useSelector((state: any) => state.auth);
+const CourseDetails = ({ data, clientSecret, stripePromise, createPaymentIntent, setClientSecret }: Props) => {
+  const { data: userData } = useLoadUserQuery(undefined, {});
+  const user = userData?.user;
+  const [open, setOpen] = useState(false);
+  const [isCreatingPayment, setIsCreatingPayment] = useState(false);
+
+  TimeAgo.addLocale(en);
+  const timeAgo = new TimeAgo('en-US');
+
+  // Check if course is purchased via orders collection
+  const {
+    data: purchaseData,
+    isLoading: checkingPurchase,
+    refetch: refetchPurchased
+  } = useCheckCoursePurchasedQuery(data?._id, {
+    skip: !user || !data?._id, // Skip if no user or course ID
+  });
+
+  const isPurchased = purchaseData?.isPurchased || false;
 
   const discountPercentage = data?.estimatedPrice
     ? ((data.estimatedPrice - data.price) / data.estimatedPrice) * 100
     : 0;
-
-  const isPurchased = user && user?.courses?.find((item: any) => item._id === data._id);
-
-  const handleOrder = (e: any) => {
-    console.log("Order course:", data._id);
-  };
 
   // Calculate total duration from courseData
   const totalDuration = data?.courseData?.reduce((acc: number, item: any) => {
@@ -34,6 +56,28 @@ const CourseDetails = ({ data }: Props) => {
   }, 0) || 0
 
   const durationInHours = (totalDuration / 60).toFixed(1);
+
+  const handleOrder = async (e: any) => {
+    if (!user) {
+      return;
+    }
+
+    // Create PaymentIntent only when Buy Now is clicked
+    if (!clientSecret && createPaymentIntent) {
+      setIsCreatingPayment(true);
+      try {
+        const amount = Math.round(data.price * 100);
+        await createPaymentIntent(amount);
+      } catch (error) {
+        console.error("Failed to create payment intent:", error);
+        setIsCreatingPayment(false);
+        return;
+      }
+    }
+
+    setOpen(true);
+    setIsCreatingPayment(false);
+  };
 
   return (
     <div className="min-h-screen bg-linear-to-b from-background to-muted/20">
@@ -126,7 +170,8 @@ const CourseDetails = ({ data }: Props) => {
             <Card>
               <CardContent className="p-6">
                 <h2 className="text-2xl font-bold mb-6">Course Content</h2>
-                <CourseContentList />
+                <CourseContentList data={data?.courseData}
+                  isDemo={true} />
               </CardContent>
             </Card>
 
@@ -160,25 +205,59 @@ const CourseDetails = ({ data }: Props) => {
                   <div className="space-y-6">
                     {[...data.reviews].reverse().map((item: any, index: number) => (
                       <div key={index} className="border-b last:border-0 pb-6 last:pb-0">
-                        <div className="flex gap-4">
+                        {/* Main Review */}
+                        <div className="flex gap-3">
                           <div className="shrink-0">
-                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                              <span className="text-lg font-semibold text-primary uppercase">
-                                {item.user?.name?.slice(0, 2) || "AN"}
-                              </span>
-                            </div>
+                            <Image
+                              src={
+                                item.user.avatar
+                                  ? item.user.avatar.url
+                                  : "/avatar.jpg"
+                              }
+                              height={36}
+                              width={36}
+                              alt="avatar"
+                              className="w-9 h-9 rounded-full object-cover"
+                            />
                           </div>
-                          <div className="flex-1 space-y-2">
-                            <div className="flex items-center justify-between">
-                              <h4 className="font-semibold">{item.user?.name || "Anonymous"}</h4>
-                              <span className="text-sm text-muted-foreground">
-                                {item.createdAt ? format(new Date(item.createdAt), "MMM dd, yyyy") : "N/A"}
-                              </span>
-                            </div>
+                          <div className="flex-1">
+                            <h4 className="text-[18px] font-semibold">{item.user?.name || "Anonymous"}</h4>
                             <Ratings rating={item.rating || 0} />
-                            <p className="text-foreground">{item.comment}</p>
+                            <p className="text-foreground mt-1">{item.comment}</p>
+                            <small className="text-slate-700 dark:text-[#ffffff83]">
+                              {item.createdAt && timeAgo ? timeAgo.format(new Date(item.createdAt)) : "N/A"}
+                            </small>
                           </div>
                         </div>
+
+                        {/* Admin Replies - Indented to the right */}
+                        {item.commentReplies.map((i: any, replyIndex: number) => (
+                          <div key={replyIndex} className="w-full flex md:ml-16 my-5">
+                            <div className="w-10 h-10 shrink-0">
+                              <Image
+                                src={
+                                  i.user.avatar
+                                    ? i.user.avatar.url
+                                    : "/avatar.jpg"
+                                }
+                                width={40}
+                                height={40}
+                                alt="avatar"
+                                className="w-10 h-10 rounded-full object-cover"
+                              />
+                            </div>
+                            <div className="pl-2 flex-1">
+                              <div className="flex items-center gap-2">
+                                <h5 className="text-[16px] font-semibold">{i.user.name}</h5>
+                                <MdVerified className="text-[#0095F6] text-[20px]" />
+                              </div>
+                              <p className="mt-1">{i.comment}</p>
+                              <small className="text-[#ffffff83]">
+                                {timeAgo?.format(new Date(i.createdAt)) || 'Just now'}
+                              </small>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     ))}
                   </div>
@@ -218,22 +297,35 @@ const CourseDetails = ({ data }: Props) => {
                   </div>
 
                   {/* CTA Button */}
-                  {isPurchased ? (
+                  {checkingPurchase ? (
+                    <div className="flex justify-center py-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600"></div>
+                    </div>
+                  ) : isPurchased ? (
                     <Link
                       href={`/course-access/${data?._id}`}
                       className="block w-full"
                     >
-                      <button className={`${styles.button} w-full py-4 text-lg font-semibold`}>
-                        Enter Course
+                      <button className={`${styles.button} w-full py-4 text-lg font-semibold bg-green-600 hover:bg-green-700`}>
+                        Enter to Course
                       </button>
                     </Link>
                   ) : (
                     <div className="flex justify-center">
                       <button
                         onClick={handleOrder}
-                        className={`${styles.button} w-[80%] py-4 text-lg font-semibold bg-cyan-600 hover:bg-cyan-400/50`}
+                        disabled={!user || isCreatingPayment}
+                        className={`${styles.button} w-[80%] py-4 text-lg font-semibold ${!user || isCreatingPayment
+                          ? 'bg-gray-400 cursor-not-allowed opacity-60'
+                          : 'bg-cyan-600 hover:bg-cyan-400/50'
+                          }`}
                       >
-                        Buy Now - ${data?.price}
+                        {!user
+                          ? 'Login to Buy'
+                          : isCreatingPayment
+                            ? 'Preparing payment...'
+                            : `Buy Now - $${data?.price}`
+                        }
                       </button>
                     </div>
                   )}
@@ -310,7 +402,45 @@ const CourseDetails = ({ data }: Props) => {
 
         </div>
       </div>
-    </div>
+      <>
+        {open && (
+          <div className="w-full h-screen bg-[#00000036] fixed top-0 left-0 z-50 flex items-center justify-center">
+            <div className="w-[500px] min-h-[500px] bg-white rounded-xl shadow p-3">
+              <div className="w-full flex justify-end">
+                <IoCloseOutline
+                  size={40}
+                  className="text-black cursor-pointer"
+                  onClick={() => setOpen(false)}
+                />
+              </div>
+              <div className="w-full">
+                {
+                  stripePromise && clientSecret ? (
+                    <Elements
+                      stripe={stripePromise}
+                      options={{ clientSecret: clientSecret }}
+                    >
+                      <CheckoutForm
+                        setOpen={setOpen}
+                        data={data}
+                        refetchPurchased={refetchPurchased}
+                        user={user}
+                        setClientSecret={setClientSecret}
+                      />
+                    </Elements>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-600 mb-4"></div>
+                      <p className="text-gray-600 font-medium">Preparing payment...</p>
+                    </div>
+                  )
+                }
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    </div >
   );
 };
 

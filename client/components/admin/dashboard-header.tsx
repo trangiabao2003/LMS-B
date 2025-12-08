@@ -1,15 +1,59 @@
 "use client";
 
 import { ThemeSwhitcher } from "@/app/utils/ThemeSwitcher";
-import { useState } from "react";
+import { useGetAllNotificationsQuery, useUpdateNotificationStatusMutation } from "@/redux/features/notifications/notificationsApi";
+import { useEffect, useState } from "react";
 import { IoMdNotificationsOutline } from "react-icons/io";
+import socketIO from "socket.io-client";
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en.json';
 
-type Props = {
-    open?: boolean;
-    setOpen?: any;
-};
+TimeAgo.addLocale(en);
+const timeAgo = new TimeAgo('en-US');
 
-const DashboardHeader = ({ open, setOpen }: Props) => {
+const ENDPOINT = process.env.NEXT_PUBLIC_SOCKET_SERVER_URI || "";
+const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
+
+const DashboardHeader = () => {
+    const [open, setOpen] = useState(false);
+    const notificationSound = new Audio(
+        "https://res.cloudinary.com/biennguyen/video/upload/v1765113063/new-notification-022-370046_kagbph.mp3"
+    );
+    const { data, refetch } = useGetAllNotificationsQuery(undefined, {
+        refetchOnMountOrArgChange: true,
+    });
+
+    const [updateNotificationStatus, { isSuccess }] = useUpdateNotificationStatusMutation();
+    const [notifications, setNotifications] = useState<any>([]);
+
+    const playerNotificationSound = () => {
+        notificationSound.play();
+    };
+
+    useEffect(() => {
+        if (data) {
+            setNotifications(
+                data.notifications.filter((item: any) => item.status === "unread")
+            );
+        }
+        if (isSuccess) {
+            refetch();
+        }
+        notificationSound.load();
+
+    }, [data, isSuccess]);
+
+    useEffect(() => {
+        socketId.on("newNotification", (data) => {
+            refetch();
+            playerNotificationSound();
+        });
+
+    }, []);
+
+    const handleNotificationStatusChange = async (id: string) => {
+        await updateNotificationStatus(id);
+    }
 
     return (
         <div className="w-full bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 sticky top-0 z-40">
@@ -32,7 +76,7 @@ const DashboardHeader = ({ open, setOpen }: Props) => {
                     <div className="relative cursor-pointer" onClick={() => setOpen(!open)}>
                         <IoMdNotificationsOutline className="text-2xl cursor-pointer dark:text-white text-black hover:text-blue-500 dark:hover:text-blue-400 transition-colors" />
                         <span className="absolute -top-2 -right-2 bg-red-500 rounded-full w-5 h-5 text-[12px] flex items-center justify-center text-white font-semibold">
-                            3
+                            {notifications.length}
                         </span>
                     </div>
 
@@ -44,67 +88,42 @@ const DashboardHeader = ({ open, setOpen }: Props) => {
                                     Notifications
                                 </h5>
                             </div>
-                            <div className="overflow-y-auto max-h-[50vh]">
-                                {/* Notification Item 1 */}
-                                <div className="dark:bg-slate-700/50 bg-gray-50 border-b border-gray-200 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
-                                    <div className="p-4">
-                                        <div className="flex items-start justify-between mb-2">
-                                            <p className="text-black dark:text-white font-semibold text-sm">
-                                                New Question Received
-                                            </p>
-                                            <button className="text-xs text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 font-medium">
-                                                Mark as read
-                                            </button>
-                                        </div>
-                                        <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
-                                            A student asked a new question in your course MERN Stack LMS
-                                        </p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-500">
-                                            5 minutes ago
-                                        </p>
+                            {
+                                notifications && notifications.length > 0 ? (
+                                    <div className="overflow-y-auto max-h-[50vh]">
+                                        {notifications.map((notification: any) => (
+                                            <div
+                                                key={notification._id}
+                                                className="dark:bg-slate-700/50 bg-gray-50 border-b border-gray-200 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                                            >
+                                                <div className="p-4">
+                                                    <div className="flex items-start justify-between mb-2">
+                                                        <p className="text-black dark:text-white font-semibold text-sm">
+                                                            {notification.title}
+                                                        </p>
+                                                        <button
+                                                            onClick={() => handleNotificationStatusChange(notification._id)}
+                                                            className="text-xs text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 font-medium"
+                                                        >
+                                                            Mark as read
+                                                        </button>
+                                                    </div>
+                                                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
+                                                        {notification.message}
+                                                    </p>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-500">
+                                                        {timeAgo.format(new Date(notification.createdAt))}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                </div>
-
-                                {/* Notification Item 2 */}
-                                <div className="dark:bg-slate-700/50 bg-gray-50 border-b border-gray-200 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
-                                    <div className="p-4">
-                                        <div className="flex items-start justify-between mb-2">
-                                            <p className="text-black dark:text-white font-semibold text-sm">
-                                                New Course Sale
-                                            </p>
-                                            <button className="text-xs text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 font-medium">
-                                                Mark as read
-                                            </button>
-                                        </div>
-                                        <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
-                                            Someone purchased your course "Web Development Bootcamp"
-                                        </p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-500">
-                                            1 hour ago
-                                        </p>
+                                ) : (
+                                    <div className="p-4 text-center">
+                                        No notifications
                                     </div>
-                                </div>
-
-                                {/* Notification Item 3 */}
-                                <div className="dark:bg-slate-700/50 bg-gray-50 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
-                                    <div className="p-4">
-                                        <div className="flex items-start justify-between mb-2">
-                                            <p className="text-black dark:text-white font-semibold text-sm">
-                                                Course Review
-                                            </p>
-                                            <button className="text-xs text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 font-medium">
-                                                Mark as read
-                                            </button>
-                                        </div>
-                                        <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
-                                            Your course received a 5-star review from a student
-                                        </p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-500">
-                                            2 hours ago
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
+                                )
+                            }
                         </div>
                     )}
                 </div>

@@ -25,9 +25,9 @@ const SidebarProfile = ({ user, active, avatar, setActive, logOutHandler }: Prop
                     alt=''
                     width={20}
                     height={20}
-                    className='rounded-full w-5 h-5 object-cover 800px:h-[30px] 800px:w-[30px] cursor-pointer'
+                    className='rounded-full w-5 h-5 object-cover md:h-[30px] md:w-[30px] cursor-pointer'
                 />
-                <h5 className='pl-2 800px:block dark:text-white text-black'>
+                <h5 className='pl-2 md:block dark:text-white text-black'>
                     My Account
                 </h5>
             </div>
@@ -36,21 +36,21 @@ const SidebarProfile = ({ user, active, avatar, setActive, logOutHandler }: Prop
                 onClick={() => setActive(2)}
             >
                 <MdLockPerson size={20} className="dark:text-white text-black" />
-                <h5 className="pl-2 800px:block dark:text-white text-black">Change Password</h5>
+                <h5 className="pl-2 md:block dark:text-white text-black">Change Password</h5>
             </div>
             <div
                 className={`w-full flex items-center px-3 py-4 cursor-pointer ${active === 3 ? " dark:bg-slate-800 bg-slate-200" : "bg-transparent"}`}
                 onClick={() => setActive(3)}
             >
                 <SiCoursera size={20} className="dark:text-white text-black" />
-                <h5 className="pl-2 800px:block dark:text-white text-black">Enrolled Courses</h5>
+                <h5 className="pl-2 md:block dark:text-white text-black">Enrolled Courses</h5>
             </div>
             <div
                 className={`w-full flex items-center px-3 py-4 cursor-pointer ${active === 4 ? " dark:bg-slate-800 bg-slate-200" : "bg-transparent"}`}
                 onClick={() => logOutHandler()}
             >
                 <FaSignOutAlt size={20} className="dark:text-white text-black" />
-                <h5 className="pl-2 800px:block dark:text-white text-black">Log out</h5>
+                <h5 className="pl-2 md:block dark:text-white text-black">Log out</h5>
             </div>
             {
                 user?.role === "admin" && (
@@ -59,7 +59,7 @@ const SidebarProfile = ({ user, active, avatar, setActive, logOutHandler }: Prop
                         href={'/admin'}
                     >
                         <MdOutlineAdminPanelSettings size={20} className="dark:text-white text-black" />
-                        <h5 className="pl-2 800px:block dark:text-white text-black">Admin Dashboard</h5>
+                        <h5 className="pl-2 md:block dark:text-white text-black">Admin Dashboard</h5>
                     </Link>
                 )
             }

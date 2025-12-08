@@ -17,11 +17,9 @@ import { useLogOutQuery, useSocialAuthMutation } from "@/redux/features/auth/aut
 import { useSession } from "next-auth/react"
 import toast from "react-hot-toast"
 import { ThemeSwhitcher } from "@/app/utils/ThemeSwitcher"
+import { useLoadUserQuery } from "@/redux/features/api/apiSlice"
 
 type Props = {
-  // title: string;
-  // description: string;
-  // keywords: string;
   open: boolean;
   setOpen: (open: boolean) => void;
   activeItem: number;
@@ -31,11 +29,11 @@ type Props = {
 
 export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
   const [isOpen, setIsOpen] = useState(false)
-  const { theme, setTheme } = useTheme()
   const [loginModalOpen, setLoginModalOpen] = useState(false)
   const [signupModalOpen, setSignupModalOpen] = useState(false)
   const [verificationModalOpen, setVerificationModalOpen] = useState(false)
   const [userEmail, setUserEmail] = useState("")
+  const { data: userData, isLoading, refetch } = useLoadUserQuery(undefined, {})
   const { user } = useSelector((state: any) => state.auth);
   const { data } = useSession();
   const [socialAuth, { isSuccess, error }] = useSocialAuthMutation()
@@ -44,24 +42,27 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
     { skip: !logout ? true : false });
 
   useEffect(() => {
-    if (!user) {
-      if (data) {
-        socialAuth({
-          email: data?.user?.email,
-          name: data?.user?.name,
-          avatar: data.user?.image
-        })
+    if (!isLoading) {
+      if (!userData) {
+        if (data) {
+          socialAuth({
+            email: data?.user?.email,
+            name: data?.user?.name,
+            avatar: data.user?.image
+          });
+          refetch();
+        }
+      }
+      if (data === null) {
+        if (isSuccess) {
+          toast.success("Login successful")
+        }
+      }
+      if (data === null && !userData && !isLoading) {
+        setLogout(true);
       }
     }
-    if (data === null) {
-      if (isSuccess) {
-        toast.success("Login successful")
-      }
-    }
-    if (data === null) {
-      setLogout(true);
-    }
-  }, [data, user]);
+  }, [data, userData, isLoading]);
 
   const handleOpenLogin = () => {
     setSignupModalOpen(false)
@@ -95,40 +96,68 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            <a href="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <a href="/" className={`text-sm font-medium transition-colors ${activeItem === 0 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
               Home
             </a>
-            <a href="/courses" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <a href="/courses" className={`text-sm font-medium transition-colors ${activeItem === 1 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
               Courses
             </a>
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              Categories
-            </a>
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <a href="/about" className={`text-sm font-medium transition-colors ${activeItem === 2 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
               About
             </a>
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              Contact
+            <a href="/policies" className={`text-sm font-medium transition-colors ${activeItem === 3 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
+              Policies
+            </a>
+            <a href="/faq" className={`text-sm font-medium transition-colors ${activeItem === 4 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
+              FAQ
             </a>
           </nav>
 
           {/* Right Actions */}
           <div className="flex items-center gap-4">
             {/* Theme Toggle */}
-           <ThemeSwhitcher />
+            <ThemeSwhitcher />
 
             {
-              user ? (
-                <Link href={"/profile"} >
+              userData ? (
+                <div className="relative">
                   <Image
-                    src={user.avatar ? user.avatar.url : avatar}
+                    src={userData.user.avatar ? userData.user.avatar.url : avatar}
                     alt="Avatar"
                     width={30}
                     height={30}
                     className="w-[30px] h-[30px] rounded-full cursor-pointer object-cover"
-                    style={{border: activeItem === 5 ? "2px solid #37a39a" : "none"}}
+                    style={{ border: activeItem === 5 ? "2px solid #37a39a" : "none" }}
+                    onClick={() => setIsOpen(!isOpen)}
                   />
-                </Link>
+
+                  {/* Dropdown Menu */}
+                  {isOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700">
+                      <Link
+                        href="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        Profile
+                      </Link>
+                      <button
+                        onClick={() => {
+                          setLogout(true);
+                          setIsOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <>
                   <Button variant="ghost" onClick={handleOpenLogin}>
@@ -144,26 +173,55 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
         {/* Mobile Navigation */}
         {isOpen && (
           <nav className="md:hidden mt-4 flex flex-col gap-4 border-t border-border pt-4">
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <a href="/" className={`text-sm font-medium transition-colors ${activeItem === 0 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
+              Home
+            </a>
+            <a href="/courses" className={`text-sm font-medium transition-colors ${activeItem === 1 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
               Courses
             </a>
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              Categories
-            </a>
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <a href="/about" className={`text-sm font-medium transition-colors ${activeItem === 2 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
               About
             </a>
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              Contact
+            <a href="/policies" className={`text-sm font-medium transition-colors ${activeItem === 3 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
+              Policies
             </a>
-            <div className="flex flex-col gap-2 border-t border-border pt-4">
-              <Button variant="ghost" className="w-full" onClick={handleOpenLogin}>
-                Sign In
-              </Button>
-              <Button className="w-full" onClick={handleOpenSignup}>
-                Sign Up
-              </Button>
-            </div>
+            <a href="/faq" className={`text-sm font-medium transition-colors ${activeItem === 4 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+              }`}>
+              FAQ
+            </a>
+            {!userData && (
+              <div className="flex flex-col gap-2 border-t border-border pt-4">
+                <Button variant="ghost" className="w-full" onClick={handleOpenLogin}>
+                  Sign In
+                </Button>
+                <Button className="w-full" onClick={handleOpenSignup}>
+                  Sign Up
+                </Button>
+              </div>
+            )}
+            {userData && (
+              <div className="flex flex-col gap-2 border-t border-border pt-4">
+                <Link href="/profile">
+                  <Button variant="ghost" className="w-full">
+                    Profile
+                  </Button>
+                </Link>
+                <Button
+                  variant="ghost"
+                  className="w-full text-red-600 dark:text-red-400"
+                  onClick={() => {
+                    setLogout(true);
+                    setIsOpen(false);
+                  }}
+                >
+                  Logout
+                </Button>
+              </div>
+            )}
           </nav>
         )}
       </div>
@@ -182,6 +240,7 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
                   activeItem={activeItem}
                   setRoute={setRoute}
                   component={LoginModal}
+                  refetch={refetch}
                 />
               )
             }
@@ -233,6 +292,7 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
         onSwitchToSignup={handleOpenSignup}
         setOpen={setOpen}
         setRoute={setRoute}
+        refetch={refetch}
       />
       <SignupModal
         isOpen={signupModalOpen}

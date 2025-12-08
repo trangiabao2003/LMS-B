@@ -6,6 +6,7 @@ import { useLogOutQuery } from "@/redux/features/auth/authApi";
 import { signOut } from "next-auth/react";
 import ProfileInfo from "./profile-info";
 import ChangePassword from "./change-password";
+import EnrolledCourses from "./enrolled-courses";
 
 type Props = {
   user: any;
@@ -48,9 +49,14 @@ const Profile = ({ user }: Props) => {
                 <ProfileInfo avatar={avatar} user={user} />
               </div>
             )}
-             {active === 2 && (
+            {active === 2 && (
               <div className='bg-white dark:bg-slate-900 rounded-lg shadow-sm p-6'>
                 <ChangePassword />
+              </div>
+            )}
+            {active === 3 && (
+              <div className='bg-white dark:bg-slate-900 rounded-lg shadow-sm p-6'>
+                <EnrolledCourses />
               </div>
             )}
           </div>

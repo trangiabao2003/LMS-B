@@ -27,13 +27,13 @@ const FAQ = (props: Props) => {
     return (
         <div>
             <div className="w-[90%] md:w-[80%] m-auto">
-                <h1 className={`${styles.title} 800px:text-[40px]`}>
+                <h1 className={`${styles.title} md:text-[40px]`}>
                     Frequently Asked Questions
                 </h1>
                 <div className="mt-12">
                     <dl className="space-y-8">
                         {questions.map((q, index) => (
-                            <div key={q.id}
+                            <div key={index}
                                 className={` ${q._id !== questions[0]?._id && "border-t"
                                     } border-gray-200 pt-6`}
                             >

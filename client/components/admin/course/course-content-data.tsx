@@ -129,11 +129,13 @@ const CourseContentData = ({
       }
     }
 
+    const newSectionName = `Section ${courseContentData.length}`;
+
     const newSection = {
       videoUrl: "",
       title: "",
       description: "",
-      videoSection: lastItem?.videoSection || "Untitled Section",
+      videoSection: newSectionName,
       links: [{ title: "", url: "" }],
       suggestion: "",
     };
@@ -259,7 +261,7 @@ const CourseContentData = ({
                       />
                     </div>
 
-                      <div className="mb-3">
+                    <div className="mb-3">
                       <label className={styles.label}>Video Length(in minutes)</label>
                       <input
                         type="number"
@@ -358,13 +360,13 @@ const CourseContentData = ({
       <br />
       <div className="w-full flex items-center justify-between">
         <div
-          className="w-[15%] 800px:w-[180px] flex items-center justify-center h-10 bg-[#37a39a] text-center text-white rounded mt-8 cursor-pointer"
+          className="w-[15%] md:w-[180px] flex items-center justify-center h-10 bg-[#37a39a] text-center text-white rounded mt-8 cursor-pointer"
           onClick={() => prevButton()}
         >
           Prev
         </div>
         <div
-          className="w-[15%] 800px:w-[180px] flex items-center justify-center h-10 bg-[#37a39a] text-center text-white rounded mt-8 cursor-pointer"
+          className="w-[15%] md:w-[180px] flex items-center justify-center h-10 bg-[#37a39a] text-center text-white rounded mt-8 cursor-pointer"
           onClick={() => handleOptions()}
         >
           Next
