@@ -75,9 +75,9 @@ const DashboardHeader = () => {
                     {/* Notifications */}
                     <div className="relative cursor-pointer" onClick={() => setOpen(!open)}>
                         <IoMdNotificationsOutline className="text-2xl cursor-pointer dark:text-white text-black hover:text-blue-500 dark:hover:text-blue-400 transition-colors" />
-                        <span className="absolute -top-2 -right-2 bg-red-500 rounded-full w-5 h-5 text-[12px] flex items-center justify-center text-white font-semibold">
+                        {notifications.length > 0 && <span className="absolute -top-2 -right-2 bg-red-500 rounded-full w-5 h-5 text-[12px] flex items-center justify-center text-white font-semibold">
                             {notifications.length}
-                        </span>
+                        </span>}
                     </div>
 
                     {/* Notifications Dropdown */}
@@ -120,7 +120,7 @@ const DashboardHeader = () => {
                                     </div>
                                 ) : (
                                     <div className="p-4 text-center">
-                                        No notifications
+                                        No notification
                                     </div>
                                 )
                             }
