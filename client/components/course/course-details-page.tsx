@@ -32,13 +32,7 @@ const CourseDetailsPage = ({ id }: Props) => {
         }
     }, [config]);
 
-    useEffect(() => {
-        if (data && !clientSecret) {
-            const amount = Math.round(data.course.price * 100);
-            createPaymentIntent(amount);
-        }
-    }, [data, clientSecret]);
-
+    // Only set clientSecret when payment intent data is received
     useEffect(() => {
         if (paymentIntentData) {
             setClientSecret(paymentIntentData?.client_secret);
@@ -67,6 +61,8 @@ const CourseDetailsPage = ({ id }: Props) => {
                         data={data.course}
                         stripePromise={stripePromise}
                         clientSecret={clientSecret}
+                        createPaymentIntent={createPaymentIntent}
+                        setClientSecret={setClientSecret}
                     />
                     <Footer />
                 </div>

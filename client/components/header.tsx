@@ -250,6 +250,7 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
         onSwitchToSignup={handleOpenSignup}
         setOpen={setOpen}
         setRoute={setRoute}
+        refetch={refetch}
       />
       <SignupModal
         isOpen={signupModalOpen}

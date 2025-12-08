@@ -13,9 +13,10 @@ type Props = {
     data: any;
     refetchPurchased?: () => void;
     user: any;
+    setClientSecret?: any;
 }
 
-const CheckoutForm = ({ setOpen, data, refetchPurchased, user }: Props) => {
+const CheckoutForm = ({ setOpen, data, refetchPurchased, user, setClientSecret }: Props) => {
     const stripe = useStripe();
     const elements = useElements();
     const router = useRouter();
@@ -50,6 +51,12 @@ const CheckoutForm = ({ setOpen, data, refetchPurchased, user }: Props) => {
             toast.success("Course purchased successfully!");
             setIsLoading(false);
             setOpen(false);
+
+            // Clear clientSecret to prevent reuse
+            if (setClientSecret) {
+                setClientSecret('');
+            }
+
             socketId.emit("notification", {
                 title: "New Order",
                 message: `You have a new order from ${data.name}`,
@@ -73,7 +80,7 @@ const CheckoutForm = ({ setOpen, data, refetchPurchased, user }: Props) => {
             }
             setIsLoading(false);
         }
-    }, [orderData, error, isSuccess, data._id, router, setOpen, refetchPurchased]);
+    }, [orderData, error, isSuccess, data._id, data.name, router, setOpen, refetchPurchased, user._id, setClientSecret]);
 
     return (
         <form id="payment-form" onSubmit={handleSubmit}>

@@ -22,12 +22,15 @@ type Props = {
   data: any;
   clientSecret?: string;
   stripePromise?: any;
+  createPaymentIntent?: any;
+  setClientSecret?: any;
 }
 
-const CourseDetails = ({ data, clientSecret, stripePromise }: Props) => {
+const CourseDetails = ({ data, clientSecret, stripePromise, createPaymentIntent, setClientSecret }: Props) => {
   const { data: userData } = useLoadUserQuery(undefined, {});
   const user = userData?.user;
   const [open, setOpen] = useState(false);
+  const [isCreatingPayment, setIsCreatingPayment] = useState(false);
 
   TimeAgo.addLocale(en);
   const timeAgo = new TimeAgo('en-US');
@@ -54,11 +57,26 @@ const CourseDetails = ({ data, clientSecret, stripePromise }: Props) => {
 
   const durationInHours = (totalDuration / 60).toFixed(1);
 
-  const handleOrder = (e: any) => {
+  const handleOrder = async (e: any) => {
     if (!user) {
       return;
     }
+
+    // Create PaymentIntent only when Buy Now is clicked
+    if (!clientSecret && createPaymentIntent) {
+      setIsCreatingPayment(true);
+      try {
+        const amount = Math.round(data.price * 100);
+        await createPaymentIntent(amount);
+      } catch (error) {
+        console.error("Failed to create payment intent:", error);
+        setIsCreatingPayment(false);
+        return;
+      }
+    }
+
     setOpen(true);
+    setIsCreatingPayment(false);
   };
 
   return (
@@ -296,16 +314,16 @@ const CourseDetails = ({ data, clientSecret, stripePromise }: Props) => {
                     <div className="flex justify-center">
                       <button
                         onClick={handleOrder}
-                        disabled={!clientSecret || !user}
-                        className={`${styles.button} w-[80%] py-4 text-lg font-semibold ${!clientSecret || !user
+                        disabled={!user || isCreatingPayment}
+                        className={`${styles.button} w-[80%] py-4 text-lg font-semibold ${!user || isCreatingPayment
                           ? 'bg-gray-400 cursor-not-allowed opacity-60'
                           : 'bg-cyan-600 hover:bg-cyan-400/50'
                           }`}
                       >
                         {!user
                           ? 'Login to Buy'
-                          : !clientSecret
-                            ? 'Loading...'
+                          : isCreatingPayment
+                            ? 'Preparing payment...'
                             : `Buy Now - $${data?.price}`
                         }
                       </button>
@@ -407,6 +425,7 @@ const CourseDetails = ({ data, clientSecret, stripePromise }: Props) => {
                         data={data}
                         refetchPurchased={refetchPurchased}
                         user={user}
+                        setClientSecret={setClientSecret}
                       />
                     </Elements>
                   ) : (

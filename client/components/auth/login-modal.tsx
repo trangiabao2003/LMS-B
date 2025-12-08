@@ -13,7 +13,7 @@ import { signIn } from "next-auth/react"
 type Props = {
   setRoute: (route: string) => void
   setOpen: (open: boolean) => void
-  refetch?: () => void
+  refetch: () => void
 }
 interface LoginModalProps {
   isOpen: boolean
@@ -47,7 +47,7 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup, setRoute, setOpe
     if (isSuccess) {
       toast.success("Login successfully")
       setOpen(false)
-      refetch?.()
+      refetch()
     }
     if (error) {
       const errorData = error as any

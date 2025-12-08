@@ -19,35 +19,46 @@ export const createOrder = CatchAsyncErrors(
     try {
       const { courseId, payment_info } = req.body as IOrder;
 
+      // Validate payment info
       if (payment_info) {
         if ("id" in payment_info) {
           const paymentIntentId = payment_info.id;
           const paymentIntent = await stripe.paymentIntents.retrieve(
             paymentIntentId
           );
+
           if (paymentIntent.status !== "succeeded") {
             return next(new ErrorHandler("Payment not authorized!", 400));
+          }
+
+          // Check if this PaymentIntent has already been used for an order
+          const existingOrderWithPayment = await OrderModel.findOne({
+            "payment_info.id": paymentIntentId,
+          });
+
+          if (existingOrderWithPayment) {
+            return next(
+              new ErrorHandler(
+                "This payment has already been processed. Please refresh the page.",
+                400
+              )
+            );
           }
         }
       }
 
       const user = await userModel.findById(req.user?._id);
+      if (!user) {
+        return next(new ErrorHandler("User not found", 404));
+      }
+
+      // Check if order already exists - this is the source of truth
       const existingOrder = await OrderModel.findOne({
         courseId,
-        userId: user?._id.toString(),
+        userId: user._id.toString(),
       });
 
       if (existingOrder) {
-        return next(
-          new ErrorHandler("You have already purchased this course", 400)
-        );
-      }
-
-      const courseExistInUser = user?.courses.some(
-        (course: any) => course._id.toString() === courseId
-      );
-
-      if (courseExistInUser) {
         return next(
           new ErrorHandler("You have already purchased this course", 400)
         );
@@ -58,64 +69,97 @@ export const createOrder = CatchAsyncErrors(
         return next(new ErrorHandler("Course not found", 404));
       }
 
-      const data: any = {
+      // Prepare order data
+      const orderData: any = {
         courseId: course._id.toString(),
-        userId: user?._id.toString(),
+        userId: user._id.toString(),
         payment_info,
       };
 
-      const mailData = {
-        order: {
-          _id: course._id.toString().slice(0, 6),
-          name: course.name,
-          price: course.price,
-          date: new Date().toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
-        },
-      };
-
+      // CRITICAL: Create order FIRST before updating user
+      let order;
       try {
-        if (user) {
-          await sendMail({
-            email: user.email,
-            subject: "Order confirmation",
-            template: "order-confirmation.ejs",
-            data: mailData,
-          });
-        }
+        order = await newOrder(orderData);
       } catch (error: any) {
-        console.error("Email error:", error.message);
+        console.error("Failed to create order:", error.message);
+        return next(
+          new ErrorHandler("Failed to create order. Please contact support.", 500)
+        );
       }
 
-      // Add course to user's courses
-      user?.courses.push(course._id);
-      await user?.save();
+      // Only update user and course after order is successfully created
+      try {
+        // Add course to user's courses (only if not already there)
+        const courseAlreadyInUser = user.courses.some(
+          (c: any) => c._id.toString() === course._id.toString()
+        );
 
-      // Update Redis with the new user data
-      const updatedUser = await userModel.findById(user?._id);
-      await redis.set(
-        user?._id.toString(),
-        JSON.stringify(updatedUser),
-        "EX",
-        604800
-      );
+        if (!courseAlreadyInUser) {
+          user.courses.push(course._id);
+        }
 
-      // Create notification
-      await NotificationModel.create({
-        user: user?._id,
-        title: "New Order",
-        message: `You have a new order from ${course?.name}`,
-      });
+        await user.save();
 
-      // Update purchased count
-      course.purchased = course.purchased + 1;
-      await course.save();
+        // Update Redis with the new user data
+        await redis.set(
+          user._id.toString(),
+          JSON.stringify(user),
+          "EX",
+          604800
+        );
 
-      // Return order
-      newOrder(data, res, next);
+        // Update purchased count (use updateOne to avoid validation errors on old courses)
+        await CourseModel.updateOne(
+          { _id: course._id },
+          { $inc: { purchased: 1 } }
+        );
+
+        // Create notification
+        await NotificationModel.create({
+          user: user._id,
+          title: "New Order",
+          message: `You have a new order from ${course.name}`,
+        });
+
+        // Send confirmation email (non-blocking)
+        const mailData = {
+          order: {
+            _id: order._id.toString().slice(0, 6),
+            name: course.name,
+            price: course.price,
+            date: new Date().toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }),
+          },
+        };
+
+        sendMail({
+          email: user.email,
+          subject: "Order confirmation",
+          template: "order-confirmation.ejs",
+          data: mailData,
+        }).catch((error: any) => {
+          console.error("Email error:", error.message);
+        });
+
+        // Return success response
+        res.status(201).json({
+          success: true,
+          order,
+        });
+      } catch (error: any) {
+        // If user/course update fails, we should ideally rollback the order
+        // For now, log the error - the order exists but user doesn't have access
+        console.error("Failed to update user/course after order creation:", error.message);
+        return next(
+          new ErrorHandler(
+            "Order created but failed to grant access. Please contact support.",
+            500
+          )
+        );
+      }
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
