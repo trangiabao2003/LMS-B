@@ -1,19 +1,28 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { X, Eye, EyeOff, Mail, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { loginSchema, type LoginFormData } from "@/lib/validation-schemas"
+import { authApi } from "@/redux/features/auth/authApi"
+import toast from "react-hot-toast"
+import { signIn } from "next-auth/react"
 
+type Props = {
+  setRoute: (route: string) => void
+  setOpen: (open: boolean) => void
+  refetch: () => void
+}
 interface LoginModalProps {
   isOpen: boolean
   onClose: () => void
   onSwitchToSignup: () => void
 }
 
-export function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginModalProps) {
+export function LoginModal({ isOpen, onClose, onSwitchToSignup, setRoute, setOpen, refetch }: LoginModalProps & Props) {
+  const [login, { isSuccess, error }] = authApi.useLoginMutation();
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -28,13 +37,23 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginModalProp
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    console.log("Login data:", data)
+    await login(data);
     setIsLoading(false)
     reset()
     onClose()
   }
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Login successfully")
+      setOpen(false)
+      refetch()
+    }
+    if (error) {
+      const errorData = error as any
+      toast.error(errorData?.data.message)
+    }
+  }, [isSuccess, error])
 
   if (!isOpen) return null
 
@@ -51,9 +70,9 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginModalProp
 
         {/* Header */}
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-foreground">Đăng Nhập</h2>
+          <h2 className="text-2xl font-bold text-foreground">Login</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Chào mừng trở lại! Vui lòng đăng nhập vào tài khoản của bạn.
+            Welcome back! Please log in to your account.
           </p>
         </div>
 
@@ -126,10 +145,10 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginModalProp
 
         {/* Social Login */}
         <div className="space-y-2">
-          <Button variant="outline" className="w-full bg-transparent">
+          <Button onClick={() => signIn("google")} variant="outline" className="w-full bg-transparent">
             Login with Google
           </Button>
-          <Button variant="outline" className="w-full bg-transparent">
+          <Button onClick={() => signIn("github")} variant="outline" className="w-full bg-transparent">
             Login with GitHub
           </Button>
         </div>
