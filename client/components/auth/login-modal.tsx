@@ -6,7 +6,7 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import { X, Eye, EyeOff, Mail, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { loginSchema, type LoginFormData } from "@/lib/validation-schemas"
-import { authApi } from "@/redux/features/auth/authApi"
+import { useLoginMutation } from "@/redux/features/auth/authApi"
 import toast from "react-hot-toast"
 import { signIn } from "next-auth/react"
 
@@ -21,8 +21,8 @@ interface LoginModalProps {
   onSwitchToSignup: () => void
 }
 
-export function LoginModal({ isOpen, onClose, onSwitchToSignup, setRoute, setOpen, refetch }: LoginModalProps & Props) {
-  const [login, { isSuccess, error }] = authApi.useLoginMutation();
+export function LoginModal({ isOpen, onClose, onSwitchToSignup, setOpen, refetch }: LoginModalProps & Props) {
+  const [login, { isSuccess, error }] = useLoginMutation();
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
