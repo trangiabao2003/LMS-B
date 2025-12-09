@@ -16,7 +16,6 @@ cloudinary.v2.config({
 	api_secret: process.env.CLOUD_SECRET_KEY,
 });
 
-
 // create server
 server.listen(process.env.PORT, () => {
 	console.log(`Server is running on port ${process.env.PORT}`);
