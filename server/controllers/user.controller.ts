@@ -215,10 +215,7 @@ export const updateAccessToken = CatchAsyncErrors(
 
 			await redis.set(user._id, JSON.stringify(user), "EX", 604800); // 7days
 
-			res.status(200).json({
-				status: "success",
-				accessToken,
-			});
+			next();
 		} catch (error: any) {
 			return next(new ErrorHandler(error.message, 400));
 		}
@@ -274,16 +271,10 @@ interface IUpdateUserInfo {
 export const updateUserInfo = CatchAsyncErrors(
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const { name, email } = req.body as IUpdateUserInfo;
+			const { name } = req.body as IUpdateUserInfo;
 			const userId = req.user?._id;
 			const user = await userModel.findById(userId);
-			if (email && user) {
-				const isEmailExist = await userModel.findOne({ email });
-				if (isEmailExist) {
-					return next(new ErrorHandler("Email already exists", 400));
-				}
-				user.email = email;
-			}
+
 			if (name && user) {
 				user.name = name;
 			}
