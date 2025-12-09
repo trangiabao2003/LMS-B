@@ -27,7 +27,9 @@ type Props = {
 }
 
 const CourseDetails = ({ data, clientSecret, stripePromise, createPaymentIntent, setClientSecret }: Props) => {
-  const { data: userData } = useLoadUserQuery(undefined, {});
+  const { data: userData } = useLoadUserQuery(undefined, {
+    skip: typeof window === 'undefined',
+  });
   const user = userData?.user;
   const [open, setOpen] = useState(false);
   const [isCreatingPayment, setIsCreatingPayment] = useState(false);

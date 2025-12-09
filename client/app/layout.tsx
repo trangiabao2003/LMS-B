@@ -42,7 +42,9 @@ export default function RootLayout({
 }
 
 const Custom: FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isLoading } = useLoadUserQuery({});
+  const { isLoading } = useLoadUserQuery(undefined, {
+    skip: typeof window === 'undefined',
+  });
 
   useEffect(() => {
     socketId.on("newNotification", () => { });

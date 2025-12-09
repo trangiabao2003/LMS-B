@@ -14,7 +14,9 @@ const CourseAccessPage = () => {
     const courseId = params?.id as string;
 
     // Load user data
-    const { data: userData, isLoading: userLoading } = useLoadUserQuery(undefined, {});
+    const { data: userData, isLoading: userLoading } = useLoadUserQuery(undefined, {
+        skip: typeof window === 'undefined',
+    });
     const user = userData?.user;
 
     // Check if course is purchased

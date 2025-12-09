@@ -1,7 +1,7 @@
 "use client"
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, Suspense } from "react";
 import { useGetHeroDataQuery } from "@/redux/features/layout/layoutApi";
 import { useGetUsersAllCoursesQuery } from "@/redux/features/courses/coursesApi";
 import Loader from "@/components/Loader/Loader";
@@ -22,7 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Footer } from "@/components/footer";
 
-const page = () => {
+const CoursesContent = () => {
     const searchParams = useSearchParams();
     const urlSearch = searchParams?.get('title');
     const { data, isLoading } = useGetUsersAllCoursesQuery(undefined, {});
@@ -58,7 +58,6 @@ const page = () => {
         data.courses.forEach((course: any) => {
             if (course.level) levelsSet.add(course.level);
             if (course.tags) {
-                // Handle tags as string or array
                 const courseTags = typeof course.tags === 'string'
                     ? course.tags.split(',').map((t: string) => t.trim())
                     : course.tags;
@@ -78,12 +77,10 @@ const page = () => {
 
         let filtered = [...data.courses];
 
-        // Filter by category
         if (category !== "All") {
             filtered = filtered.filter((course: any) => course.categories === category);
         }
 
-        // Filter by search query
         if (searchQuery) {
             filtered = filtered.filter((course: any) =>
                 course.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -92,12 +89,10 @@ const page = () => {
             );
         }
 
-        // Filter by level
         if (selectedLevel !== "All") {
             filtered = filtered.filter((course: any) => course.level === selectedLevel);
         }
 
-        // Filter by tags
         if (selectedTags.length > 0) {
             filtered = filtered.filter((course: any) => {
                 const courseTags = typeof course.tags === 'string'
@@ -109,7 +104,6 @@ const page = () => {
             });
         }
 
-        // Filter by price range
         if (priceRange !== "All") {
             filtered = filtered.filter((course: any) => {
                 const price = course.price || 0;
@@ -128,7 +122,6 @@ const page = () => {
             });
         }
 
-        // Sort courses
         filtered.sort((a: any, b: any) => {
             switch (sortBy) {
                 case "latest":
@@ -366,4 +359,12 @@ const page = () => {
     );
 };
 
-export default page;
+const Page = () => {
+    return (
+        <Suspense fallback={<Loader />}>
+            <CoursesContent />
+        </Suspense>
+    );
+};
+
+export default Page;

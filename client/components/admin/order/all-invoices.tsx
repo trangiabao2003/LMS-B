@@ -140,7 +140,7 @@ const AllInvoices = ({ isDashboard }: Props) => {
                                 color: "#fff !important",
                             },
                             "& .MuiDataGrid-columnHeader": {
-                                backgroundColor: theme === "dark" ? "#3e4396" : "#A4A9FC",
+                                backgroundColor: theme === "light" ? "#3e4396" : "#A4A9FC",
                                 "& .MuiDataGrid-columnHeaderTitle": {
                                     color: "#fff !important",
                                     fontWeight: 600,

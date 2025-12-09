@@ -7,13 +7,11 @@ import { VerificationModal } from "./auth/verification-modal"
 import { SignupModal } from "./auth/signup-modal"
 import { signOut } from "next-auth/react";
 import { CustomModal } from "@/app/utils/CustomModal"
-import { useSelector } from "react-redux"
 import Image from "next/image"
 import avatar from "./../public/avatar.jpg"
 import Link from "next/link"
 import { useLogOutQuery, useSocialAuthMutation } from "@/redux/features/auth/authApi"
 import { useSession } from "next-auth/react"
-import toast from "react-hot-toast"
 import { ThemeSwhitcher } from "@/app/utils/ThemeSwitcher"
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice"
 
@@ -31,8 +29,9 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
   const [signupModalOpen, setSignupModalOpen] = useState(false)
   const [verificationModalOpen, setVerificationModalOpen] = useState(false)
   const [userEmail, setUserEmail] = useState("")
-  const { data: userData, isLoading, refetch } = useLoadUserQuery(undefined, {})
-  const { user } = useSelector((state: any) => state.auth);
+  const { data: userData, isLoading, refetch } = useLoadUserQuery(undefined, {
+    skip: typeof window === 'undefined',
+  })
   const { data } = useSession();
   const [socialAuth, { isSuccess, error }] = useSocialAuthMutation()
   const [logout, setLogout] = useState(false);
@@ -54,11 +53,10 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
         });
       }
     }
-  }, [data, userData]); // Removed isLoading to prevent loops, though checking logic is sound.
+  }, [data, userData]);
 
   useEffect(() => {
     if (isSuccess) {
-      toast.success("Login successful");
       refetch();
     }
   }, [isSuccess]);
