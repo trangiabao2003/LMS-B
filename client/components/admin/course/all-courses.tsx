@@ -9,9 +9,6 @@ import Loader from '@/components/Loader/Loader';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import TimeAgo from 'javascript-time-ago'
-import en from 'javascript-time-ago/locale/en.json'
-
-TimeAgo.addDefaultLocale(en)
 
 type Props = {}
 
@@ -23,7 +20,7 @@ const AllCourses = (props: Props) => {
     const [deleteCourseId, setDeleteCourseId] = useState("");
     const [deleteCourseName, setDeleteCourseName] = useState("");
     const timeAgo = new TimeAgo('en-US');
-    
+
     const { isLoading, data, refetch } = useGetAllCoursesQuery({}, { refetchOnMountOrArgChange: true });
     const [deleteCourse, { isSuccess: deleteSuccess, error: deleteError }] = useDeleteCourseMutation();
 

@@ -36,7 +36,11 @@ export const apiSlice = createApi({
             })
           );
         } catch (error: any) {
-          console.log(error);
+          if (typeof window === 'undefined') {
+            console.log('Skipping user load during build');
+          } else {
+            console.log(error);
+          }
         }
       },
     }),

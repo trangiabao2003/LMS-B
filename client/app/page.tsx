@@ -16,8 +16,8 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-background">
-      <Heading 
-      title="LMSB - Buoc tiep di 4 life"
+      <Heading
+        title="LMSB - Buoc tiep di 4 life"
       />
       <Header
         open={open}

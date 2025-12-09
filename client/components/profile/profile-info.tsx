@@ -17,10 +17,12 @@ const ProfileInfo = ({ avatar, user }: Props) => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [updateAvatar, { isSuccess, error, isLoading }] = useUpdateAvatarMutation();
-    const [editProfile, { isSuccess: isEditSuccess, error: editError}] = useEditProfileMutation();
+    const [editProfile, { isSuccess: isEditSuccess, error: editError }] = useEditProfileMutation();
 
 
-    const { refetch } = useLoadUserQuery(undefined);
+    const { refetch } = useLoadUserQuery(undefined, {
+        skip: typeof window === 'undefined',
+    });
 
     // Update local state when user prop changes
     useEffect(() => {
