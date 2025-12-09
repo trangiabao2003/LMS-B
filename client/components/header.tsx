@@ -1,13 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Moon, Sun, Menu, X } from "lucide-react"
-import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { LoginModal } from "@/components/auth/login-modal"
 import { VerificationModal } from "./auth/verification-modal"
 import { SignupModal } from "./auth/signup-modal"
-
+import { signOut } from "next-auth/react";
 import { CustomModal } from "@/app/utils/CustomModal"
 import { useSelector } from "react-redux"
 import Image from "next/image"
@@ -41,28 +39,29 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
   const { } = useLogOutQuery(undefined,
     { skip: !logout ? true : false });
 
+  const logOutHandler = async () => {
+    setLogout(true);
+    await signOut();
+  }
+
   useEffect(() => {
-    if (!isLoading) {
-      if (!userData) {
-        if (data) {
-          socialAuth({
-            email: data?.user?.email,
-            name: data?.user?.name,
-            avatar: data.user?.image
-          });
-          refetch();
-        }
-      }
-      if (data === null) {
-        if (isSuccess) {
-          toast.success("Login successful")
-        }
-      }
-      if (data === null && !userData && !isLoading) {
-        setLogout(true);
+    if (!userData) {
+      if (data) {
+        socialAuth({
+          email: data?.user?.email,
+          name: data?.user?.name,
+          avatar: data.user?.image
+        });
       }
     }
-  }, [data, userData, isLoading]);
+  }, [data, userData]); // Removed isLoading to prevent loops, though checking logic is sound.
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Login successful");
+      refetch();
+    }
+  }, [isSuccess]);
 
   const handleOpenLogin = () => {
     setSignupModalOpen(false)
@@ -147,10 +146,7 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
                         Profile
                       </Link>
                       <button
-                        onClick={() => {
-                          setLogout(true);
-                          setIsOpen(false);
-                        }}
+                        onClick={() => logOutHandler()}
                         className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                       >
                         Logout
