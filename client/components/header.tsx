@@ -45,27 +45,23 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
   }
 
   useEffect(() => {
-    if (!isLoading) {
-      if (!userData) {
-        if (data) {
-          socialAuth({
-            email: data?.user?.email,
-            name: data?.user?.name,
-            avatar: data.user?.image
-          });
-          refetch();
-        }
-      }
-      if (data === null) {
-        if (isSuccess) {
-          toast.success("Login successful")
-        }
-      }
-      if (data === null && !userData && !isLoading) {
-        setLogout(true);
+    if (!userData) {
+      if (data) {
+        socialAuth({
+          email: data?.user?.email,
+          name: data?.user?.name,
+          avatar: data.user?.image
+        });
       }
     }
-  }, [data, userData, isLoading]);
+  }, [data, userData]); // Removed isLoading to prevent loops, though checking logic is sound.
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Login successful");
+      refetch();
+    }
+  }, [isSuccess]);
 
   const handleOpenLogin = () => {
     setSignupModalOpen(false)
