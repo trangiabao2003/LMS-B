@@ -1,7 +1,7 @@
 "use client"
 
 import { Header } from '@/components/header'
-import Profile from '@/components/profile/page';
+import Profile from '@/components/profile/profile';
 import Protected from '@/hooks/use-protected';
 import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
