@@ -110,7 +110,8 @@ const AllInvoices = ({ isDashboard }: Props) => {
                                     theme === "dark" ? "1px solid #ffffff30!important"
                                         : "1px solid #ccc!important",
                                 "&:hover": {
-                                    backgroundColor: theme === "dark" ? "#263B5C" : "#f5f5f5",
+                                    backgroundColor: theme === "dark" ? "#2e4a6b" : "#f5f5f5",
+                                    cursor: "pointer",
                                 },
                                 "&.Mui-selected": {
                                     backgroundColor: theme === "dark" ? "#263B5C !important" : "#e3f2fd !important",
@@ -136,23 +137,22 @@ const AllInvoices = ({ isDashboard }: Props) => {
                             "& .MuiDataGrid-columnHeaders": {
                                 backgroundColor: theme === "dark" ? "#3e4396" : "#A4A9FC",
                                 borderBottom: "none",
-                                color: theme === "dark" ? "#fff !important" : "#000 !important",
+                                color: "#fff !important",
                             },
                             "& .MuiDataGrid-columnHeader": {
-                                color: theme === "dark" ? "#fff !important" : "#000 !important",
                                 backgroundColor: theme === "dark" ? "#3e4396" : "#A4A9FC",
                                 "& .MuiDataGrid-columnHeaderTitle": {
-                                    color: theme === "dark" ? "#fff !important" : "#000 !important",
+                                    color: "#fff !important",
                                     fontWeight: 600,
                                 },
                                 "& .MuiDataGrid-iconButtonContainer": {
                                     "& .MuiIconButton-root": {
-                                        color: theme === "dark" ? "#fff !important" : "#000 !important",
+                                        color: "#fff !important",
                                     }
                                 },
                                 "& .MuiDataGrid-menuIcon": {
                                     "& .MuiIconButton-root": {
-                                        color: theme === "dark" ? "#fff !important" : "#000 !important",
+                                        color: "#fff !important",
                                     }
                                 }
                             },

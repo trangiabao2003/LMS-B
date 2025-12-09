@@ -216,7 +216,7 @@ const AllUsers = ({ isTeam = false }: Props) => {
                         <Box m="20px">
                             <div className="w-full flex justify-end">
                                 {isTeam && (
-                                    <button 
+                                    <button
                                         className={`${styles.button} w-[200px] dark:bg-[#1771C6] dark:border dark:border-[#6bdbcca2]`}
                                         onClick={() => setShowAddModal(true)}
                                     >
@@ -248,8 +248,15 @@ const AllUsers = ({ isTeam = false }: Props) => {
                                             ? "1px solid #ffffff30 !important"
                                             : "1px solid #ccc !important",
                                         "&:hover": {
-                                            backgroundColor: isDark ? "#2d3748 !important" : "#f5f5f5 !important",
+                                            backgroundColor: isDark ? "#2e4a6b !important" : "#f5f5f5 !important",
+                                            cursor: "pointer",
                                         },
+                                        "&.Mui-selected": {
+                                            backgroundColor: isDark ? "#263B5C !important" : "#e3f2fd !important",
+                                            "&:hover": {
+                                                backgroundColor: isDark ? "#2e4a6b !important" : "#bbdefb !important",
+                                            }
+                                        }
                                     },
                                     // Pagination
                                     "& .MuiTablePagination-root": {
