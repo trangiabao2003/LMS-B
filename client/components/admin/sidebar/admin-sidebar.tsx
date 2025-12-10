@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import avatarDefault from "../../../public/avatar.jpg";
@@ -43,10 +44,35 @@ const Item = ({ title, to, icon, selected, setSelected, isCollapsed }: itemProps
     );
 };
 
+// Map routes to menu titles
+const routeToTitle: { [key: string]: string } = {
+    "/admin": "Dashboard",
+    "/admin/users": "Users",
+    "/admin/invoices": "Invoices",
+    "/admin/create-course": "Create Course",
+    "/admin/courses": "Live Courses",
+    "/admin/hero": "Hero",
+    "/admin/faq": "FAQ",
+    "/admin/categories": "Categories",
+    "/admin/team": "Manage Team",
+    "/admin/courses-analytics": "Courses Analytics",
+    "/admin/orders-analytics": "Orders Analytics",
+    "/admin/users-analytics": "Users Analytics",
+    "/admin/settings": "Settings",
+    "/admin/logout": "Logout",
+};
+
 const Sidebar = () => {
+    const pathname = usePathname();
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [selected, setSelected] = useState("Dashboard");
     const { user } = useSelector((state: any) => state.auth);
+
+    // Sync selected state with current pathname
+    useEffect(() => {
+        const currentTitle = routeToTitle[pathname] || "Dashboard";
+        setSelected(currentTitle);
+    }, [pathname]);
 
     return (
         <div
@@ -58,7 +84,7 @@ const Sidebar = () => {
             <div className="p-4 border-b border-slate-800 flex items-center justify-center lg:justify-between gap-2">
                 {!isCollapsed && (
                     <a href="/" className="flex items-center gap-2">
-                    <h1 className="text-lg font-bold text-white hidden lg:block">ELEARNING</h1>
+                        <h1 className="text-lg font-bold text-white hidden lg:block">ELEARNING</h1>
                     </a>
                 )}
                 <button
