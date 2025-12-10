@@ -110,13 +110,16 @@ const AllInvoices = ({ isDashboard }: Props) => {
                                     theme === "dark" ? "1px solid #ffffff30!important"
                                         : "1px solid #ccc!important",
                                 "&:hover": {
-                                    backgroundColor: theme === "dark" ? "#2e4a6b" : "#f5f5f5",
+                                    backgroundColor: theme === "dark" ? "#2a3f5f" : "#f5f5f5",
+                                    color: theme === "dark" ? "#fff" : "#000",
                                     cursor: "pointer",
                                 },
                                 "&.Mui-selected": {
                                     backgroundColor: theme === "dark" ? "#263B5C !important" : "#e3f2fd !important",
+                                    color: theme === "dark" ? "#fff !important" : "#000 !important",
                                     "&:hover": {
-                                        backgroundColor: theme === "dark" ? "#2e4a6b !important" : "#bbdefb !important",
+                                        backgroundColor: theme === "dark" ? "#2a3f5f !important" : "#bbdefb !important",
+                                        color: theme === "dark" ? "#fff !important" : "#000 !important",
                                     }
                                 }
                             },
@@ -140,7 +143,7 @@ const AllInvoices = ({ isDashboard }: Props) => {
                                 color: "#fff !important",
                             },
                             "& .MuiDataGrid-columnHeader": {
-                                backgroundColor: theme === "light" ? "#3e4396" : "#A4A9FC",
+                                backgroundColor: theme === "dark" ? "#3e4396" : "#A4A9FC",
                                 "& .MuiDataGrid-columnHeaderTitle": {
                                     color: "#fff !important",
                                     fontWeight: 600,
@@ -185,6 +188,14 @@ const AllInvoices = ({ isDashboard }: Props) => {
                             checkboxSelection={isDashboard ? false : true}
                             rows={rows}
                             columns={columns}
+                            slots={!isDashboard ? { toolbar: GridToolbar } : {}}
+                            pagination
+                            pageSizeOptions={isDashboard ? [5, 10] : [10, 25, 50, 100]}
+                            initialState={{
+                                pagination: {
+                                    paginationModel: { pageSize: isDashboard ? 5 : 10, page: 0 },
+                                },
+                            }}
                         />
                     </Box>
                 </Box>

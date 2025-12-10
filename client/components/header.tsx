@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { LoginModal } from "@/components/auth/login-modal"
 import { VerificationModal } from "./auth/verification-modal"
@@ -18,17 +19,20 @@ import { useLoadUserQuery } from "@/redux/features/api/apiSlice"
 type Props = {
   open: boolean;
   setOpen: (open: boolean) => void;
-  activeItem: number;
+  activeItem?: number;
   route: string;
   setRoute: (route: string) => void;
 }
 
-export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
+export function Header({ open, setOpen, activeItem: propActiveItem, route, setRoute }: Props) {
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [loginModalOpen, setLoginModalOpen] = useState(false)
   const [signupModalOpen, setSignupModalOpen] = useState(false)
   const [verificationModalOpen, setVerificationModalOpen] = useState(false)
   const [userEmail, setUserEmail] = useState("")
+  const [activeItem, setActiveItem] = useState(0)
+  
   const { data: userData, isLoading, refetch } = useLoadUserQuery(undefined, {
     skip: typeof window === 'undefined',
   })
@@ -37,6 +41,29 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
   const [logout, setLogout] = useState(false);
   const { } = useLogOutQuery(undefined,
     { skip: !logout ? true : false });
+
+  // Update activeItem based on pathname
+  useEffect(() => {
+    switch (pathname) {
+      case '/':
+        setActiveItem(0)
+        break
+      case '/courses':
+        setActiveItem(1)
+        break
+      case '/about':
+        setActiveItem(2)
+        break
+      case '/policies':
+        setActiveItem(3)
+        break
+      case '/faq':
+        setActiveItem(4)
+        break
+      default:
+        setActiveItem(0)
+    }
+  }, [pathname])
 
   const logOutHandler = async () => {
     setLogout(true);
@@ -93,23 +120,23 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            <a href="/" className={`text-sm font-medium transition-colors ${activeItem === 0 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+            <a href="/" className={`text-sm font-medium transition-colors pb-1 border-b-2 ${activeItem === 0 ? "text-primary font-semibold border-primary" : "text-foreground hover:text-primary border-transparent"
               }`}>
               Home
             </a>
-            <a href="/courses" className={`text-sm font-medium transition-colors ${activeItem === 1 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+            <a href="/courses" className={`text-sm font-medium transition-colors pb-1 border-b-2 ${activeItem === 1 ? "text-primary font-semibold border-primary" : "text-foreground hover:text-primary border-transparent"
               }`}>
               Courses
             </a>
-            <a href="/about" className={`text-sm font-medium transition-colors ${activeItem === 2 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+            <a href="/about" className={`text-sm font-medium transition-colors pb-1 border-b-2 ${activeItem === 2 ? "text-primary font-semibold border-primary" : "text-foreground hover:text-primary border-transparent"
               }`}>
               About
             </a>
-            <a href="/policies" className={`text-sm font-medium transition-colors ${activeItem === 3 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+            <a href="/policies" className={`text-sm font-medium transition-colors pb-1 border-b-2 ${activeItem === 3 ? "text-primary font-semibold border-primary" : "text-foreground hover:text-primary border-transparent"
               }`}>
               Policies
             </a>
-            <a href="/faq" className={`text-sm font-medium transition-colors ${activeItem === 4 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+            <a href="/faq" className={`text-sm font-medium transition-colors pb-1 border-b-2 ${activeItem === 4 ? "text-primary font-semibold border-primary" : "text-foreground hover:text-primary border-transparent"
               }`}>
               FAQ
             </a>
@@ -167,23 +194,23 @@ export function Header({ open, setOpen, activeItem, route, setRoute }: Props) {
         {/* Mobile Navigation */}
         {isOpen && (
           <nav className="md:hidden mt-4 flex flex-col gap-4 border-t border-border pt-4">
-            <a href="/" className={`text-sm font-medium transition-colors ${activeItem === 0 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+            <a href="/" className={`text-sm font-medium transition-colors pb-1 border-b-2 ${activeItem === 0 ? "text-primary font-semibold border-primary" : "text-foreground hover:text-primary border-transparent"
               }`}>
               Home
             </a>
-            <a href="/courses" className={`text-sm font-medium transition-colors ${activeItem === 1 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+            <a href="/courses" className={`text-sm font-medium transition-colors pb-1 border-b-2 ${activeItem === 1 ? "text-primary font-semibold border-primary" : "text-foreground hover:text-primary border-transparent"
               }`}>
               Courses
             </a>
-            <a href="/about" className={`text-sm font-medium transition-colors ${activeItem === 2 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+            <a href="/about" className={`text-sm font-medium transition-colors pb-1 border-b-2 ${activeItem === 2 ? "text-primary font-semibold border-primary" : "text-foreground hover:text-primary border-transparent"
               }`}>
               About
             </a>
-            <a href="/policies" className={`text-sm font-medium transition-colors ${activeItem === 3 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+            <a href="/policies" className={`text-sm font-medium transition-colors pb-1 border-b-2 ${activeItem === 3 ? "text-primary font-semibold border-primary" : "text-foreground hover:text-primary border-transparent"
               }`}>
               Policies
             </a>
-            <a href="/faq" className={`text-sm font-medium transition-colors ${activeItem === 4 ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+            <a href="/faq" className={`text-sm font-medium transition-colors pb-1 border-b-2 ${activeItem === 4 ? "text-primary font-semibold border-primary" : "text-foreground hover:text-primary border-transparent"
               }`}>
               FAQ
             </a>

@@ -357,11 +357,6 @@ const CourseDetails = ({ data, clientSecret, stripePromise, createPaymentIntent,
                       <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
                       <span className="text-sm">Premium support</span>
                     </div>
-
-                    <div className="flex items-start gap-3">
-                      <Shield className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
-                      <span className="text-sm">30-day money-back guarantee</span>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
