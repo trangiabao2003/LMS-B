@@ -87,7 +87,6 @@ export default function PoliciesPage() {
                                 <p className="leading-relaxed">
                                     We want you to be completely satisfied with your purchase. Here's our refund policy:
                                 </p>
-                                <h3 className="text-lg font-semibold text-foreground">30-Day Money-Back Guarantee</h3>
                                 <ul className="list-disc list-inside space-y-2 ml-4">
                                     <li>Request a full refund within 30 days of purchase</li>
                                     <li>No questions asked if you're not satisfied</li>

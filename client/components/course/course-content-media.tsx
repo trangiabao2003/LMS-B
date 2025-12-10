@@ -509,7 +509,7 @@ const CourseContentMedia = ({ data, activeVideo, setActiveVideo, user, refetch, 
                                 <div className="w-full">
                                     {course?.reviews && course.reviews.length > 0 ? (
                                         [...course.reviews].reverse().map((item: any, index: number) => (
-                                            <div className="w-full my-5">
+                                            <div className="w-full my-5" key={index}>
                                                 <div className="w-full flex">
                                                     <div>
                                                         <Image
@@ -565,7 +565,7 @@ const CourseContentMedia = ({ data, activeVideo, setActiveVideo, user, refetch, 
                                                     )}
                                                 {item.commentReplies.map((i: any, index: number) => (
                                                     <div className="w-full flex md:ml-16 my-5">
-                                                        <div className="w-10 h-10">
+                                                        <div className="w-10 h-10" key={index}>
                                                             <Image
                                                                 src={
                                                                     i.user.avatar

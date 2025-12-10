@@ -10,8 +10,8 @@ const NotFound = () => {
     const [route, setRoute] = useState("Login");
 
     const router = useRouter();
-    const backToHome = () => {
-        router.push("/");
+    const goBack = () => {
+        router.back();
     };
 
     return (
@@ -33,8 +33,8 @@ const NotFound = () => {
                 <p className="text-center font-Poppins text-black dark:text-white mb-8 text-[18px] max-w-[600px]">
                     The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
                 </p>
-                <button onClick={backToHome} className={styles.button}>
-                    Back to Home
+                <button onClick={goBack} className={styles.button}>
+                    Go Back
                 </button>
             </div>
             <Footer />
