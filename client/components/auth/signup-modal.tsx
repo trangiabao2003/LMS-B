@@ -193,12 +193,6 @@ export function SignupModal({
           <div className="flex-1 border-t border-border" />
         </div>
 
-        {/* Social */}
-        <div className="space-y-2">
-          <Button variant="outline" className="w-full bg-transparent">Sign up with Google</Button>
-          <Button variant="outline" className="w-full bg-transparent">Sign up with GitHub</Button>
-        </div>
-
         {/* Switch */}
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Already have an account?{" "}
