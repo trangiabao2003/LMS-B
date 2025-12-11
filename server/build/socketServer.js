@@ -6,18 +6,18 @@ const initSocketServer = (server) => {
     const io = new socket_io_1.Server(server, {
         cors: {
             origin: process.env.ORIGIN || "http://localhost:3000",
-            credentials: true
-        }
+            credentials: true,
+        },
     });
     io.on("connection", (socket) => {
-        console.log('A user connected');
+        console.log("A user connected");
         // Listen for 'notification' event from the frontend
         socket.on("notification", (data) => {
             // Broadcast the notification data to all connected clients (admin dashboard)
             io.emit("newNotification", data);
         });
         socket.on("disconnect", () => {
-            console.log('User disconnected');
+            console.log("User disconnected");
         });
     });
 };

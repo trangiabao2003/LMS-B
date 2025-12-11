@@ -15,7 +15,7 @@ const order_route_1 = __importDefault(require("./routes/order.route"));
 const notification_route_1 = __importDefault(require("./routes/notification.route"));
 const analytics_route_1 = __importDefault(require("./routes/analytics.route"));
 const layout_route_1 = __importDefault(require("./routes/layout.route"));
-const express_rate_limit_1 = require("express-rate-limit");
+// import { rateLimit } from "express-rate-limit";
 exports.app = (0, express_1.default)();
 //body parser
 exports.app.use(express_1.default.json({ limit: "50mb" }));
@@ -23,18 +23,24 @@ exports.app.use(express_1.default.json({ limit: "50mb" }));
 exports.app.use((0, cookie_parser_1.default)());
 //cors => cross origin resource sharing
 exports.app.use((0, cors_1.default)({
-    origin: ["http://localhost:3000"],
+    origin: [
+        "https://lms-b-client.vercel.app",
+        process.env.CLIENT_URL || "https://lms-b-client.vercel.app",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 200,
 }));
 //api requests limit
-const limiter = (0, express_rate_limit_1.rateLimit)({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-    standardHeaders: "draft-8", // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
-    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-    ipv6Subnet: 56, // Set to 60 or 64 to be less aggressive, or 52 or 48 to be more aggressive
-    // store: ... , // Redis, Memcached, etc. See below.
-});
+// const limiter = rateLimit({
+// 	windowMs: 15 * 60 * 1000, // 15 minutes
+// 	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+// 	standardHeaders: "draft-8", // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
+// 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+// 	ipv6Subnet: 56, // Set to 60 or 64 to be less aggressive, or 52 or 48 to be more aggressive
+// 	// store: ... , // Redis, Memcached, etc. See below.
+// });
 //routes
 exports.app.use("/api/v1", user_route_1.default, course_route_1.default, order_route_1.default, notification_route_1.default, analytics_route_1.default, layout_route_1.default);
 //testing api
@@ -51,5 +57,5 @@ exports.app.all("*", (req, res, next) => {
     next(err);
 });
 //Middlewares calls
-exports.app.use(limiter);
+// app.use(limiter);
 exports.app.use(error_1.ErrorMiddleware);

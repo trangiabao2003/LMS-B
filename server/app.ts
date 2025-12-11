@@ -10,7 +10,7 @@ import orderRouter from "./routes/order.route";
 import notificationRouter from "./routes/notification.route";
 import analyticsRouter from "./routes/analytics.route";
 import layoutRouter from "./routes/layout.route";
-import { rateLimit } from "express-rate-limit";
+// import { rateLimit } from "express-rate-limit";
 export const app = express();
 
 //body parser
@@ -22,20 +22,26 @@ app.use(cookieParser());
 //cors => cross origin resource sharing
 app.use(
 	cors({
-		origin: ["http://localhost:3000"],
+		origin: [
+			"https://lms-b-client.vercel.app",
+			process.env.CLIENT_URL || "https://lms-b-client.vercel.app",
+		],
+		methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
 		credentials: true,
+		allowedHeaders: ["Content-Type", "Authorization"],
+		optionsSuccessStatus: 200,
 	})
 );
 
 //api requests limit
-const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-	standardHeaders: "draft-8", // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
-	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-	ipv6Subnet: 56, // Set to 60 or 64 to be less aggressive, or 52 or 48 to be more aggressive
-	// store: ... , // Redis, Memcached, etc. See below.
-});
+// const limiter = rateLimit({
+// 	windowMs: 15 * 60 * 1000, // 15 minutes
+// 	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+// 	standardHeaders: "draft-8", // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
+// 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+// 	ipv6Subnet: 56, // Set to 60 or 64 to be less aggressive, or 52 or 48 to be more aggressive
+// 	// store: ... , // Redis, Memcached, etc. See below.
+// });
 
 //routes
 app.use(
@@ -64,5 +70,5 @@ app.all("*", (req: Request, res: Response, next: NextFunction) => {
 });
 
 //Middlewares calls
-app.use(limiter);
+// app.use(limiter);
 app.use(ErrorMiddleware);
