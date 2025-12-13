@@ -30,11 +30,10 @@ const Item = ({ title, to, icon, selected, setSelected, isCollapsed }: itemProps
         <Link href={to}>
             <button
                 onClick={() => setSelected(title)}
-                className={`w-full flex items-center justify-center lg:justify-start gap-3 px-4 py-3 text-sm font-medium transition-colors ${
-                    selected === title
+                className={`w-full flex items-center justify-center lg:justify-start gap-3 px-4 py-3 text-sm font-medium transition-colors ${selected === title
                         ? "text-[#6870fa] border-l-4 border-[#6870fa] bg-slate-800/50"
                         : "text-gray-400 border-l-4 border-transparent hover:text-gray-200"
-                }`}
+                    }`}
                 title={title}
             >
                 <span className="text-xl shrink-0">{icon}</span>
@@ -62,7 +61,7 @@ const routeToTitle: { [key: string]: string } = {
     "/admin/logout": "Logout",
 };
 
-const Sidebar = () => {
+const AdminSidebar = () => {
     const pathname = usePathname();
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [selected, setSelected] = useState("Dashboard");
@@ -76,9 +75,8 @@ const Sidebar = () => {
 
     return (
         <div
-            className={`${
-                isCollapsed ? "w-20" : "w-64"
-            } h-screen bg-slate-900 border-r border-slate-800 flex flex-col transition-all duration-300 overflow-y-auto`}
+            className={`${isCollapsed ? "w-20" : "w-64"
+                } h-screen bg-slate-900 border-r border-slate-800 flex flex-col transition-all duration-300 overflow-y-auto`}
         >
             {/* Header */}
             <div className="p-4 border-b border-slate-800 flex items-center justify-center lg:justify-between gap-2">
@@ -278,4 +276,4 @@ const Sidebar = () => {
     );
 };
 
-export default Sidebar;
+export default AdminSidebar;

@@ -15,47 +15,51 @@ const order_route_1 = __importDefault(require("./routes/order.route"));
 const notification_route_1 = __importDefault(require("./routes/notification.route"));
 const analytics_route_1 = __importDefault(require("./routes/analytics.route"));
 const layout_route_1 = __importDefault(require("./routes/layout.route"));
-// import { rateLimit } from "express-rate-limit";
 exports.app = (0, express_1.default)();
-//body parser
+// BẮT BUỘC KHI DEPLOY - FIX LỖI COOKIE SECURE
+exports.app.set("trust proxy", 1);
+// Body parser
 exports.app.use(express_1.default.json({ limit: "50mb" }));
-//cookie parser
+// Cookie parser
 exports.app.use((0, cookie_parser_1.default)());
-//cors => cross origin resource sharing
+// CORS - SỬA CHUẨN
 exports.app.use((0, cors_1.default)({
-    origin: [
-        "https://lms-b-client.vercel.app",
-        process.env.CLIENT_URL || "https://lms-b-client.vercel.app",
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    origin: (origin, callback) => {
+        const allowed = [
+            "https://lms-b-client.vercel.app",
+            process.env.CLIENT_URL,
+            // cho dev local
+            "http://localhost:3000",
+            "http://localhost:3001",
+        ].filter(Boolean);
+        if (!origin ||
+            allowed.some((allowedOrigin) => origin.includes(allowedOrigin))) {
+            callback(null, true);
+        }
+        else {
+            callback(new Error("CORS not allowed"));
+        }
+    },
     credentials: true,
+    methods: "GET,POST,PUT,DELETE,PATCH,OPTIONS",
     allowedHeaders: ["Content-Type", "Authorization"],
-    optionsSuccessStatus: 200,
 }));
-//api requests limit
-// const limiter = rateLimit({
-// 	windowMs: 15 * 60 * 1000, // 15 minutes
-// 	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-// 	standardHeaders: "draft-8", // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
-// 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-// 	ipv6Subnet: 56, // Set to 60 or 64 to be less aggressive, or 52 or 48 to be more aggressive
-// 	// store: ... , // Redis, Memcached, etc. See below.
-// });
-//routes
+// XỬ LÝ PREFLIGHT
+exports.app.options("*", (0, cors_1.default)());
+// Routes
 exports.app.use("/api/v1", user_route_1.default, course_route_1.default, order_route_1.default, notification_route_1.default, analytics_route_1.default, layout_route_1.default);
-//testing api
-exports.app.get("/test", (req, res, next) => {
+// Test API
+exports.app.get("/test", (req, res) => {
     res.status(200).json({
         success: true,
-        message: "API is working fine",
+        message: "API is working perfectly on production!",
     });
 });
-//unknown route
+// Unknown route
 exports.app.all("*", (req, res, next) => {
     const err = new Error(`Route ${req.originalUrl} not found`);
     err.statusCode = 404;
     next(err);
 });
-//Middlewares calls
-// app.use(limiter);
+// Error Middleware
 exports.app.use(error_1.ErrorMiddleware);

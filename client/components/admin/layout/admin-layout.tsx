@@ -1,6 +1,6 @@
 "use client"
 
-import Sidebar from "../sidebar/admin-sidebar";
+import AdminSidebar from "../sidebar/admin-sidebar";
 import DashboardHeader from "../dashboard-header";
 
 interface AdminLayoutProps {
@@ -10,8 +10,8 @@ interface AdminLayoutProps {
 export function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="flex h-screen bg-slate-950">
-      {/* Sidebar */}
-      <Sidebar />
+      {/* Admin Sidebar */}
+      <AdminSidebar />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
