@@ -61,7 +61,7 @@ const routeToTitle: { [key: string]: string } = {
     "/admin/logout": "Logout",
 };
 
-const Sidebar = () => {
+const AdminSidebar = () => {
     const pathname = usePathname();
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [selected, setSelected] = useState("Dashboard");
@@ -75,6 +75,8 @@ const Sidebar = () => {
 
     return (
         <div
+            className={`${isCollapsed ? "w-20" : "w-64"
+                } h-screen bg-slate-900 border-r border-slate-800 flex flex-col transition-all duration-300 overflow-y-auto`}
             className={`${isCollapsed ? "w-20" : "w-64"
                 } h-screen bg-slate-900 border-r border-slate-800 flex flex-col transition-all duration-300 overflow-y-auto`}
         >
@@ -276,4 +278,4 @@ const Sidebar = () => {
     );
 };
 
-export default Sidebar;
+export default AdminSidebar;

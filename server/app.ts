@@ -10,36 +10,53 @@ import orderRouter from "./routes/order.route";
 import notificationRouter from "./routes/notification.route";
 import analyticsRouter from "./routes/analytics.route";
 import layoutRouter from "./routes/layout.route";
-import { rateLimit } from "express-rate-limit";
+import aiRouter from "./routes/ai.route";
+
 export const app = express();
 
-//body parser
+// BẮT BUỘC KHI DEPLOY - FIX LỖI COOKIE SECURE
+app.set("trust proxy", 1);
+
+// Body parser
 app.use(express.json({ limit: "50mb" }));
 
-//cookie parser
+// Cookie parser
 app.use(cookieParser());
 
-//cors => cross origin resource sharing
 app.use(
 	cors({
-		origin: ["http://localhost:3000"],
+		origin: (origin, callback) => {
+			const allowed = [
+				"https://lms-b-client.vercel.app",
+				process.env.CLIENT_URL,
+				"http://localhost:3000",
+				"http://localhost:3001",
+			].filter(Boolean);
+
+			if (
+				!origin ||
+				allowed.some((allowedOrigin) =>
+					origin.includes(allowedOrigin as string)
+				)
+			) {
+				callback(null, true);
+			} else {
+				callback(new Error("CORS not allowed"));
+			}
+		},
 		credentials: true,
+		methods: "GET,POST,PUT,DELETE,PATCH,OPTIONS",
+		allowedHeaders: ["Content-Type", "Authorization"],
 	})
 );
 
-//api requests limit
-const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-	standardHeaders: "draft-8", // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
-	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-	ipv6Subnet: 56, // Set to 60 or 64 to be less aggressive, or 52 or 48 to be more aggressive
-	// store: ... , // Redis, Memcached, etc. See below.
-});
+// XỬ LÝ PREFLIGHT
+app.options("*", cors());
 
-//routes
+// Routes
 app.use(
 	"/api/v1",
+	aiRouter,
 	userRouter,
 	courseRouter,
 	orderRouter,
@@ -48,21 +65,20 @@ app.use(
 	layoutRouter
 );
 
-//testing api
-app.get("/test", (req: Request, res: Response, next: NextFunction) => {
+// Test API
+app.get("/test", (req: Request, res: Response) => {
 	res.status(200).json({
 		success: true,
-		message: "API is working fine",
+		message: "API is working perfectly on production!",
 	});
 });
 
-//unknown route
+// Unknown route
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
 	const err = new Error(`Route ${req.originalUrl} not found`) as any;
 	err.statusCode = 404;
 	next(err);
 });
 
-//Middlewares calls
-app.use(limiter);
+// Error Middleware
 app.use(ErrorMiddleware);
