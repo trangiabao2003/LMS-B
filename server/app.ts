@@ -10,6 +10,7 @@ import orderRouter from "./routes/order.route";
 import notificationRouter from "./routes/notification.route";
 import analyticsRouter from "./routes/analytics.route";
 import layoutRouter from "./routes/layout.route";
+import aiRouter from "./routes/ai.route";
 
 export const app = express();
 
@@ -22,14 +23,12 @@ app.use(express.json({ limit: "50mb" }));
 // Cookie parser
 app.use(cookieParser());
 
-// CORS - SỬA CHUẨN
 app.use(
 	cors({
 		origin: (origin, callback) => {
 			const allowed = [
 				"https://lms-b-client.vercel.app",
 				process.env.CLIENT_URL,
-				// cho dev local
 				"http://localhost:3000",
 				"http://localhost:3001",
 			].filter(Boolean);
@@ -57,6 +56,7 @@ app.options("*", cors());
 // Routes
 app.use(
 	"/api/v1",
+	aiRouter,
 	userRouter,
 	courseRouter,
 	orderRouter,
