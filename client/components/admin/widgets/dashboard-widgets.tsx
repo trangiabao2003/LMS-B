@@ -135,14 +135,14 @@ const DashboardWidgets = ({ open, value }: Props) => {
             </div>
 
             {/* Bottom Section: Orders Analytics + Recent Transactions */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 px-8">
                 {/* Orders Analytics - 2 columns */}
-                <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
+                <div className="lg:col-span-3 bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
                     <OrdersAnalytics isDashboard={true} />
                 </div>
 
                 {/* Recent Transactions - 1 column */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
+                <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
                     <h5 className="dark:text-white text-black text-[20px] font-medium font-Poppins pb-3">
                         Recent Transactions
                     </h5>

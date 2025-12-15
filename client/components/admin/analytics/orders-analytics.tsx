@@ -59,7 +59,6 @@ const OrdersAnalytics = ({ isDashboard }: Props) => {
                         <div
                             className={isDashboard ? "mt-0 pl-10 mb-2" : "mt-[50px]"}
                         >
-                            <div>OrdersAnalytics</div>
                             <h1
                                 className={`${styles.title} ${isDashboard && "text-[20px]"
                                     } px-5 text-start`}
