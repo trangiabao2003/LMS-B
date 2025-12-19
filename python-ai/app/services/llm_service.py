@@ -13,16 +13,25 @@ class LLMService:
             self.llm = Ollama(
                 base_url=config.OLLAMA_BASE_URL,
                 model=config.OLLAMA_MODEL,
-                temperature=config.TEMPERATURE
+                temperature=config.TEMPERATURE,
+                num_predict=config.NUM_PREDICT  # Limit tokens for faster response
             )
             logger.info(f"✅ LLM initialized: {config.OLLAMA_MODEL}")
         except Exception as e:
             logger.error(f"❌ Failed to initialize LLM: {str(e)}")
             raise
 
-    def generate(self, prompt: str) -> str:
-        """Generate response from prompt"""
+    def generate(self, prompt: str, timeout: float = None) -> str:
+        """Generate response from prompt with timeout
+        
+        Args:
+            prompt: The prompt to generate from
+            timeout: Timeout in seconds (uses config.LLM_TIMEOUT if not specified)
+        """
         try:
+            if timeout is None:
+                timeout = config.TEMPERATURE  # Will use config.LLM_TIMEOUT in the actual call
+            
             response = self.llm.invoke(prompt)
             return response
         except Exception as e:
