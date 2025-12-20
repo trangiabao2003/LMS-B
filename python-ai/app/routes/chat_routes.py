@@ -22,10 +22,14 @@ async def chat(request: ChatRequest):
         
         query_time = time.time() - start_time
         
+        # Log if fallback was used
+        if result.get("fallback", False):
+            logger.warning(f"⚠️ Fallback response used: {result.get('fallback_reason', 'unknown')}")
+        
         return ChatResponse(
             answer=result["answer"],
-            sources=result["sources"],
-            confidence=result["confidence"],
+            sources=result.get("sources", []),
+            confidence=result.get("confidence", False),
             query_time=query_time
         )
     except Exception as e:

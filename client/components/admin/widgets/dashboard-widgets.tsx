@@ -88,12 +88,12 @@ const DashboardWidgets = ({ open, value }: Props) => {
 					const ordersPreviousMonth = ordersLastTwoMonths[0].count;
 					const usersPercentChange = usersPreviousMonth
 						? ((usersCurrentMonth - usersPreviousMonth) / usersPreviousMonth) *
-						  100
+						100
 						: 0;
 					const ordersPercentChange = ordersPreviousMonth
 						? ((ordersCurrentMonth - ordersPreviousMonth) /
-								ordersPreviousMonth) *
-						  100
+							ordersPreviousMonth) *
+						100
 						: 0;
 					setUsersComparePercentage({
 						currentMonth: usersCurrentMonth,
@@ -144,11 +144,11 @@ const DashboardWidgets = ({ open, value }: Props) => {
 										{ordersComparePercentage?.previousMonth
 											? ordersComparePercentage?.percentChange > 0
 												? `+ ${ordersComparePercentage?.percentChange.toFixed(
-														2
-												  )} %`
+													2
+												)} %`
 												: `- ${ordersComparePercentage?.percentChange.toFixed(
-														2
-												  )} %`
+													2
+												)} %`
 											: "No data previous month"}
 									</h5>
 								</div>
@@ -173,11 +173,11 @@ const DashboardWidgets = ({ open, value }: Props) => {
 										{usersComparePercentage?.previousMonth
 											? usersComparePercentage?.percentChange > 0
 												? `+ ${usersComparePercentage?.percentChange.toFixed(
-														2
-												  )} %`
+													2
+												)} %`
 												: `- ${usersComparePercentage?.percentChange.toFixed(
-														2
-												  )} %`
+													2
+												)} %`
 											: "No data previous month"}
 									</h5>
 								</div>
@@ -187,14 +187,14 @@ const DashboardWidgets = ({ open, value }: Props) => {
 				</div>
 
 				{/* Bottom Section: Orders Analytics + Recent Transactions */}
-				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-8">
+				<div className="grid grid-cols-1 lg:grid-cols-5 gap-8 px-8">
 					{/* Orders Analytics - 2 columns */}
-					<div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
+					<div className="lg:col-span-3 bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
 						<OrdersAnalytics isDashboard={true} />
 					</div>
 
 					{/* Recent Transactions - 1 column */}
-					<div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
+					<div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
 						<h5 className="dark:text-white text-black text-[20px] font-medium font-Poppins pb-3">
 							Recent Transactions
 						</h5>
@@ -204,8 +204,7 @@ const DashboardWidgets = ({ open, value }: Props) => {
 					</div>
 				</div>
 			</div>
-		</ThemeProvider>
-	);
-};
+			)
+}
 
-export default DashboardWidgets;
+			export default DashboardWidgets;

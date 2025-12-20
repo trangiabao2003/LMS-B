@@ -31,8 +31,8 @@ const Item = ({ title, to, icon, selected, setSelected, isCollapsed }: itemProps
             <button
                 onClick={() => setSelected(title)}
                 className={`w-full flex items-center justify-center lg:justify-start gap-3 px-4 py-3 text-sm font-medium transition-colors ${selected === title
-                        ? "text-[#6870fa] border-l-4 border-[#6870fa] bg-slate-800/50"
-                        : "text-gray-400 border-l-4 border-transparent hover:text-gray-200"
+                    ? "text-[#6870fa] border-l-4 border-[#6870fa] bg-slate-800/50"
+                    : "text-gray-400 border-l-4 border-transparent hover:text-gray-200"
                     }`}
                 title={title}
             >
@@ -77,6 +77,8 @@ const AdminSidebar = () => {
         <div
             className={`${isCollapsed ? "w-20" : "w-64"
                 } h-screen bg-slate-900 border-r border-slate-800 flex flex-col transition-all duration-300 overflow-y-auto`}
+            className={`${isCollapsed ? "w-20" : "w-64"
+                } h-screen bg-slate-900 border-r border-slate-800 flex flex-col transition-all duration-300 overflow-y-auto`}
         >
             {/* Header */}
             <div className="p-4 border-b border-slate-800 flex items-center justify-center lg:justify-between gap-2">
@@ -106,7 +108,7 @@ const AdminSidebar = () => {
                         />
                     </div>
                     <h2 className="text-white font-semibold text-sm">{user?.name || "Admin User"}</h2>
-                    <p className="text-gray-400 text-xs">- Admin</p>
+                    <p className="text-gray-400 text-xs">Admin</p>
                 </div>
             )}
 
@@ -249,7 +251,7 @@ const AdminSidebar = () => {
             </nav>
 
             {/* Footer - Extras */}
-            <div className="border-t border-slate-800 p-4 px-2 lg:px-4">
+            <div className="border-t border-slate-800 p-2 px-2 lg:px-4">
                 {!isCollapsed && (
                     <div className="px-4 py-2 mb-2 hidden lg:block">
                         <h3 className="text-gray-400 text-xs font-semibold uppercase tracking-wider">Extras</h3>
@@ -265,7 +267,7 @@ const AdminSidebar = () => {
                 />
                 <Item
                     title="Logout"
-                    to="/admin/logout"
+                    to="/logout"
                     icon={<ExitToAppIcon />}
                     selected={selected}
                     setSelected={setSelected}

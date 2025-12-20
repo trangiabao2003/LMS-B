@@ -1,9 +1,13 @@
 from app.services.llm_service import get_llm_service
 from app.services.vector_store_service import get_vector_store
+from app.services.cache_service import get_cache_service
 from app.utils.logger import get_logger
 from app.utils.constants import LEARNING_PATHS
+from app.utils.fallback_handler import get_fallback_response
+from app.config import config
 from typing import Optional
 import time
+import asyncio
 
 logger = get_logger(__name__)
 
@@ -13,40 +17,65 @@ class RAGService:
     def __init__(self):
         self.llm_service = get_llm_service()
         self.vector_store = get_vector_store()
+        self.cache_service = get_cache_service()
 
     def query(self, question: str, course_id: Optional[str] = None) -> dict:
-        """Process user question and generate answer"""
+        """Process user question and generate answer with caching and timeout"""
         start_time = time.time()
         
         try:
-            # 1. Retrieve context from vector store
+            # 1. Try to get from cache first
+            cached_response = self.cache_service.get_response(question, course_id)
+            if cached_response:
+                query_time = time.time() - start_time
+                logger.info(f"✅ Query served from cache in {query_time:.2f}s")
+                return cached_response
+            
+            # 2. Retrieve context from vector store
             context_docs = self.vector_store.search(
                 query=question,
-                top_k=5,
+                top_k=config.TOP_K_RETRIEVAL,
                 course_id=course_id
             )
             
-            # 2. Build context text
+            # 3. Build context text
             context_text = self._build_context(context_docs)
             
-            # 3. Create prompt
+            # 4. Create prompt
             prompt = self._create_prompt(question, context_text)
             
-            # 4. Generate response from LLM
-            response = self.llm_service.generate(prompt)
+            # 5. Generate response from LLM with timeout handling
+            try:
+                response = self.llm_service.generate(prompt, timeout=config.LLM_TIMEOUT)
+            except Exception as llm_error:
+                # LLM failed or timed out, use fallback
+                logger.warning(f"⚠️ LLM failed, using fallback: {str(llm_error)}")
+                fallback = get_fallback_response(question, "error")
+                return fallback
             
             query_time = time.time() - start_time
             
+            # Check if query took too long
+            if query_time >= config.LLM_TIMEOUT:
+                logger.warning(f"⚠️ Query exceeded timeout, using fallback")
+                return get_fallback_response(question, "timeout")
+            
             logger.info(f"✅ Query processed in {query_time:.2f}s")
             
-            return {
+            result = {
                 "answer": response,
                 "sources": context_docs,
-                "confidence": len(context_docs) > 0
+                "confidence": len(context_docs) > 0,
+                "fallback": False
             }
+            
+            # 6. Cache the response
+            self.cache_service.set_response(question, result, course_id)
+            
+            return result
         except Exception as e:
             logger.error(f"❌ RAG query failed: {str(e)}")
-            raise
+            return get_fallback_response(question, "error")
 
     def _build_context(self, docs: list) -> str:
         """Build context string from retrieved documents"""
@@ -59,34 +88,18 @@ class RAGService:
             context_parts.append(part)
         
         context = "\n---\n".join(context_parts)
-        return context[:3000]  # Limit context size
+        return context[:config.CONTEXT_WINDOW]  # Use config limit
 
     def _create_prompt(self, question: str, context: str) -> str:
-        """Create prompt for LLM"""
-        prompt = f"""Bạn là một trợ lý học tập thông minh cho nền tảng LMS-B.
+        """Create concise prompt for LLM"""
+        prompt = f"""Bạn là trợ lý học tập cho nền tảng LMS-B.
 
-Dựa trên các thông tin sau từ cơ sở dữ liệu khóa học, hãy trả lời câu hỏi của học viên một cách chi tiết, hữu ích và thân thiện.
-
-=== THÔNG TIN KHÓA HỌC ===
+CONTEXT:
 {context}
 
-=== LỘ TRÌNH HỌC ĐƯỢC KHUYÊN ===
-- Frontend: HTML/CSS → JavaScript → React → Next.js
-- Backend: Node.js → Express → Databases → APIs
-- Full Stack: Frontend + Backend + Deployment
-- Mobile: JavaScript → React Native → Deployment
+QUESTION: {question}
 
-=== CÂU HỎI ===
-{question}
-
-=== HƯỚNG DẪN TRẢ LỜI ===
-1. Trả lời bằng tiếng Việt, tone thân thiện và hỗ trợ
-2. Nếu câu hỏi về lộ trình học: gợi ý lộ trình phù hợp
-3. Nếu câu hỏi về khóa học: tìm kiếm khóa học liên quan
-4. Nếu không tìm thấy thông tin: nói rõ "Tôi không tìm thấy thông tin cụ thể"
-5. Giới hạn câu trả lời dưới 200 từ, rõ ràng và có cấu trúc
-
-Trả lời:"""
+Trả lời ngắn gọn, cụ thể bằng tiếng Việt (tối đa 150 từ):"""
         return prompt
 
     def search_courses(self, query: str) -> list:
