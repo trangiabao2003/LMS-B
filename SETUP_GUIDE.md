@@ -14,10 +14,15 @@
 Make sure you have these installed:
 
 - **Python 3.9+** - [Download](https://www.python.org/downloads/)
+  Download: https://www.python.org/downloads/
 - **Node.js 18+** - [Download](https://nodejs.org/)
+  Download: https://nodejs.org/
 - **Ollama** - [Download](https://ollama.ai/) (LLM Runtime)
+  Download: https://ollama.ai
 - **MongoDB** - [Download](https://www.mongodb.com/try/download/community)
+  Download: https://www.mongodb.com/try/download/community
 - **Redis** - [Download](https://redis.io/download)
+  Download: https://github.com/microsoftarchive/redis/releases
 
 ## 🚀 Quick Start (5 Minutes)
 

@@ -15,6 +15,7 @@ const order_route_1 = __importDefault(require("./routes/order.route"));
 const notification_route_1 = __importDefault(require("./routes/notification.route"));
 const analytics_route_1 = __importDefault(require("./routes/analytics.route"));
 const layout_route_1 = __importDefault(require("./routes/layout.route"));
+const ai_route_1 = __importDefault(require("./routes/ai.route"));
 exports.app = (0, express_1.default)();
 // BẮT BUỘC KHI DEPLOY - FIX LỖI COOKIE SECURE
 exports.app.set("trust proxy", 1);
@@ -22,13 +23,11 @@ exports.app.set("trust proxy", 1);
 exports.app.use(express_1.default.json({ limit: "50mb" }));
 // Cookie parser
 exports.app.use((0, cookie_parser_1.default)());
-// CORS - SỬA CHUẨN
 exports.app.use((0, cors_1.default)({
     origin: (origin, callback) => {
         const allowed = [
             "https://lms-b-client.vercel.app",
             process.env.CLIENT_URL,
-            // cho dev local
             "http://localhost:3000",
             "http://localhost:3001",
         ].filter(Boolean);
@@ -47,7 +46,7 @@ exports.app.use((0, cors_1.default)({
 // XỬ LÝ PREFLIGHT
 exports.app.options("*", (0, cors_1.default)());
 // Routes
-exports.app.use("/api/v1", user_route_1.default, course_route_1.default, order_route_1.default, notification_route_1.default, analytics_route_1.default, layout_route_1.default);
+exports.app.use("/api/v1", ai_route_1.default, user_route_1.default, course_route_1.default, order_route_1.default, notification_route_1.default, analytics_route_1.default, layout_route_1.default);
 // Test API
 exports.app.get("/test", (req, res) => {
     res.status(200).json({

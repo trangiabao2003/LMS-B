@@ -10,11 +10,17 @@ class LLMService:
     
     def __init__(self):
         try:
+            # self.llm = Ollama(
+            #     base_url=config.OLLAMA_BASE_URL,
+            #     model=config.OLLAMA_MODEL,
+            #     temperature=config.TEMPERATURE,
+            #     num_predict=config.NUM_PREDICT  # Limit tokens for faster response
+            # )
             self.llm = Ollama(
                 base_url=config.OLLAMA_BASE_URL,
                 model=config.OLLAMA_MODEL,
                 temperature=config.TEMPERATURE,
-                num_predict=config.NUM_PREDICT  # Limit tokens for faster response
+                timeout=config.LLM_TIMEOUT  # Set request timeout
             )
             logger.info(f"✅ LLM initialized: {config.OLLAMA_MODEL}")
         except Exception as e:
@@ -30,8 +36,8 @@ class LLMService:
         """
         try:
             if timeout is None:
-                timeout = config.TEMPERATURE  # Will use config.LLM_TIMEOUT in the actual call
-            
+                # timeout = config.TEMPERATURE  # Will use config.LLM_TIMEOUT in the actual call
+                timeout = config.LLM_TIMEOUT
             response = self.llm.invoke(prompt)
             return response
         except Exception as e:

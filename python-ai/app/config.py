@@ -31,7 +31,7 @@ class Config:
     TEMPERATURE = 0.3
     MAX_TOKENS = 256  # Reduced from 512 for faster response
     TOP_K_RETRIEVAL = 3  # Reduced from 5 for faster retrieval
-    LLM_TIMEOUT = 20  # 20 second timeout (llama3.2:1b can be slow)
+    LLM_TIMEOUT = 60  # Increased to 60s for local hardware performance
     NUM_PREDICT = 256  # Limit prediction tokens
     
     # RAG

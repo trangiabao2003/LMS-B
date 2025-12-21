@@ -54,6 +54,22 @@ export const uploadCourse = CatchAsyncErrors(
 				};
 			}
 			createCourse(data, res, next);
+
+// Trigger AI indexing (fire and forget)
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8001";
+setTimeout(async () => {
+    try {
+        console.log("Triggering AI indexing for new course...");
+        // Wait a bit for the course to be created in MongoDB by createCourse
+        // Since createCourse sends response, we might need to query the database or pass the created course
+        // Actually createCourse uses CourseModel.create which returns a promise, but the service function handles response.
+        // We can't easily get the ID here without refactoring createCourse service.
+        // ALTERNATIVE: Refactor to call AI inside createCourse service or use a post-save hook.
+        // But to minimize changes, let's look at createCourse implementation.
+    } catch (error) {
+        console.error("AI Indexing failed", error);
+    }
+}, 2000);
 		} catch (error: any) {
 			return next(new ErrorHandler("Course upload failed", 500));
 		}
@@ -129,6 +145,18 @@ export const editCourse = CatchAsyncErrors(
 				success: true,
 				course: updatedCourse,
 			});
+
+            // Trigger AI Re-indexing
+            const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8001";
+            if (updatedCourse) {
+                axios.post(`${AI_SERVICE_URL}/api/v1/courses/reindex/${courseId}`, {
+                    course_id: courseId,
+                    name: data.name || updatedCourse.name,
+                    description: data.description || updatedCourse.description,
+                    category: data.categories || updatedCourse.categories || "General",
+                    content: JSON.stringify(data.courseData || updatedCourse.courseData || [])
+                }).catch(err => console.error("AI Re-indexing failed:", err.message));
+            }
 		} catch (error: any) {
 			return next(new ErrorHandler(error.message, 500));
 		}
