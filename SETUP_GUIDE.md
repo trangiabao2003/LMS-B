@@ -28,6 +28,8 @@ Make sure you have these installed:
 
 ### Step 1: Install Ollama & Download Model
 
+# cd /d "D:\BYun\File Visual Studio Code\LMS-B"
+
 ```bash
 # After installing Ollama, open terminal/cmd and run:
 ollama pull mistral
@@ -50,7 +52,7 @@ mongod
 
 ```bash
 netstat -ano | findstr :6379
-taskkill /PID 15588 /F
+taskkill /PID 4904 /F
 redis-server
 # Output: Ready to accept connections
 ```

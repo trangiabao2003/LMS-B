@@ -91,16 +91,8 @@ class RAGService:
         return context[:config.CONTEXT_WINDOW]  # Use config limit
 
     def _create_prompt(self, question: str, context: str) -> str:
-        """Create concise prompt for LLM"""
-        prompt = f"""Bạn là trợ lý học tập cho nền tảng LMS-B.
-
-CONTEXT:
-{context}
-
-QUESTION: {question}
-
-Trả lời ngắn gọn, cụ thể bằng tiếng Việt (tối đa 150 từ):"""
-        return prompt
+        """The simplest prompt possible for llama3.2:1b"""
+        return f"Dựa vào nội dung này: '{context}'. Hãy trả lời câu hỏi: '{question}' bằng tiếng Việt ngắn gọn."
 
     def search_courses(self, query: str) -> list:
         """Search for courses related to query"""
