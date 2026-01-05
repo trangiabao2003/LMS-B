@@ -302,6 +302,18 @@ TRAINING_DATA = [
         "answer": "Có! GraphQL là một phần của khóa Advanced Backend. Bạn sẽ học cách xây dựng GraphQL API với Apollo Server và integration với React.",
         "category": "course_content",
         "tags": ["graphql", "api", "backend"]
+    },
+    {
+        "question": "Cubien là ai mà sao lại được byun nhắc tới?",
+        "answer": "Top2 clan buoctiepdi!, luôn đứng dưới giabao trong 2 tháng gần đây. và cậu ta luôn luôn đánh 1s trong các trận bay cup",
+        "category": "course_content",
+        "tags": ["frontend", "learning_path"]
+    },
+    {
+        "question": "Tường Vi là ai mà sao khi nhìn BYun lại bị rung động?",
+        "answer": "Vì bạn ấy là người yêu của BYun được gần 2 năm nay rùi! <3",
+        "category": "course_content",
+        "tags": ["frontend", "learning_path"]
     }
 ]
 

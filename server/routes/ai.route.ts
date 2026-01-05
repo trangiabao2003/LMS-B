@@ -20,8 +20,8 @@ aiRouter.post(
 	"/chat",
 	isAuthenticated,
 	CatchAsyncErrors(async (req: Request, res: Response) => {
-		const { question, courseId } = req.body;
-		const userId = req.user?._id?.toString();
+		const { question, courseId, user_id } = req.body;
+		const userId = req.user?._id?.toString() || user_id; 
 
 		if (!question || !userId) {
 			return res.status(400).json({
@@ -59,20 +59,21 @@ aiRouter.post(
 
 			// Save chat to MongoDB
 			try {
-				const sessionId = `session_${userId}_${Date.now()}`;
+				// Tạo sessionId theo ngày để gộp chat trong cùng một ngày (hoặc dùng sessionId từ frontend nếu có)
+				const today = new Date().toISOString().split('T')[0];
+				const sessionId = req.body.sessionId || `session_${userId}_${today}`;
 				
 				// Find or create chat session
 				let chatHistory = await ChatHistoryModel.findOne({
 					userId,
 					sessionId,
-					createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } // Last 24h
 				});
 
 				if (!chatHistory) {
 					chatHistory = new ChatHistoryModel({
 						userId,
 						sessionId,
-						courseId,
+						courseId: courseId || null,
 						messages: []
 					});
 				}
