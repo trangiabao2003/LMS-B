@@ -204,7 +204,8 @@ const DashboardWidgets = ({ open, value }: Props) => {
 					</div>
 				</div>
 			</div>
-			)
+		</ThemeProvider>
+	)
 }
 
-			export default DashboardWidgets;
+export default DashboardWidgets;

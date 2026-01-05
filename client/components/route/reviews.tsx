@@ -37,7 +37,7 @@ const Reviews = (props: Props) => {
       <div className="flex flex-row w-full md:flex items-center">
         <div className="md:w-[50%] w-full">
           <Image
-            src={require("./../../public/business-img.png")}
+            src={require("./../../public/banner2.jpg")}
             alt="business"
             width={700}
             height={700}
